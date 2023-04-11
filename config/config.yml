@@ -1,0 +1,25 @@
+# FITS: ['NRSur3dq8Remnant', 'NRSur7dq4Remnant', 'surfinBH7dq2']
+# NRSur3dq8Remnant: non precessing BHs with mass ratio<=8, anti-/aligned spin <= 0.8
+# NRSur7dq4Remnant: precessing BHs with mass ratio<=4, generic spin <= 0.8
+# surfinBH7dq2: precessing BHs with mass ratio <= 2, generic spin <= 0.8
+runlabel: "general"
+seed: 2023
+
+prior:
+  loadResults: false
+  # Path to results.csv
+  pathToCSV:
+
+posterior:
+  posteriorJson:
+    label: "filepath"
+
+  posteriorH5:
+    label: "filepath"
+
+estimation:
+  kick:
+    enable: true
+  mass:
+    enable: true
+    massInjection: false

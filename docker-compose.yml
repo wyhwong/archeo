@@ -1,31 +1,38 @@
 version: "3.8"
+
 services:
-  remnantguess:
-    container_name: remnantguess
-    image: remnantguess
+  parentguess:
+    container_name: parentguess
+    image: parentguess
     build: ./
     environment:
       - LOGLEVEL=20
     volumes:
-      - ./main.py:/app/main.py
+      # Share volumes
       - ./posteriors:/app/posteriors
       - ./results:/app/results
       - ./config:/app/config
       - ./utils:/app/utils
+      # Main volumes
+      - ./main.py:/app/main.py
+    working_dir: /app
     command: python3 main.py
 
-  remnantguess_jupyter:
-    container_name: remnantguess_jupyter
-    image: remnantguess
+  parentguess_jupyter:
+    container_name: parentguess_jupyter
+    image: parentguess
     ports:
       - ${port}:8888
     environment:
       - LOGLEVEL=20
     volumes:
-      - ./notebook:/app
+      # Share volumes
       - ./posteriors:/app/posteriors
       - ./results:/app/results
       - ./config:/app/config
       - ./utils:/app/utils
+      # Jupyter volumes
+      - ./notebook:/app
       - ./config/jupyter_notebook_config.py:/root/.jupyter/jupyter_notebook_config.py
+    working_dir: /app
     command: jupyter notebook

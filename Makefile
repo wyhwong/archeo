@@ -1,18 +1,17 @@
 export DOCKER_BUILDKIT=1
-
-port ?= 8888
+port?=8888
 
 build:
-	docker build -t remnantguess .
+	docker build -t parentguess .
 
 run:
-	docker-compose up remnantguess
+	port=${port} docker-compose up parentguess
 
 jupyter_up:
-	port=${port} docker-compose up -d remnantguess_jupyter
+	port=${port} docker-compose up -d parentguess_jupyter
 
 jupyter_down:
-	port=${port} docker-compose kill remnantguess_jupyter
+	port=${port} docker-compose kill parentguess_jupyter
 
 clean:
-	docker-compose down --remove-orphans
+	port=${port} docker-compose down --remove-orphans
