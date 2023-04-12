@@ -22,7 +22,7 @@ save_dict_as_yml(savepath=f"{OUTPUTDIR}/main_config.yml", input_dict=CONFIG)
 
 # Set seed and logger
 np.random.seed(seed=CONFIG["seed"])
-LOGGER = get_logger(logger_name="Main", logfilePath=f"{OUTPUTDIR}/runtime.log")
+LOGGER = get_logger(logger_name="Main", log_filepath=f"{OUTPUTDIR}/runtime.log")
 
 
 def main() -> None:

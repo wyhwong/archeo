@@ -23,11 +23,11 @@ def read_dict_from_json(filepath: str) -> dict:
 
 
 def get_main_config() -> dict:
-    return read_dict_from_yml(path="config/main_config.yml")
+    return read_dict_from_yml(filepath="config/main_config.yml")
 
 
 def get_prior_config() -> dict:
-    return read_dict_from_yml(path="config/prior_config.yml")
+    return read_dict_from_yml(filepath="config/prior_config.yml")
 
 
 def save_dict_as_yml(savepath: str, input_dict: dict) -> None:

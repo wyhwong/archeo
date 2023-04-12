@@ -14,9 +14,9 @@ LOGGER = get_logger(logger_name="Utils | Prior Simulation")
 
 
 def simulate_binary(binary_marker: str, binary_params: tuple) -> list:
-    massRatio, chi1, chi2, mass1, mass2 = binary_params
-    LOGGER.debug(f"Simulating binary {binary_marker}, with {massRatio=}, {chi1=}, {chi2=}")
-    binary = Binary(fits=FITS, massRatio=massRatio, chi1=chi1, chi2=chi2)
+    mass_ratio, chi1, chi2, mass1, mass2 = binary_params
+    LOGGER.debug(f"Simulating binary {binary_marker}, with {mass_ratio=}, {chi1=}, {chi2=}")
+    binary = Binary(fits=FITS, mass_ratio=mass_ratio, chi1=chi1, chi2=chi2)
     remnant_params = binary.merge()
     LOGGER.debug(f"Simulated binary {binary_marker}, {remnant_params=}")
     return [mass1, mass2] + remnant_params
@@ -30,7 +30,7 @@ def simulate_binaries(output_dir: str) -> list:
 
     # Get prior config and save in output directory
     prior_config = get_prior_config()
-    save_dict_as_yml(path=f"{output_dir}/prior_config.yml", input_dict=prior_config)
+    save_dict_as_yml(savepath=f"{output_dir}/prior_config.yml", input_dict=prior_config)
     merger_config = prior_config["merger"]
     binary_generator = BinaryParamsGenerator(config=merger_config)
     num_binaries = prior_config["amount"]

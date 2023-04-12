@@ -78,11 +78,11 @@ class BinaryParamsGenerator:
         else:
             mass1, mass2 = None, None
             mass_ratio = generate_parameter(self.config["massRatio"])
-        chi1, chi2 = self.gen_2pin()
+        chi1, chi2 = self.get_spin()
         LOGGER.debug(f"Output binary setting: {mass_ratio=}, {chi1=}, {chi2=}.")
         return (mass_ratio, chi1, chi2, mass1, mass2)
 
-    def gen_spin(self) -> list:
+    def get_spin(self) -> list:
         spins = []
         for _ in range(2):
             spin = generate_parameter(self.config["spin"])

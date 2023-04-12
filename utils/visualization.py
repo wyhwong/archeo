@@ -86,17 +86,17 @@ def plot_prior_kick_distribution_on_spin(
     spin_boundaries = np.linspace(spin_min, spin_max, nbins + 1)
     for index in range(len(spin_boundaries) - 1):
         spin_min_in_bin, spin_max_in_bin = spin_boundaries[index], spin_boundaries[index + 1]
-        sns.histplot(
-            data=dataframe.loc[(spin_min_in_bin < dataframe["$\chi_f$"]) & (dataframe["$\chi_f$"] < spin_max_in_bin)][
-                "$v_f$"
-            ],
-            ax=ax,
-            element="step",
-            fill=False,
-            stat="density",
-            label=f"$\chi_f$ $\in$ $[{spin_min_in_bin:.2f}, {spin_max_in_bin:.2f}]$",
-        )
-        LOGGER.debug(f"Plotted natal kick distribution, where {spin_min_in_bin} < spin < {spin_max_in_bin}.")
+        data = dataframe.loc[(spin_min_in_bin < dataframe["$\chi_f$"]) & (dataframe["$\chi_f$"] < spin_max_in_bin)]["$v_f$"]
+        if len(data.index) > 0:
+            sns.histplot(
+                data=data,
+                ax=ax,
+                element="step",
+                fill=False,
+                stat="density",
+                label=f"$\chi_f$ $\in$ $[{spin_min_in_bin:.2f}, {spin_max_in_bin:.2f}]$",
+            )
+            LOGGER.debug(f"Plotted natal kick distribution, where {spin_min_in_bin} < spin < {spin_max_in_bin}.")
     plt.legend()
     if savefig:
         if output_dir is None:
