@@ -66,7 +66,7 @@ class BinaryParamsGenerator:
         LOGGER.debug("Initialized random binary generator.")
 
     def __call__(self) -> tuple:
-        # Conversion:
+        # Convention:
         #   1. Heavier black hole
         #   2. Lighter black hole
         if self.config["massInjection"]:
