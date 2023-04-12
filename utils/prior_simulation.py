@@ -3,31 +3,36 @@ from concurrent.futures import ProcessPoolExecutor, wait
 
 from .logger import get_logger
 from .common import get_prior_config, save_dict_as_yml
-from .binaries import RandomBinaryGenerator, load_fits, Binary
+from .binaries import BinaryParamsGenerator, load_fits, Binary
+from .visualization import (
+    plot_prior_params_distribution,
+    plot_prior_kick_against_spin,
+    plot_prior_kick_distribution_on_spin,
+)
 
 LOGGER = get_logger(logger_name="Utils | Prior Simulation")
 
 
 def simulate_binary(binary_marker: str, binary_params: tuple) -> list:
     massRatio, chi1, chi2, mass1, mass2 = binary_params
-    LOGGER.info(f"Simulating binary {binary_marker}, with {massRatio=}, {chi1=}, {chi2=}")
+    LOGGER.debug(f"Simulating binary {binary_marker}, with {massRatio=}, {chi1=}, {chi2=}")
     binary = Binary(fits=FITS, massRatio=massRatio, chi1=chi1, chi2=chi2)
     remnant_params = binary.merge()
-    LOGGER.info(f"Simulated binary {binary_marker}, {remnant_params=}")
+    LOGGER.debug(f"Simulated binary {binary_marker}, {remnant_params=}")
     return [mass1, mass2] + remnant_params
 
 
 # This function simulates a certain number of binaries according to the prior config in config/prior_config.yml.
 # It outputs the prior as a .csv file in the output user defined directory.
-def simulate_binaries(output_dir) -> list:
+def simulate_binaries(output_dir: str) -> list:
     global FITS
-    LOGGER.debug("Getting prior by simulation...")
+    LOGGER.info("Getting prior by simulation...")
 
     # Get prior config and save in output directory
     prior_config = get_prior_config()
     save_dict_as_yml(path=f"{output_dir}/prior_config.yml", input_dict=prior_config)
     merger_config = prior_config["merger"]
-    binary_generator = RandomBinaryGenerator(config=merger_config)
+    binary_generator = BinaryParamsGenerator(config=merger_config)
     num_binaries = prior_config["amount"]
     FITS = load_fits(fits_name=prior_config["fits"])
     futures, prior = [], []
@@ -46,15 +51,14 @@ def simulate_binaries(output_dir) -> list:
         prior, columns=["m1", "m2", "mr", "chi1", "chi2", "mf", "mfError", "chif", "chifError", "vf", "vfError"]
     )
 
-    # TODO: Some descriptive visualization of the prior
-    # dataset = prior.drop(columns=["m1", "m2", "mr", "chi1", "chi2", "mfError", "chifError", "vfError"])
-    # dataset.columns = ["$m_f$", "$\chi_f$", "$v_f$"]
-    # plot_distribution(dataset=dataset, output_dir=output_dir, savefig=True)
-    # LOGGER.info("Plotted distribution of simulated parameters.")
-    # plot_kick_against_spin(dataset=dataset, output_dir=output_dir, savefig=True)
-    # LOGGER.info("Plotted correlation of kick and spin.")
-    # plot_kick_spin_correlation(dataset=dataset, nbins=10, maxSpin=1.0, minSpin=0.0, output_dir=output_dir, savefig=True)
-    # LOGGER.info("Plotted correlation of kick and spin.")
+    # Some descriptive visualization of the prior
+    remnant_params_dataframe = prior.drop(columns=["m1", "m2", "mr", "chi1", "chi2", "mfError", "chifError", "vfError"])
+    remnant_params_dataframe.columns = ["$m_f$", "$\chi_f$", "$v_f$"]
+    plot_prior_params_distribution(dataframe=remnant_params_dataframe, output_dir=output_dir, savefig=True)
+    plot_prior_kick_against_spin(dataframe=remnant_params_dataframe, output_dir=output_dir, savefig=True)
+    plot_prior_kick_distribution_on_spin(
+        dataframe=remnant_params_dataframe, nbins=10, spin_max=1.0, spin_min=0.0, output_dir=output_dir, savefig=True
+    )
 
     # Remove mass_1 and mass_2 if mass injection is not on
     if not prior_config["merger"]["massInjection"]:

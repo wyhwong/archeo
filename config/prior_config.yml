@@ -1,21 +1,33 @@
-amount: 500000
+# FITS: ['NRSur3dq8Remnant', 'NRSur7dq4Remnant', 'surfinBH7dq2']
+# NRSur3dq8Remnant: non precessing BHs with mass ratio<=8, anti-/aligned spin <= 0.8
+# NRSur7dq4Remnant: precessing BHs with mass ratio<=4, generic spin <= 0.8
+# surfinBH7dq2: precessing BHs with mass ratio <= 2, generic spin <= 0.8
 fits: "NRSur7dq4Remnant"
+amount: 500000 # amount of black-hole mergers to simulate
 
 merger:
   align: false
   massInjection: false
+
+  # Only useful when massInjection is enabled
+  # Note that even the min and max of mass can be configured,
+  # the mass ratio is still a constraint on the component masses
   mass:
     min: 3.
     max: 150.
+
   massRatio:
     min: 1.
     max: 6.
+
   spin:
     min: -0.8
     max: 0.8
+
   theta:
     min: 0.
-    max: 1. # in pi
+    max: 1. # unit in pi
+
   phi:
     min: 0.
-    max: 2. # in pi
+    max: 2. # unit in pi

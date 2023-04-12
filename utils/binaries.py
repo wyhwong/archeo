@@ -51,11 +51,11 @@ class Binary:
                 remnant_para = np.sqrt(np.dot(remnant_para, remnant_para)) * constants.speed_of_light / 1000.0
                 err = np.sqrt(np.dot(err, err)) * constants.speed_of_light / 1000.0
             merger_params += [remnant_para, err]
-        LOGGER.info(f"Generated the remnant parameters for a merger: {merger_params}")
+        LOGGER.debug(f"Generated the remnant parameters for a merger: {merger_params}")
         return merger_params
 
 
-class RandomBinaryGenerator:
+class BinaryParamsGenerator:
     def __init__(self, config: dict) -> None:
         LOGGER.debug(f"Initializing a random binary generator from config: {config}...")
         self.config = config
@@ -63,7 +63,7 @@ class RandomBinaryGenerator:
         self.config["phi"]["max"] *= np.pi
         self.config["theta"]["min"] *= np.pi
         self.config["theta"]["max"] *= np.pi
-        LOGGER.info("Initialized random binary generator.")
+        LOGGER.debug("Initialized random binary generator.")
 
     def __call__(self) -> tuple:
         # Conversion:
