@@ -1,5 +1,6 @@
 import os
 import json
+import h5py
 import yaml
 from .logger import get_logger
 
@@ -20,6 +21,14 @@ def read_dict_from_json(filepath: str) -> dict:
         output_dict = json.load(file)
     LOGGER.debug(f"Available keys in the Json file: {output_dict.keys()}")
     return output_dict
+
+
+def read_posterior_from_json(filepath: str) -> dict:
+    return read_dict_from_json(filepath=filepath)["posterior"]["content"]
+
+
+def read_posterior_from_h5(filepath: str, fits="NRSur7dq4") -> dict:
+    return h5py.File(filepath, "r")[fits]["posterior_samples"]
 
 
 def get_main_config() -> dict:
