@@ -28,6 +28,8 @@ def estimate_kick_by_spin(
         sample_id_in_prior = prior.loc[(prior["chif"] >= spin_min_in_bin) & (prior["chif"] <= spin_max_in_bin)].index
         if len(sample_id_in_prior) > 0:
             kick_posterior[sample_id_in_prior, "weights"] += 1 / len(sample_id_in_prior)
+        else:
+            LOGGER.warning("No samples in prior bin, not enough of samples.")
 
     LOGGER.debug(f"Computational time for kick estimation: {(time() - estimation_start_time):.1f} seconds.")
     if savecsv:
