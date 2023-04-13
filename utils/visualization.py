@@ -105,7 +105,7 @@ def plot_parameter_estimation(
     prior_df: pd.DataFrame,
     target_parameter: str,
     target_parameter_label: str,
-    posteriors: list,
+    likelihoods: list,
     nbins: int = 200,
     plot_label: str = None,
     output_dir=None,
@@ -130,9 +130,9 @@ def plot_parameter_estimation(
     )
     LOGGER.debug("Plotted prior, processing posteriors...")
 
-    for posterior in posteriors:
-        ax.stairs(values=posterior["values"], edges=posterior["edges"], label=posterior["label"])
-        LOGGER.debug(f"Processed posterior {posterior['label']}")
+    for likelihood in likelihoods:
+        ax.stairs(values=likelihood["values"], edges=likelihood["edges"], label=likelihood["label"])
+        LOGGER.debug(f"Processed posterior {likelihood['label']}")
 
     plt.legend()
     savefig_and_close(
