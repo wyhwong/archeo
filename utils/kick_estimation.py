@@ -32,7 +32,7 @@ def estimate_kick_by_spin(
             (prior_df["chif"] >= spin_min_in_bin) & (prior_df["chif"] <= spin_max_in_bin)
         ].index
         if len(sample_id_in_prior) > 0:
-            kick_posterior[sample_id_in_prior, "weights"] += 1 / len(sample_id_in_prior)
+            kick_posterior.loc[sample_id_in_prior, "weights"] += 1 / len(sample_id_in_prior)
         else:
             LOGGER.warning("No samples in prior bin, not enough of samples.")
 
@@ -42,7 +42,7 @@ def estimate_kick_by_spin(
             raise ValueError("posterior_label must not be empty if savecsv is True.")
         if output_dir is None:
             raise ValueError("output_dir must not be None if savecsv is True.")
-        filepath = f"{output_dir}/{posterior_label}_posterior.csv"
+        filepath = f"{output_dir}/{posterior_label}_kick_estimation.csv"
         kick_posterior.to_csv(filepath, index=False)
         LOGGER.debug(f"Saved the estimated posterior to {filepath}.")
     return kick_posterior

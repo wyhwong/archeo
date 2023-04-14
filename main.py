@@ -43,14 +43,16 @@ def main() -> None:
 
     # Posterior: from json files or h5 files
     posteriors = {}
-    for label, posterior_filepath in CONFIG["posterior"]["posteriorJson"].item():
-        posteriors[label] = read_posterior_from_json(filepath=posterior_filepath)
-    for label, posterior_filepath in CONFIG["posterior"]["posteriorH5"].item():
-        posteriors[label] = read_posterior_from_h5(filepath=posterior_filepath)
+    if CONFIG["posterior"]["posteriorJson"]:
+        for label, posterior_filepath in CONFIG["posterior"]["posteriorJson"].items():
+            posteriors[label] = read_posterior_from_json(filepath=posterior_filepath)
+    if CONFIG["posterior"]["posteriorH5"]:
+        for label, posterior_filepath in CONFIG["posterior"]["posteriorH5"].items():
+            posteriors[label] = read_posterior_from_h5(filepath=posterior_filepath)
 
     # Kick estimation
     kick_likelihoods = []
-    for label, posterior in posteriors.item():
+    for label, posterior in posteriors.items():
         for bh_component in range(1, 3):
             if CONFIG["estimation"]["kick"]["enable"]:
                 kick_likelihood = get_kick_likelihood(
