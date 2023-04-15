@@ -3,7 +3,7 @@ import numpy as np
 from time import time
 from p_tqdm import p_map, t_imap
 
-from .statistical_operation import compute_posterior_statistics
+from .statistical_operation import convert_posterior_to_likelihood
 from .logger import get_logger
 
 LOGGER = get_logger(logger_name="Utils | Mass Estimation")
@@ -55,7 +55,7 @@ def estimate_parental_mass_by_spin(
     savehdf=False,
     posterior_label=None,
     output_dir=None,
-) -> pd.DataFrame:
+) -> tuple:
     estimation_start_time = time()
     prior_spin_binwidth = (prior_df["chif"].max() - prior_df["chif"].min()) / nbins
     prior_spin_min = prior_df["chif"].min()
@@ -80,7 +80,7 @@ def estimate_parental_mass_by_spin(
             sample_size,
         )
     )
-    parental_mass_estimates_1, parental_mass_estimates_2, _, _ = parmater_estimates
+    parmater_estimates = pd.DataFrame(parmater_estimates.T, columns=["m1", "m2", "vf", "chif"])
     LOGGER.info(f"Computational time for the estimation: {time() - estimation_start_time:.1f} seconds.")
     if savehdf:
         if posterior_label is None:
@@ -88,12 +88,36 @@ def estimate_parental_mass_by_spin(
         if output_dir is None:
             raise ValueError("output_dir must not be None if savecsv is True.")
         filepath = f"{output_dir}/{posterior_label}_parental_mass_estimates.h5"
-        pd.DataFrame(parmater_estimates.T, columns=["m1", "m2", "vf", "chif"]).to_hdf(
-            filepath, key="estimates", index=False
-        )
+        parmater_estimates.to_hdf(filepath, key="estimates", index=False)
         LOGGER.debug(f"Saved the estimated posterior to {filepath}.")
-    return (parental_mass_estimates_1, parental_mass_estimates_2)
+    return parmater_estimates
 
 
-def get_parental_mass_likelihood():
-    pass
+def get_parental_mass_likelihood(
+    prior_df: pd.DataFrame,
+    child_spin_posterior: list,
+    child_mass_posterior: list,
+    posterior_label: str,
+    output_dir: str,
+    nbins=200,
+    sample_size=10,
+):
+    parental_mass_likelihoods = {}
+    parental_mass_estimates = estimate_parental_mass_by_spin(
+        prior_df=prior_df,
+        child_spin_posterior=child_spin_posterior,
+        child_mass_posterior=child_mass_posterior,
+        nbins=nbins,
+        sample_size=sample_size,
+        savehdf=True,
+        posterior_label=posterior_label,
+        output_dir=output_dir,
+    )
+    for parental_bh_index in range(1, 3):
+        parental_mass_likelihoods[f"p{parental_bh_index}"] = convert_posterior_to_likelihood(
+            posterior=parental_mass_estimates[f"m{parental_bh_index}"].values,
+            posterior_label=f"Parental BH {parental_bh_index} (Child: {posterior_label})",
+            weights=None,
+            nbins=nbins,
+        )
+    return parental_mass_likelihoods

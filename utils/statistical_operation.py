@@ -26,3 +26,21 @@ def compute_posterior_statistics(posterior: list, weights=None, nbins=200) -> tu
         if cumulative_density >= 0.9 and error_upper_bound is None:
             error_upper_bound = bins[0] + (bin_index + 0.5) * binwidth - median
     return (density, bins, error_lower_bound, error_upper_bound, median)
+
+
+def convert_posterior_to_likelihood(posterior: list, posterior_label: str, weights: list = None, nbins=200):
+    likelihood = {}
+    (
+        likelihood["values"],
+        likelihood["edges"],
+        error_lower_bound,
+        error_upper_bound,
+        parental_mass_median,
+    ) = compute_posterior_statistics(posterior=posterior, weights=None, nbins=nbins)
+    likelihood["label"] = "%s: $%d_{-%d}^{+%d}$ $km/s$" % (
+        posterior_label,
+        parental_mass_median,
+        error_lower_bound,
+        error_upper_bound,
+    )
+    return likelihood

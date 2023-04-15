@@ -16,7 +16,11 @@ posterior:
 estimation:
   kick:
     enable: true
-  mass:
+    nbins: 200
+
+  parental_mass:
     enable: true
-    sampleSize: 20      # Only useful for massInjection is disabled
+    plotCorner: true
+    sampleSize: 20 # Only useful for massInjection is disabled
+    nbins: 200
     massInjection: false

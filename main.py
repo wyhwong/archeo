@@ -5,6 +5,8 @@ from glob import glob
 
 from utils.prior_simulation import simulate_binaries
 from utils.kick_estimation import get_kick_likelihood
+from utils.mass_estimation import get_parental_mass_likelihood
+from utils.statistical_operation import convert_posterior_to_likelihood
 from utils.common import (
     read_posterior_from_h5,
     read_posterior_from_json,
@@ -12,7 +14,7 @@ from utils.common import (
     check_and_create_dir,
     save_dict_as_yml,
 )
-from utils.visualization import plot_parameter_estimation
+from utils.visualization import plot_parameter_estimation, plot_posterior_corner
 from utils.logger import get_logger
 
 
@@ -60,6 +62,7 @@ def main() -> None:
                     spin_posterior=posterior[f"a_{bh_component}"],
                     posterior_label=f"{label},BH{bh_component}",
                     output_dir=OUTPUTDIR,
+                    nbins=CONFIG["estimation"]["parental_mass"]["nbins"],
                 )
                 kick_likelihoods.append(kick_likelihood)
     plot_parameter_estimation(
@@ -71,6 +74,46 @@ def main() -> None:
         output_dir=OUTPUTDIR,
         savefig=True,
     )
+
+    # Parental Mass Estimation
+    kick_likelihoods = []
+    for label, posterior in posteriors.items():
+        for bh_component_index in range(1, 3):
+            if CONFIG["estimation"]["parental_mass"]["enable"]:
+                posterior_label = f"{label},BH{bh_component_index}"
+                parental_mass_likelihoods = get_parental_mass_likelihood(
+                    prior_df=prior_df,
+                    child_spin_posterior=posterior[f"a_{bh_component_index}"],
+                    child_mass_posterior=posterior[f"mass_{bh_component_index}_source"]
+                    posterior_label=posterior_label,
+                    output_dir=OUTPUTDIR,
+                    sample_size=CONFIG["estimation"]["parental_mass"]["sample_size"],
+                    nbins=CONFIG["estimation"]["parental_mass"]["nbins"],
+                )
+                child_mass_likelihood = convert_posterior_to_likelihood(
+                    posterior=posterior[f"mass_{bh_component_index}_source"],
+                    weights=None
+                    posterior_label=posterior_label,
+                    nbins=CONFIG["estimation"]["parental_mass"]["nbins"])
+                likelihoods = [child_mass_likelihood, parental_mass_likelihoods["m1"], parental_mass_likelihoods["m2"]]
+                plot_parameter_estimation(
+                    prior_df=None,
+                    target_parameter="parental_mass",
+                    target_parameter_label="Mass $(M_{\odot})$",
+                    likelihoods=likelihoods,
+                    plot_label=posterior_label,
+                    output_dir=OUTPUTDIR,
+                    savefig=True,
+                )
+
+            if CONFIG["estimation"]["parental_mass"]["plotCorner"]:
+                posterior_df = pd.read_hdf(f"{OUTPUTDIR}/{label},BH{bh_component_index}_parental_mass_estimates.h5")
+                plot_posterior_corner(posterior_df=posterior_df,
+                                      posterior_label=posterior_label,
+                                      var_names=["vf", "m1", "m2", "chif"],
+                                      labels=["$v_f$", "$m_1$", "$m_2$", "$\chi_f$"],
+                                      output_dir=OUTPUTDIR,
+                                      savefig=True,)
 
 
 if __name__ == "__main__":

@@ -119,16 +119,19 @@ def plot_parameter_estimation(
         ylabel="Density",
         xlabel=f"Target parameter ({target_parameter_label})",
     )
-    sns.histplot(
-        prior_df[target_parameter],
-        ax=ax,
-        element="step",
-        fill=False,
-        stat="density",
-        bins=nbins,
-        label="Prior",
-    )
-    LOGGER.debug("Plotted prior, processing posteriors...")
+    if prior_df is not None:
+        sns.histplot(
+            prior_df[target_parameter],
+            ax=ax,
+            element="step",
+            fill=False,
+            stat="density",
+            bins=nbins,
+            label="Prior",
+        )
+        LOGGER.debug("Plotted prior, processing posteriors...")
+    else:
+        LOGGER.debug("Prior not input, skipped, processing posteriors...")
 
     for likelihood in likelihoods:
         ax.stairs(values=likelihood["values"], edges=likelihood["edges"], label=likelihood["label"])
