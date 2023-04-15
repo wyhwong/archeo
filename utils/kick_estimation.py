@@ -20,7 +20,8 @@ def estimate_kick_by_spin(
     kick_estimates = pd.DataFrame(prior_df["vf"])
     kick_estimates["weights"] = 0
 
-    spin_binwidth = (prior_df["chif"].max() - prior_df["chif"].min()) / nbins
+    # Here we hard code the resolution of spin prior to 70
+    spin_binwidth = (prior_df["chif"].max() - prior_df["chif"].min()) / 70.
     spin_min = prior_df["chif"].min()
 
     LOGGER.info("Recovering natal kick from spin measurements...")
