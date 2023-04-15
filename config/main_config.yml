@@ -18,4 +18,5 @@ estimation:
     enable: true
   mass:
     enable: true
+    sampleSize: 20      # Only useful for massInjection is disabled
     massInjection: false
