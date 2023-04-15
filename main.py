@@ -84,18 +84,18 @@ def main() -> None:
                 parental_mass_likelihoods = get_parental_mass_likelihood(
                     prior_df=prior_df,
                     child_spin_posterior=posterior[f"a_{bh_component_index}"],
-                    child_mass_posterior=posterior[f"mass_{bh_component_index}_source"]
+                    child_mass_posterior=posterior[f"mass_{bh_component_index}_source"],
                     posterior_label=posterior_label,
                     output_dir=OUTPUTDIR,
-                    sample_size=CONFIG["estimation"]["parental_mass"]["sample_size"],
+                    sample_size=CONFIG["estimation"]["parental_mass"]["sampleSize"],
                     nbins=CONFIG["estimation"]["parental_mass"]["nbins"],
                 )
                 child_mass_likelihood = convert_posterior_to_likelihood(
                     posterior=posterior[f"mass_{bh_component_index}_source"],
-                    weights=None
+                    weights=None,
                     posterior_label=posterior_label,
                     nbins=CONFIG["estimation"]["parental_mass"]["nbins"])
-                likelihoods = [child_mass_likelihood, parental_mass_likelihoods["m1"], parental_mass_likelihoods["m2"]]
+                likelihoods = [child_mass_likelihood, parental_mass_likelihoods["p1"], parental_mass_likelihoods["p2"]]
                 plot_parameter_estimation(
                     prior_df=None,
                     target_parameter="parental_mass",
