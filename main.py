@@ -95,7 +95,8 @@ def main() -> None:
                     weights=None,
                     posterior_label=posterior_label,
                     nbins=CONFIG["estimation"]["parental_mass"]["nbins"],
-                    unit="$M_{\odot}$")
+                    unit="$M_{\odot}$",
+                )
                 likelihoods = [child_mass_likelihood, parental_mass_likelihoods["p1"], parental_mass_likelihoods["p2"]]
                 plot_parameter_estimation(
                     prior_df=None,
@@ -109,12 +110,14 @@ def main() -> None:
 
             if CONFIG["estimation"]["parental_mass"]["plotCorner"]:
                 posterior_df = pd.read_hdf(f"{OUTPUTDIR}/{label},BH{bh_component_index}_parental_mass_estimates.h5")
-                plot_posterior_corner(posterior_df=posterior_df,
-                                      posterior_label=posterior_label,
-                                      var_names=["vf", "m1", "m2", "chif"],
-                                      labels=["$v_f$", "$m_1$", "$m_2$", "$\chi_f$"],
-                                      output_dir=OUTPUTDIR,
-                                      savefig=True,)
+                plot_posterior_corner(
+                    posterior_df=posterior_df,
+                    posterior_label=posterior_label,
+                    var_names=["vf", "m1", "m2", "chif"],
+                    labels=["$v_f$", "$m_1$", "$m_2$", "$\chi_f$"],
+                    output_dir=OUTPUTDIR,
+                    savefig=True,
+                )
 
 
 if __name__ == "__main__":

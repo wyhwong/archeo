@@ -28,7 +28,9 @@ def compute_posterior_statistics(posterior: list, weights=None, nbins=200) -> tu
     return (density, bins, error_lower_bound, error_upper_bound, median)
 
 
-def convert_posterior_to_likelihood(posterior: list, posterior_label: str, weights: list = None, nbins=200, unit: str=""):
+def convert_posterior_to_likelihood(
+    posterior: list, posterior_label: str, weights: list = None, nbins=200, unit: str = ""
+):
     likelihood = {}
     (
         likelihood["values"],
@@ -36,12 +38,12 @@ def convert_posterior_to_likelihood(posterior: list, posterior_label: str, weigh
         error_lower_bound,
         error_upper_bound,
         parental_mass_median,
-    ) = compute_posterior_statistics(posterior=posterior, weights=None, nbins=nbins)
+    ) = compute_posterior_statistics(posterior=posterior, weights=weights, nbins=nbins)
     likelihood["label"] = "%s: $%d_{-%d}^{+%d}$ %s" % (
         posterior_label,
         parental_mass_median,
         error_lower_bound,
         error_upper_bound,
-        unit
+        unit,
     )
     return likelihood

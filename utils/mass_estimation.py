@@ -50,7 +50,6 @@ def estimate_parental_mass_by_spin(
     prior_df: pd.DataFrame,
     child_spin_posterior: list,
     child_mass_posterior: list,
-    nbins: int,
     sample_size: int,
     savehdf=False,
     posterior_label=None,
@@ -58,7 +57,7 @@ def estimate_parental_mass_by_spin(
 ) -> tuple:
     estimation_start_time = time()
     # Here we hard code the resolution of spin prior to 50
-    prior_spin_binwidth = (prior_df["chif"].max() - prior_df["chif"].min()) / 50.
+    prior_spin_binwidth = (prior_df["chif"].max() - prior_df["chif"].min()) / 50.0
     prior_spin_min = prior_df["chif"].min()
 
     # Prepare dummy input arrays for multi-processing
@@ -108,7 +107,6 @@ def get_parental_mass_likelihood(
         prior_df=prior_df,
         child_spin_posterior=child_spin_posterior,
         child_mass_posterior=child_mass_posterior,
-        nbins=nbins,
         sample_size=sample_size,
         savehdf=True,
         posterior_label=posterior_label,

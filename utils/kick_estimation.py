@@ -11,7 +11,6 @@ LOGGER = get_logger(logger_name="Utils | Kick Estimation")
 def estimate_kick_by_spin(
     prior_df: pd.DataFrame,
     spin_posterior: list,
-    nbins: int,
     savecsv=False,
     posterior_label=None,
     output_dir=None,
@@ -21,7 +20,7 @@ def estimate_kick_by_spin(
     kick_estimates["weights"] = 0
 
     # Here we hard code the resolution of spin prior to 50
-    spin_binwidth = (prior_df["chif"].max() - prior_df["chif"].min()) / 50.
+    spin_binwidth = (prior_df["chif"].max() - prior_df["chif"].min()) / 50.0
     spin_min = prior_df["chif"].min()
 
     LOGGER.info("Recovering natal kick from spin measurements...")
@@ -53,12 +52,15 @@ def get_kick_likelihood(prior_df: pd.DataFrame, spin_posterior: list, posterior_
     kick_estimates = estimate_kick_by_spin(
         prior_df=prior_df,
         spin_posterior=spin_posterior,
-        nbins=nbins,
         savecsv=True,
         posterior_label=posterior_label,
         output_dir=output_dir,
     )
     kick_likelihood = convert_posterior_to_likelihood(
-        posterior=kick_estimates["vf"], posterior_label=posterior_label, weights=kick_estimates["weights"], nbins=nbins, unit="$km/s$"
+        posterior=kick_estimates["vf"],
+        posterior_label=posterior_label,
+        weights=kick_estimates["weights"],
+        nbins=nbins,
+        unit="$km/s$",
     )
     return kick_likelihood
