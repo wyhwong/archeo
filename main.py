@@ -94,7 +94,8 @@ def main() -> None:
                     posterior=posterior[f"mass_{bh_component_index}_source"],
                     weights=None,
                     posterior_label=posterior_label,
-                    nbins=CONFIG["estimation"]["parental_mass"]["nbins"])
+                    nbins=CONFIG["estimation"]["parental_mass"]["nbins"],
+                    unit="$M_{\odot}$")
                 likelihoods = [child_mass_likelihood, parental_mass_likelihoods["p1"], parental_mass_likelihoods["p2"]]
                 plot_parameter_estimation(
                     prior_df=None,

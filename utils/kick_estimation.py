@@ -59,6 +59,6 @@ def get_kick_likelihood(prior_df: pd.DataFrame, spin_posterior: list, posterior_
         output_dir=output_dir,
     )
     kick_likelihood = convert_posterior_to_likelihood(
-        posterior=kick_estimates["vf"], posterior_label=posterior_label, weights=kick_estimates["weights"], nbins=nbins
+        posterior=kick_estimates["vf"], posterior_label=posterior_label, weights=kick_estimates["weights"], nbins=nbins, unit="$km/s$"
     )
     return kick_likelihood

@@ -120,5 +120,6 @@ def get_parental_mass_likelihood(
             posterior_label=f"Parental BH {parental_bh_index} (Child: {posterior_label})",
             weights=None,
             nbins=nbins,
+            unit="$M_{\odot}$",
         )
     return parental_mass_likelihoods
