@@ -57,8 +57,8 @@ def estimate_parental_mass_by_spin(
     output_dir=None,
 ) -> tuple:
     estimation_start_time = time()
-    # Here we hard code the resolution of spin prior to 70
-    prior_spin_binwidth = (prior_df["chif"].max() - prior_df["chif"].min()) / 70.
+    # Here we hard code the resolution of spin prior to 50
+    prior_spin_binwidth = (prior_df["chif"].max() - prior_df["chif"].min()) / 50.
     prior_spin_min = prior_df["chif"].min()
 
     # Prepare dummy input arrays for multi-processing
