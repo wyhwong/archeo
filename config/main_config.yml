@@ -14,13 +14,8 @@ posterior:
     label: "filepath"
 
 estimation:
-  kick:
-    enable: true
-    nbins: 200
-
-  parental_mass:
-    enable: true
-    plotCorner: true
-    sampleSize: 20 # Only useful for massInjection is disabled
-    nbins: 200
-    massInjection: false
+  enable: true
+  plotCorner: true
+  samplingSpinBinwidth: 0.05
+  sampleSize: 10
+  nbins: 200

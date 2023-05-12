@@ -6,7 +6,7 @@ from p_tqdm import p_map, t_imap
 from .statistical_operation import convert_posterior_to_likelihood
 from .logger import get_logger
 
-LOGGER = get_logger(logger_name="Utils | Mass Estimation")
+LOGGER = get_logger(logger_name="Utils | Parental Params Estimation")
 
 
 def dummy_function(input):
@@ -20,17 +20,15 @@ def dummy_function(input):
 #     2. list of mass of the lighter parental black hole (unit in solar mass)
 #     3. list of kick of the child black hole (unit in km/s)
 #     4. list of spin of the child black hole
-def compute_parental_mass(
+def compute_parental_params(
     prior_df: pd.DataFrame,
     child_mass_measurement: float,
     child_spin_measurement: float,
-    prior_spin_binwidth: float,
-    prior_spin_min: float,
+    sampling_spin_binwidth: float,
     sample_size: int,
 ):
-    bin_index = round((child_spin_measurement - prior_spin_min) / prior_spin_binwidth)
-    spin_min_in_bin = prior_spin_min + bin_index * prior_spin_binwidth
-    spin_max_in_bin = prior_spin_min + (bin_index + 1) * prior_spin_binwidth
+    spin_min_in_bin = child_spin_measurement - sampling_spin_binwidth
+    spin_max_in_bin = child_spin_measurement + sampling_spin_binwidth
     samples_in_prior = prior_df.loc[(prior_df["chif"] > spin_min_in_bin) & (prior_df["chif"] < spin_max_in_bin)]
     if len(samples_in_prior.index) > sample_size:
         sample_id_in_prior = samples_in_prior.sample(n=sample_size).index
@@ -46,37 +44,34 @@ def compute_parental_mass(
     return (parental_mass_1, parental_mass_2, child_kick, child_spin)
 
 
-def estimate_parental_mass_by_spin(
+def estimate_parental_params_by_spin(
     prior_df: pd.DataFrame,
     child_spin_posterior: list,
     child_mass_posterior: list,
-    nbins: int,
+    sampling_spin_binwidth: float,
     sample_size: int,
     savehdf=False,
     posterior_label=None,
     output_dir=None,
 ) -> tuple:
     estimation_start_time = time()
-    prior_spin_binwidth = (prior_df["chif"].max() - prior_df["chif"].min()) / nbins
-    prior_spin_min = prior_df["chif"].min()
 
     # Prepare dummy input arrays for multi-processing
     # We can also use global variables to do the same
     # Here we use a generator to spare the ram used to construct the array
     prior_df = t_imap(dummy_function, [prior_df] * len(child_spin_posterior))
-    prior_spin_binwidth = t_imap(dummy_function, [prior_spin_binwidth] * len(child_spin_posterior))
+    sampling_spin_binwidth = t_imap(dummy_function, [sampling_spin_binwidth] * len(child_spin_posterior))
     prior_spin_min = t_imap(dummy_function, [prior_spin_min] * len(child_spin_posterior))
     sample_size = t_imap(dummy_function, [sample_size] * len(child_spin_posterior))
 
     LOGGER.info("Recovering parental mass from spin measurements...")
     parmater_estimates = np.hstack(
         p_map(
-            compute_parental_mass,
+            compute_parental_params,
             prior_df,
             child_mass_posterior,
             child_spin_posterior,
-            prior_spin_binwidth,
-            prior_spin_min,
+            sampling_spin_binwidth,
             sample_size,
         )
     )
@@ -93,21 +88,22 @@ def estimate_parental_mass_by_spin(
     return parmater_estimates
 
 
-def get_parental_mass_likelihood(
+def get_parental_params_likelihood(
     prior_df: pd.DataFrame,
     child_spin_posterior: list,
     child_mass_posterior: list,
+    sampling_spin_binwidth: float,
     posterior_label: str,
+    nbins: int,
     output_dir: str,
-    nbins=200,
     sample_size=10,
 ):
     parental_mass_likelihoods = {}
-    parental_mass_estimates = estimate_parental_mass_by_spin(
+    parental_mass_estimates = estimate_parental_params_by_spin(
         prior_df=prior_df,
         child_spin_posterior=child_spin_posterior,
         child_mass_posterior=child_mass_posterior,
-        nbins=nbins,
+        sampling_spin_binwidth=sampling_spin_binwidth,
         sample_size=sample_size,
         savehdf=True,
         posterior_label=posterior_label,

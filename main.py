@@ -4,8 +4,7 @@ import pandas as pd
 from glob import glob
 
 from utils.prior_simulation import simulate_binaries
-from utils.kick_estimation import get_kick_likelihood
-from utils.mass_estimation import get_parental_mass_likelihood
+from utils.parental_params_estimation import get_parental_params_likelihood
 from utils.statistical_operation import convert_posterior_to_likelihood
 from utils.common import (
     read_posterior_from_h5,
@@ -52,49 +51,27 @@ def main() -> None:
         for label, posterior_filepath in CONFIG["posterior"]["posteriorH5"].items():
             posteriors[label] = read_posterior_from_h5(filepath=posterior_filepath)
 
-    # Kick estimation
-    kick_likelihoods = []
-    for label, posterior in posteriors.items():
-        for bh_component in range(1, 3):
-            if CONFIG["estimation"]["kick"]["enable"]:
-                kick_likelihood = get_kick_likelihood(
-                    prior_df=prior_df,
-                    spin_posterior=posterior[f"a_{bh_component}"],
-                    posterior_label=f"{label},BH{bh_component}",
-                    output_dir=OUTPUTDIR,
-                    nbins=CONFIG["estimation"]["parental_mass"]["nbins"],
-                )
-                kick_likelihoods.append(kick_likelihood)
-    plot_parameter_estimation(
-        prior_df=prior_df,
-        target_parameter="vf",
-        target_parameter_label="$v_f$",
-        likelihoods=kick_likelihoods,
-        plot_label="all_in_one",
-        output_dir=OUTPUTDIR,
-        savefig=True,
-    )
-
-    # Parental Mass Estimation
-    kick_likelihoods = []
+    # Parameter Estimation
     for label, posterior in posteriors.items():
         for bh_component_index in range(1, 3):
-            if CONFIG["estimation"]["parental_mass"]["enable"]:
+            if CONFIG["estimation"]["enable"]:
                 posterior_label = f"{label},BH{bh_component_index}"
-                parental_mass_likelihoods = get_parental_mass_likelihood(
+                parental_mass_likelihoods = get_parental_params_likelihood(
                     prior_df=prior_df,
                     child_spin_posterior=posterior[f"a_{bh_component_index}"],
-                    child_mass_posterior=posterior[f"mass_{bh_component_index}_source"]
+                    child_mass_posterior=posterior[f"mass_{bh_component_index}_source"],
                     posterior_label=posterior_label,
                     output_dir=OUTPUTDIR,
-                    sample_size=CONFIG["estimation"]["parental_mass"]["sample_size"],
-                    nbins=CONFIG["estimation"]["parental_mass"]["nbins"],
+                    sampling_spin_binwidth=CONFIG["estimation"]["samplingSpinBinwidth"],
+                    sample_size=CONFIG["estimation"]["sampleSize"],
+                    nbins=CONFIG["estimation"]["nbins"],
                 )
                 child_mass_likelihood = convert_posterior_to_likelihood(
                     posterior=posterior[f"mass_{bh_component_index}_source"],
-                    weights=None
+                    weights=None,
                     posterior_label=posterior_label,
-                    nbins=CONFIG["estimation"]["parental_mass"]["nbins"])
+                    nbins=CONFIG["estimation"]["nbins"],
+                )
                 likelihoods = [child_mass_likelihood, parental_mass_likelihoods["m1"], parental_mass_likelihoods["m2"]]
                 plot_parameter_estimation(
                     prior_df=None,
@@ -106,14 +83,16 @@ def main() -> None:
                     savefig=True,
                 )
 
-            if CONFIG["estimation"]["parental_mass"]["plotCorner"]:
+            if CONFIG["estimation"]["plotCorner"]:
                 posterior_df = pd.read_hdf(f"{OUTPUTDIR}/{label},BH{bh_component_index}_parental_mass_estimates.h5")
-                plot_posterior_corner(posterior_df=posterior_df,
-                                      posterior_label=posterior_label,
-                                      var_names=["vf", "m1", "m2", "chif"],
-                                      labels=["$v_f$", "$m_1$", "$m_2$", "$\chi_f$"],
-                                      output_dir=OUTPUTDIR,
-                                      savefig=True,)
+                plot_posterior_corner(
+                    posterior_df=posterior_df,
+                    posterior_label=posterior_label,
+                    var_names=["vf", "m1", "m2", "chif"],
+                    labels=["$v_f$", "$m_1$", "$m_2$", "$\chi_f$"],
+                    output_dir=OUTPUTDIR,
+                    savefig=True,
+                )
 
 
 if __name__ == "__main__":
