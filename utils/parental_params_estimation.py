@@ -61,7 +61,6 @@ def estimate_parental_params_by_spin(
     # Here we use a generator to spare the ram used to construct the array
     prior_df = t_imap(dummy_function, [prior_df] * len(child_spin_posterior))
     sampling_spin_binwidth = t_imap(dummy_function, [sampling_spin_binwidth] * len(child_spin_posterior))
-    prior_spin_min = t_imap(dummy_function, [prior_spin_min] * len(child_spin_posterior))
     sample_size = t_imap(dummy_function, [sample_size] * len(child_spin_posterior))
 
     LOGGER.info("Recovering parental mass from spin measurements...")
@@ -98,8 +97,8 @@ def get_parental_params_likelihood(
     output_dir: str,
     sample_size=10,
 ):
-    parental_mass_likelihoods = {}
-    parental_mass_estimates = estimate_parental_params_by_spin(
+    parental_params_likelihoods = {}
+    parental_params_estimates = estimate_parental_params_by_spin(
         prior_df=prior_df,
         child_spin_posterior=child_spin_posterior,
         child_mass_posterior=child_mass_posterior,
@@ -110,11 +109,11 @@ def get_parental_params_likelihood(
         output_dir=output_dir,
     )
     for parental_bh_index in range(1, 3):
-        parental_mass_likelihoods[f"p{parental_bh_index}"] = convert_posterior_to_likelihood(
-            posterior=parental_mass_estimates[f"m{parental_bh_index}"].values,
+        parental_params_likelihoods[f"p{parental_bh_index}"] = convert_posterior_to_likelihood(
+            posterior=parental_params_estimates[f"m{parental_bh_index}"].values,
             posterior_label=f"Parental BH {parental_bh_index} (Child: {posterior_label})",
             weights=None,
             nbins=nbins,
             unit="$M_{\odot}$",
         )
-    return parental_mass_likelihoods
+    return parental_params_likelihoods
