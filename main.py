@@ -72,7 +72,7 @@ def main() -> None:
                     posterior_label=posterior_label,
                     nbins=CONFIG["estimation"]["nbins"],
                 )
-                likelihoods = [child_mass_likelihood, parental_mass_likelihoods["m1"], parental_mass_likelihoods["m2"]]
+                likelihoods = [child_mass_likelihood, parental_mass_likelihoods["p1"], parental_mass_likelihoods["p2"]]
                 plot_parameter_estimation(
                     prior_df=None,
                     target_parameter="parental_mass",

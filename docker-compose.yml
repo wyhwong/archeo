@@ -1,9 +1,9 @@
 version: "3.8"
 
 services:
-  parentguess:
-    container_name: parentguess
-    image: parentguess
+  paper:
+    container_name: paper
+    image: paper
     build: ./
     environment:
       - LOGLEVEL=20
@@ -18,9 +18,9 @@ services:
     working_dir: /app
     command: python3 main.py
 
-  parentguess_jupyter:
-    container_name: parentguess_jupyter
-    image: parentguess
+  paper_jupyter:
+    container_name: paper_jupyter
+    image: paper
     ports:
       - ${port}:8888
     environment:

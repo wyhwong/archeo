@@ -137,6 +137,7 @@ def plot_parameter_estimation(
         ax.stairs(values=likelihood["values"], edges=likelihood["edges"], label=likelihood["label"])
         LOGGER.debug(f"Processed posterior {likelihood['label']}")
 
+    plt.ylabel(""), plt.xlabel("")
     plt.legend()
     savefig_and_close(
         plot_filename=f"{plot_label}_{target_parameter}_estimation.png",

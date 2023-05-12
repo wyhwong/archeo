@@ -1,4 +1,5 @@
 import pandas as pd
+from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor, wait
 
 from .logger import get_logger
@@ -39,7 +40,7 @@ def simulate_binaries(output_dir: str) -> list:
 
     # Simulate the mergers with the generated binary configs using multi-processing
     with ProcessPoolExecutor(max_workers=20) as Executor:
-        for binary_marker in range(num_binaries):
+        for binary_marker in tqdm(range(num_binaries)):
             binary_params = binary_generator()
             futures.append(Executor.submit(simulate_binary, binary_marker, binary_params))
     wait(futures)
