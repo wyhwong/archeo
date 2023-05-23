@@ -3,7 +3,7 @@ version: "3.8"
 services:
   paper:
     container_name: paper
-    image: paper
+    image: paper:1.0.0
     build: ./
     environment:
       - LOGLEVEL=20
@@ -20,7 +20,7 @@ services:
 
   paper_jupyter:
     container_name: paper_jupyter
-    image: paper
+    image: paper:1.0.0
     ports:
       - ${port}:8888
     environment:
