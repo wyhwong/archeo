@@ -5,23 +5,25 @@ PArental Parameter Estimation of black-hole merger Remnant (PAPER) is a reposito
 
 # Runtime
 
+### LIGO JupyterLab
+
 ```bash
-# For running in LIGO jupyter lab
 # Setup for the environment
 pip3 install pyyaml p_tqdm scipy seaborn numpy pandas matplotlib jupyterthemes notebook tables corner surfinbh
 
-# Modify config/config.yml according to your needs
+# Modify config/main_config.yml and config/prior_config.yml according to your needs
 python3 main.py
 ```
 
 ---
 
+### Docker environment
+
 ```bash
-# For Docker environment:
 # Build Docker image
 make build
 
-# Start container
+# Start container (simulation)
 make run
 
 # For visualization or development
