@@ -90,8 +90,9 @@ def main() -> None:
                     posterior_label=posterior_label,
                     var_names=["vf", "m1", "m2", "chif"],
                     labels=["$v_f$", "$m_1$", "$m_2$", "$\chi_f$"],
+                    nbins=CONFIG["estimation"]["nbins"],
                     output_dir=OUTPUTDIR,
-                    savefig=True,
+                    savefig=True
                 )
 
 

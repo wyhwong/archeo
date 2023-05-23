@@ -152,7 +152,8 @@ def plot_posterior_corner(
     posterior_label: str,
     var_names: list,
     labels: list,
-    levels=[0.3, 0.9],
+    levels=[0.68,0.9],
+    nbins=70,
     output_dir=None,
     savefig=False,
     close=True,
@@ -162,6 +163,14 @@ def plot_posterior_corner(
         var_names=var_names,
         labels=labels,
         levels=levels,
+        plot_density=True,
+        plot_samples=False,
+        color="blue",
+        fill_contours=False,
+        smooth=True,
+        bins=nbins,
+        plot_datapoints=False,
+        hist_kwargs=dict(density=True)
     )
     savefig_and_close(
         plot_filename=f"{posterior_label}_corner_plot.png",
