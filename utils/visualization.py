@@ -4,25 +4,37 @@ import numpy as np
 import pandas as pd
 import corner
 
+from dataclasses import dataclass
+
 from .common import check_and_create_dir
 from .logger import get_logger
 
-LOGGER = get_logger(logger_name="Utils | Visualization")
+
+LOGGER = get_logger("utils | visualization")
 
 
-def initialize_plot(
-    nrows=1, ncols=1, height=6, width=10, title="", ylabel="", xlabel="", tpad=2.5, lpad=0.1, bpad=0.12, fontsize=12
-):
-    LOGGER.debug(
-        f"Initializing plot: {nrows=}, {ncols=}, {height=}, {width=}, {title=}, {ylabel=}, {xlabel=}, {tpad=}, {lpad=}, {bpad=}, {fontsize=}..."
-    )
-    fig, axes = plt.subplots(nrows, ncols, figsize=(width, height))
-    fig.tight_layout(pad=tpad)
-    fig.subplots_adjust(left=lpad, bottom=bpad)
-    fig.suptitle(title, fontsize=fontsize)
-    fig.text(x=0.04, y=0.5, s=ylabel, fontsize=fontsize, rotation="vertical", verticalalignment="center")
-    fig.text(x=0.5, y=0.04, s=xlabel, fontsize=fontsize, horizontalalignment="center")
-    LOGGER.debug("Initialized blank plot.")
+@dataclass
+class Padding:
+    tpad: float = 2.5
+    lpad: float = 0.1
+    bpad: float = 0.12
+
+
+@dataclass
+class Labels:
+    title: str = ""
+    xlabel: str = ""
+    ylabel: str = ""
+    zlabel: str = ""
+
+
+def initialize_plot(nrows=1, ncols=1, figsize=(10, 6), labels=Labels(), padding=Padding(), fontsize=12):
+    fig, axes = plt.subplots(nrows, ncols, figsize=figsize)
+    fig.tight_layout(pad=padding.tpad)
+    fig.subplots_adjust(left=padding.lpad, bottom=padding.bpad)
+    fig.suptitle(labels.title, fontsize=fontsize)
+    fig.text(x=0.04, y=0.5, s=labels.ylabel, fontsize=fontsize, rotation="vertical", verticalalignment="center")
+    fig.text(x=0.5, y=0.04, s=labels.xlabel, fontsize=fontsize, horizontalalignment="center")
     return fig, axes
 
 
@@ -40,9 +52,8 @@ def savefig_and_close(plot_filename: str, output_dir=None, savefig=False, close=
 
 
 def plot_prior_params_distribution(prior_df: pd.DataFrame, output_dir=None, savefig=False, close=True) -> None:
-    _, axes = initialize_plot(
-        nrows=len(prior_df.columns), height=16, width=16, title="Distribution of remnant black-hole parameters"
-    )
+    labels = Labels("Distribution of remnant black-hole parameters")
+    _, axes = initialize_plot(nrows=len(prior_df.columns), figsize=(16, 16), labels=labels)
     for index, column in enumerate(prior_df.columns):
         sns.histplot(prior_df[column], ax=axes[index], element="step", fill=False, stat="density")
         LOGGER.debug(f"Plotted parameter ({column}) as histogram.")
@@ -52,7 +63,8 @@ def plot_prior_params_distribution(prior_df: pd.DataFrame, output_dir=None, save
 
 
 def plot_prior_kick_against_spin(prior_df: pd.DataFrame, output_dir=None, savefig=False, close=True) -> None:
-    _, ax = initialize_plot(height=8, width=15, title="Natal kick against spin (Remnant black holes in prior)")
+    labels = Labels("Natal kick against spin (Remnant black holes in prior)")
+    _, ax = initialize_plot(figsize=(15, 8), labels=labels)
 
     x, y = prior_df["$\chi_f$"], prior_df["$v_f$"]
     sns.scatterplot(x=x, y=y, s=5, color=".15", ax=ax)
@@ -76,9 +88,8 @@ def plot_prior_kick_distribution_on_spin(
     savefig=False,
     close=True,
 ) -> None:
-    _, ax = initialize_plot(
-        height=8, width=15, title="Natal kick distribution on different spin range (Remnant black holes in prior)"
-    )
+    labels = Labels("Natal kick distribution on different spin range (Remnant black holes in prior)")
+    _, ax = initialize_plot(figsize=(15, 8), labels=labels)
     spin_boundaries = np.linspace(spin_min, spin_max, nbins + 1)
     for index in range(len(spin_boundaries) - 1):
         spin_min_in_bin, spin_max_in_bin = spin_boundaries[index], spin_boundaries[index + 1]
@@ -112,13 +123,8 @@ def plot_parameter_estimation(
     savefig=False,
     close=True,
 ) -> None:
-    _, ax = initialize_plot(
-        height=8,
-        width=15,
-        title="Parameter Estimation",
-        ylabel="Density",
-        xlabel=f"Target parameter ({target_parameter_label})",
-    )
+    labels = Labels("Parameter Estimation", f"Target parameter ({target_parameter_label})", "Density")
+    _, ax = initialize_plot(figsize=(15, 8), labels=labels)
     if prior_df is not None:
         sns.histplot(
             prior_df[target_parameter],
@@ -152,7 +158,7 @@ def plot_posterior_corner(
     posterior_label: str,
     var_names: list,
     labels: list,
-    levels=[0.68,0.9],
+    levels=[0.68, 0.9],
     nbins=70,
     output_dir=None,
     savefig=False,
@@ -170,7 +176,7 @@ def plot_posterior_corner(
         smooth=True,
         bins=nbins,
         plot_datapoints=False,
-        hist_kwargs=dict(density=True)
+        hist_kwargs=dict(density=True),
     )
     savefig_and_close(
         plot_filename=f"{posterior_label}_corner_plot.png",
