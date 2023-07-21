@@ -1,17 +1,26 @@
 export DOCKER_BUILDKIT=1
-port?=8888
+
+export USERNAME?=$(shell whoami)
+export USER_ID?=$(shell id -u)
+export GROUP_ID?=$(shell id -g)
+export TZ?=Asia/Hong_Kong
+
+export VERSION?=devel
+export PORT?=8888
+export LOGLEVEL?=20
 
 build:
-	docker build -t parentguess .
+	mkdir -p ./results
+	docker-compose build
 
 run:
-	port=${port} docker-compose up parentguess
+	docker-compose up paper
 
 jupyter_up:
-	port=${port} docker-compose up -d parentguess_jupyter
+	docker-compose up -d paper_jupyter
 
 jupyter_down:
-	port=${port} docker-compose kill parentguess_jupyter
+	docker-compose kill paper_jupyter
 
 clean:
-	port=${port} docker-compose down --remove-orphans
+	docker-compose down --remove-orphans

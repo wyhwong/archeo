@@ -1,38 +1,51 @@
 version: "3.8"
 
+x-env: &env
+  - LOGLEVEL=${LOGLEVEL}
+
+x-build: &build
+  context: ./
+  args:
+    USERNAME: ${USERNAME}
+    USER_ID: ${USER_ID}
+    GROUP_ID: ${GROUP_ID}
+    TZ: ${TZ}
+
+x-posterior-dir: &posterior-dir ./posteriors:/home/${USERNAME}/app/posteriors
+
+x-results-dir: &results-dir ./results:/home/${USERNAME}/app/results
+
+x-configs-dir: &configs-dir ./configs:/home/${USERNAME}/app/configs
+
+x-utils-dir: &utils-dir ./utils:/home/${USERNAME}/app/utils
+
 services:
   paper:
     container_name: paper
-    image: paper:1.0.0
-    build: ./
-    environment:
-      - LOGLEVEL=20
+    image: paper:${VERSION}
+    build: *build
+    environment: *env
     volumes:
-      # Share volumes
-      - ./posteriors:/app/posteriors
-      - ./results:/app/results
-      - ./config:/app/config
-      - ./utils:/app/utils
-      # Main volumes
-      - ./main.py:/app/main.py
-    working_dir: /app
+      - *posterior-dir
+      - *results-dir
+      - *configs-dir
+      - *utils-dir
+      - ./main.py:/home/${USERNAME}/app/main.py
+    working_dir: /home/${USERNAME}/app
     command: python3 main.py
 
   paper_jupyter:
     container_name: paper_jupyter
-    image: paper:1.0.0
-    ports:
-      - ${port}:8888
-    environment:
-      - LOGLEVEL=20
+    image: paper:${VERSION}
+    build: *build
+    environment: *env
     volumes:
-      # Share volumes
-      - ./posteriors:/app/posteriors
-      - ./results:/app/results
-      - ./config:/app/config
-      - ./utils:/app/utils
-      # Jupyter volumes
-      - ./notebook:/app
-      - ./config/jupyter_notebook_config.py:/root/.jupyter/jupyter_notebook_config.py
-    working_dir: /app
-    command: jupyter notebook
+      - *posterior-dir
+      - *results-dir
+      - *configs-dir
+      - *utils-dir
+      - ./notebook:/home/${USERNAME}/app
+    ports:
+      - ${PORT}:8888
+    working_dir: /home/${USERNAME}/app
+    command: jupyter lab --ip 0.0.0.0 --NotebookApp.token='' --NotebookApp.password=''

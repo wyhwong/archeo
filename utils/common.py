@@ -32,11 +32,11 @@ def read_posterior_from_h5(filepath: str, fits="NRSur7dq4") -> dict:
 
 
 def get_main_config() -> dict:
-    return read_dict_from_yml(filepath="config/main_config.yml")
+    return read_dict_from_yml(filepath="configs/main_config.yml")
 
 
 def get_prior_config() -> dict:
-    return read_dict_from_yml(filepath="config/prior_config.yml")
+    return read_dict_from_yml(filepath="configs/prior_config.yml")
 
 
 def save_dict_as_yml(savepath: str, input_dict: dict) -> None:

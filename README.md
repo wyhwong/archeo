@@ -11,7 +11,7 @@ PArental Parameter Estimation of black-hole merger Remnant (PAPER) is a reposito
 # Setup for the environment
 pip3 install pyyaml p_tqdm scipy seaborn numpy pandas matplotlib jupyterthemes notebook tables corner surfinbh
 
-# Modify config/main_config.yml and config/prior_config.yml according to your needs
+# Modify configs/main_config.yml and configs/prior_config.yml according to your needs
 python3 main.py
 ```
 
@@ -34,7 +34,7 @@ make jupyter_up
 
 # Application
 
-We can use the scripts in the repository to estimate the parental mass and kick of GW190521. Please find the related data of GW190521 in [LIGO Document P2000158-v4](https://dcc.ligo.org/LIGO-P2000158/public). After downloading the data and modify [main_config.yml](./config/main_config.yml) accordingly, we can compute the results.
+We can use the scripts in the repository to estimate the parental mass and kick of GW190521. Please find the related data of GW190521 in [LIGO Document P2000158-v4](https://dcc.ligo.org/LIGO-P2000158/public). After downloading the data and modify [main_config.yml](./configs/main_config.yml) accordingly, we can compute the results.
 
 ### Demonstration
 

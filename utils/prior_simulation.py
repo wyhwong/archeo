@@ -23,7 +23,7 @@ def simulate_binary(binary_marker: str, binary_params: tuple) -> list:
     return [mass1, mass2] + remnant_params
 
 
-# This function simulates a certain number of binaries according to the prior config in config/prior_config.yml.
+# This function simulates a certain number of binaries according to the prior config in configs/prior_config.yml.
 # It outputs the prior as a .csv file in the output user defined directory.
 def simulate_binaries(output_dir: str) -> list:
     global FITS
@@ -55,10 +55,10 @@ def simulate_binaries(output_dir: str) -> list:
     # Some descriptive visualization of the prior
     remnant_params_dataframe = prior.drop(columns=["m1", "m2", "mr", "chi1", "chi2", "mfError", "chifError", "vfError"])
     remnant_params_dataframe.columns = ["$m_f$", "$\chi_f$", "$v_f$"]
-    plot_prior_params_distribution(prior_df=remnant_params_dataframe, output_dir=output_dir, savefig=True)
-    plot_prior_kick_against_spin(prior_df=remnant_params_dataframe, output_dir=output_dir, savefig=True)
+    plot_prior_params_distribution(prior_df=remnant_params_dataframe, output_dir=output_dir)
+    plot_prior_kick_against_spin(prior_df=remnant_params_dataframe, output_dir=output_dir)
     plot_prior_kick_distribution_on_spin(
-        prior_df=remnant_params_dataframe, nbins=10, spin_max=1.0, spin_min=0.0, output_dir=output_dir, savefig=True
+        prior_df=remnant_params_dataframe, nbins=10, spin_max=1.0, spin_min=0.0, output_dir=output_dir
     )
 
     # Remove mass_1 and mass_2 if mass injection is not on
