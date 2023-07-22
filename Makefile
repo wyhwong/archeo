@@ -17,6 +17,7 @@ run:
 	docker-compose up paper
 
 jupyter_up:
+	mkdir -p ./notebooks
 	docker-compose up -d paper_jupyter
 
 jupyter_down:

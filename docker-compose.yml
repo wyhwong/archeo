@@ -44,7 +44,7 @@ services:
       - *results-dir
       - *configs-dir
       - *utils-dir
-      - ./notebook:/home/${USERNAME}/app
+      - ./notebooks:/home/${USERNAME}/app
     ports:
       - ${PORT}:8888
     working_dir: /home/${USERNAME}/app

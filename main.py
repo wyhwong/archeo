@@ -80,7 +80,6 @@ def main() -> None:
                     likelihoods=likelihoods,
                     plot_label=posterior_label,
                     output_dir=OUTPUTDIR,
-                    savefig=True,
                 )
 
             if CONFIG["estimation"]["plotCorner"]:
@@ -92,7 +91,6 @@ def main() -> None:
                     labels=["$v_f$", "$m_1$", "$m_2$", "$\chi_f$"],
                     nbins=CONFIG["estimation"]["nbins"],
                     output_dir=OUTPUTDIR,
-                    savefig=True
                 )
 
 
