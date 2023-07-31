@@ -11,6 +11,7 @@ export LOGLEVEL?=20
 
 build:
 	mkdir -p ./results
+	mkdir -p ./posteriors
 	docker-compose build
 
 run:

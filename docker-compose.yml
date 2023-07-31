@@ -19,6 +19,8 @@ x-configs-dir: &configs-dir ./configs:/home/${USERNAME}/app/configs
 
 x-utils-dir: &utils-dir ./utils:/home/${USERNAME}/app/utils
 
+x-working-dir: &work-dir /home/${USERNAME}/app
+
 services:
   paper:
     container_name: paper
@@ -31,7 +33,7 @@ services:
       - *configs-dir
       - *utils-dir
       - ./main.py:/home/${USERNAME}/app/main.py
-    working_dir: /home/${USERNAME}/app
+    working_dir: *work-dir
     command: python3 main.py
 
   paper_jupyter:
@@ -47,5 +49,5 @@ services:
       - ./notebooks:/home/${USERNAME}/app
     ports:
       - ${PORT}:8888
-    working_dir: /home/${USERNAME}/app
+    working_dir: *work-dir
     command: jupyter lab --ip 0.0.0.0 --NotebookApp.token='' --NotebookApp.password=''
