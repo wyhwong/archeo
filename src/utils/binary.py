@@ -67,34 +67,53 @@ def generate_parameter(domain: schemas.common.Domain) -> float:
 class BinaryGenerator:
     """
     Binary generator.
-
-    Parameters
-    ----------
-    config : dict
-        Configuration of the binary generator.
+    NOTE:
+        Convention:
+            1. Heavier black hole
+            2. Lighter black hole
     """
 
     def __init__(self, config: schemas.binary.BinaryConfig) -> None:
+        """
+        Initialize the binary generator.
+
+        Parameters
+        ----------
+        config : schemas.binary.BinaryConfig
+            Configuration of the binary generator.
+
+        Returns
+        -------
+        None
+        """
         self.config = config
 
-    def __call__(self) -> tuple:
-        # Convention:
-        #   1. Heavier black hole
-        #   2. Lighter black hole
-        mass_ratio = generate_parameter(self.config["massRatio"])
-        chi1, chi2 = self.get_spin()
-        return (mass_ratio, chi1, chi2)
+    def __call__(self) -> schemas.binary.Binary:
+        """
+        Generate a binary.
 
-    def get_spin(self) -> list:
-        spins = []
-        for _ in range(2):
-            spin = generate_parameter(self.config["spin"])
-            if self.config["align"]:
-                phi = 0.0
-                theta = 0.0 + np.round(np.random.rand()) * np.pi
-            else:
-                phi = generate_parameter(self.config["phi"])
-                theta = generate_parameter(self.config["theta"])
-            univ = sph2cart(theta, phi)
-            spins.append(spin * univ)
-        return spins
+        Returns
+        -------
+        binary : tuple
+            Binary generated.
+        """
+        return schemas.binary.Binary(generate_parameter(self.config.mass_ratio), self._get_spin(), self._get_spin())
+
+    def _get_spin(self) -> np.ndarray:
+        """
+        Generate the spin of the binary.
+
+        Returns
+        -------
+        spin : np.ndarray
+            Spin of a black hole in the binary.
+        """
+        spin = generate_parameter(self.config.spin)
+        if self.config.aligned_spin:
+            phi = 0.0
+            theta = 0.0 + np.round(np.random.rand()) * np.pi
+        else:
+            phi = generate_parameter(self.config.phi)
+            theta = generate_parameter(self.config.theta)
+        univ = sph2cart(theta, phi)
+        return spin * univ
