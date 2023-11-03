@@ -15,3 +15,7 @@ ENV TZ=${TZ}
 RUN groupadd --gid ${GROUP_ID} ${USERNAME} && \
     adduser --disabled-password --gecos '' --uid ${USER_ID} --gid ${GROUP_ID} ${USERNAME}
 USER ${USERNAME}
+
+COPY src /home/${USERNAME}/src
+WORKDIR /home/${USERNAME}/src
+RUN python3 main.py

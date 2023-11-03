@@ -19,12 +19,12 @@ x-configs-dir: &configs-dir ./configs:/home/${USERNAME}/app/configs
 
 x-utils-dir: &utils-dir ./utils:/home/${USERNAME}/app/utils
 
-x-working-dir: &work-dir /home/${USERNAME}/app
+x-working-dir: &work-dir /home/${USERNAME}/src
 
 services:
-  paper:
-    container_name: paper
-    image: paper:${VERSION}
+  ancestral_bh:
+    container_name: ancestral-bh
+    image: ancestral-bh:${VERSION}
     build: *build
     environment: *env
     volumes:
@@ -36,9 +36,9 @@ services:
     working_dir: *work-dir
     command: python3 main.py
 
-  paper_jupyter:
-    container_name: paper_jupyter
-    image: paper:${VERSION}
+  ancestral_bh_jupyter:
+    container_name: ancestral-bh-jupyter
+    image: ancestral-bh:${VERSION}
     build: *build
     environment: *env
     volumes:
