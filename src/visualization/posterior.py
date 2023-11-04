@@ -1,5 +1,4 @@
 import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 import corner
@@ -27,8 +26,9 @@ def plot_mass_estimates(df: pd.DataFrame, label: str, output_dir=None, close=Tru
     -------
     None
     """
+    padding = schemas.visualization.Padding(lpad=0.13, bpad=0.14)
     labels = schemas.visualization.Labels("Distribution of Estimated Masses", "Mass $(M_{\odot})$", "Density")
-    _, ax = base.initialize_plot(figsize=(9, 4), labels=labels)
+    _, ax = base.initialize_plot(figsize=(9, 4), labels=labels, padding=padding)
     col_to_labels = {"mf": f"{label}: ", "m_p1": "Heavier Parent: ", "m_p2": "Ligher Parent: "}
 
     for col, label_prefix in col_to_labels.items():

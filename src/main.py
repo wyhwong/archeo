@@ -6,6 +6,9 @@ import services
 import utils
 import schemas
 import visualization
+import warnings
+
+warnings.filterwarnings("ignore")
 
 
 def main() -> None:
