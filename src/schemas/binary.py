@@ -33,28 +33,29 @@ class Binary:
 
         Attributes
         ----------
-        vf : np.ndarray
-            Final velocity of the remnant black hole
-        err_vf : np.ndarray
-            Error of the final velocity of the remnant black hole
-        chif : np.ndarray
-            Final spin of the remnant black hole
-        err_chif : np.ndarray
-            Error of the final spin of the remnant black hole
-        mf : np.ndarray
+        mf : float
             Final mass of the remnant black hole, [0, 1]
-        err_mf : np.ndarray
-            Error of the final mass of the remnant black hole
-        final_speed : float
+        vf : float
             Final speed of the remnant black hole (in km/s)
-        final_spin : float
+        chif : float
             Final spin of the remnant black hole, [0, 1]
         """
-        self.vf, self.err_vf = self.fits.vf(self.mass_ratio, self.chi1, self.chi2)
-        self.chif, self.err_chif = self.fits.chif(self.mass_ratio, self.chi1, self.chi2)
-        self.mf, self.err_mf = self.fits.mf(self.mass_ratio, self.chi1, self.chi2)
-        self.final_speed = np.sqrt(np.dot(self.vf, self.vf)) * scipy.constants.speed_of_light / 1000.0
-        self.final_spin = np.sqrt(np.dot(self.chif, self.chif))
+        vf, _ = self.fits.vf(self.mass_ratio, self.chi1, self.chi2)
+        chif, _ = self.fits.chif(self.mass_ratio, self.chi1, self.chi2)
+        self.mf, _ = self.fits.mf(self.mass_ratio, self.chi1, self.chi2)
+        self.vf = np.sqrt(np.dot(vf, vf)) * scipy.constants.speed_of_light / 1000.0
+        self.chif = np.sqrt(np.dot(chif, chif))
+
+    def get_remnant_params(self) -> list[float]:
+        """
+        Get the parameters of the binary remnant.
+
+        Returns
+        -------
+        remnant_params : list[float]
+            Parameters of the binary remnant.
+        """
+        return [self.mass_ratio, self.mf, self.vf, self.chif]
 
 
 class BinaryConfig:
@@ -80,6 +81,7 @@ class BinaryConfig:
     spin: schemas.common.Domain
     phi: schemas.common.Domain
     theta: schemas.common.Domain
+    fits: surfinBH.surfinBH.SurFinBH
 
     def from_dict(args: dict):
         """
@@ -91,9 +93,10 @@ class BinaryConfig:
             Dictionary of the binary configuration
         """
         return BinaryConfig(
-            aligned_spin=args["alignedSpin"],
-            mass_ratio=schemas.common.Domain.from_dict(args["massRatio"]["low"], args["massRatio"]["high"]),
-            spin=schemas.common.Domain.from_dict(args["spin"]["low"], args["spin"]["high"]),
-            phi=schemas.common.Domain.from_dict(args["phi"]["low"] * np.pi, args["phi"]["high"] * np.pi),
-            theta=schemas.common.Domain.from_dict(args["theta"]["low"] * np.pi, args["theta"]["high"] * np.pi),
+            aligned_spin=args["aligned_spin"],
+            mass_ratio=schemas.common.Domain(args["mass_ratio"]["low"], args["mass_ratio"]["high"]),
+            spin=schemas.common.Domain(args["spin"]["low"], args["spin"]["high"]),
+            phi=schemas.common.Domain(args["phi"]["low"] * np.pi, args["phi"]["high"] * np.pi),
+            theta=schemas.common.Domain(args["theta"]["low"] * np.pi, args["theta"]["high"] * np.pi),
+            fits=surfinBH.LoadFits(args["fits"]),
         )

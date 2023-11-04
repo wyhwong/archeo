@@ -94,10 +94,26 @@ class BinaryGenerator:
 
         Returns
         -------
-        binary : tuple
-            Binary generated.
+        binary : schemas.binary.Binary
+            Binary.
         """
-        return schemas.binary.Binary(generate_parameter(self.config.mass_ratio), self._get_spin(), self._get_spin())
+        return schemas.binary.Binary(
+            self.config.fits, generate_parameter(self.config.mass_ratio), self._get_spin(), self._get_spin()
+        )
+
+    def simulate(self, num: int) -> list[schemas.binary.Binary]:
+        """
+        Simulate binaries.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        binaries : list[schemas.binary.Binary]
+            Binaries.
+        """
+        return [self.__call__() for _ in range(num)]
 
     def _get_spin(self) -> np.ndarray:
         """
@@ -115,5 +131,6 @@ class BinaryGenerator:
         else:
             phi = generate_parameter(self.config.phi)
             theta = generate_parameter(self.config.theta)
+
         univ = sph2cart(theta, phi)
         return spin * univ

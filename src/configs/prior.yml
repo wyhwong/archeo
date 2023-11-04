@@ -1,0 +1,26 @@
+# amount of black-hole mergers to simulate
+num_binaries: 500000
+
+binary_config:
+  # fits: ['NRSur3dq8Remnant', 'NRSur7dq4Remnant', 'surfinBH7dq2']
+  # NRSur3dq8Remnant: non precessing BHs with mass ratio<=8, anti-/aligned spin <= 0.8
+  # NRSur7dq4Remnant: precessing BHs with mass ratio<=4, generic spin <= 0.8
+  # surfinBH7dq2: precessing BHs with mass ratio <= 2, generic spin <= 0.8
+  fits: "NRSur7dq4Remnant"
+  aligned_spin: false
+
+  mass_ratio:
+    low: 1.
+    high: 6.
+
+  spin:
+    low: -0.8
+    high: 0.8
+
+  theta:
+    low: 0.
+    high: 1. # unit in pi
+
+  phi:
+    low: 0.
+    high: 2. # unit in pi
