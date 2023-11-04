@@ -1,10 +1,12 @@
 import surfinBH
 import numpy as np
 import scipy.constants
+import dataclasses
 
 import schemas.common
 
 
+@dataclasses.dataclass
 class Binary:
     """
     Binary class.
@@ -58,6 +60,7 @@ class Binary:
         return [self.mass_ratio, self.mf, self.vf, self.chif]
 
 
+@dataclasses.dataclass
 class BinaryConfig:
     """
     Binary configuration.
