@@ -78,6 +78,9 @@ def main() -> None:
             )
             visualization.posterior.plot_mass_estimates(df_posterior, posterior_label, output_dir)
             visualization.posterior.plot_corner(df_posterior, posterior_label, output_dir=output_dir)
+            visualization.posterior.plot_cumulative_kick_probability_curve(
+                df_posterior, posterior_label, output_dir=output_dir
+            )
 
 
 if __name__ == "__main__":

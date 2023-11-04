@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 import corner
 
 import schemas.visualization
@@ -80,3 +81,41 @@ def plot_corner(df: pd.DataFrame, label: str, levels=[0.68, 0.9], nbins=70, outp
         hist_kwargs=dict(density=True),
     )
     base.savefig_and_close(f"{label}_corner.png", output_dir, close)
+
+
+def plot_cumulative_kick_probability_curve(
+    df: pd.DataFrame, label: str, include_pisn=False, output_dir=None, close=True
+) -> None:
+    """
+    Plot the cumulative kick probability curve.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Posterior.
+    label : str
+        Posterior label.
+    include_pisn : bool, optional
+        Whether to include samples in PISN gap, by default False.
+    output_dir : str, optional
+        Output directory.
+    close : bool, optional
+        Whether to close the figure.
+
+    Returns
+    -------
+    None
+    """
+    labels = schemas.visualization.Labels(
+        "Cumulative Kick Probability Curve", "Recoil Velocity $v_f$ ($km/s$)", "Cumulative Probability"
+    )
+    _, ax = base.initialize_plot(figsize=(9, 4), labels=labels)
+    if include_pisn:
+        data = df
+    else:
+        data = df.loc[(data["m_p1"] < 65.0) & (data["m_p2"] < 65.0)]
+
+    sns.kdeplot(data=data["vf"], cut=0, ax=ax, cumulative=True, label=label)
+    ax.set(ylabel="", xlabel="")
+    plt.legend()
+    base.savefig_and_close(f"{label}_cumulative_kick_probability_curve.png", output_dir, close)
