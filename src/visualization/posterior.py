@@ -11,7 +11,7 @@ import visualization.base as base
 def plot_mass_estimates(df: pd.DataFrame, label: str, output_dir=None, close=True) -> None:
     """
     Plot the distribution of the estimated masses.
-    
+
     Parameters
     ----------
     df : pd.DataFrame
@@ -22,7 +22,7 @@ def plot_mass_estimates(df: pd.DataFrame, label: str, output_dir=None, close=Tru
         Output directory.
     close : bool, optional
         Whether to close the figure.
-    
+
     Returns
     -------
     None
@@ -31,28 +31,21 @@ def plot_mass_estimates(df: pd.DataFrame, label: str, output_dir=None, close=Tru
     _, ax = base.initialize_plot(figsize=(9, 4), labels=labels)
     col_to_labels = {"mf": f"{label}: ", "m_p1": "Heavier Parent: ", "m_p2": "Ligher Parent: "}
 
-    for col, label in col_to_labels.items():
+    for col, label_prefix in col_to_labels.items():
         density, bins = np.histogram(a=df[col], density=True)
         inv_low, med, inv_high = df[col].quantile(0.05), df[col].quantile(0.5), df[col].quantile(0.95)
-        ax.stairs(density, bins, label="%s: $%d_{-%d}^{+%d}$ %s" % (label, med, inv_low, inv_high, "($M_{\odot}$)"))
-        sns.histplot(df[col], ax=ax, element="step", fill=False, stat="density", label=label))
+        ax_label = "%s: $%d_{-%d}^{+%d}$ %s" % (label_prefix, med, inv_low, inv_high, "($M_{\odot}$)")
+        ax.stairs(density, bins, label=ax_label)
 
     plt.ylabel(""), plt.xlabel("")
     plt.legend()
     base.savefig_and_close(f"{label}_mass_estimates.png", output_dir, close)
 
 
-def plot_corner(
-    df: pd.DataFrame,
-    label: str,
-    levels=[0.68, 0.9],
-    nbins=70,
-    output_dir=None,
-    close=True
-) -> None:
+def plot_corner(df: pd.DataFrame, label: str, levels=[0.68, 0.9], nbins=70, output_dir=None, close=True) -> None:
     """
     Plot the posterior corner plot.
-    
+
     Parameters
     ----------
     df : pd.DataFrame
@@ -75,8 +68,8 @@ def plot_corner(
     corner.corner(
         df,
         nbins,
-        var_names=["vf", "m1", "m2", "chif"],
-        labels=["$v_f$", "$m_1$", "$m_2$", "$\chi_f$"],
+        var_names=["m_p1", "m_p2", "mf", "vf", "chif"],
+        labels=["$m_p1$", "$m_p2$", "$m_f$", "$v_f$", "$\chi_f$"],
         levels=levels,
         plot_density=True,
         plot_samples=False,
@@ -84,6 +77,6 @@ def plot_corner(
         fill_contours=False,
         smooth=True,
         plot_datapoints=False,
-        hist_kwargs=dict(density=True)
+        hist_kwargs=dict(density=True),
     )
     base.savefig_and_close(f"{label}_corner.png", output_dir, close)

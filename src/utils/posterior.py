@@ -1,11 +1,7 @@
 import h5py
-import p_tqdm
 import pandas as pd
 
 import utils.common
-import utils.logger
-
-logger = utils.logger.get_logger(logger_name="utils|posterior")
 
 
 def read_posterior_from_json(filepath: str) -> dict:
@@ -78,42 +74,3 @@ class PosteriorSampler:
         samples["m_p2"] = mass_measure / samples["mf"] / (1 + samples["q"])
         samples["mf"] = mass_measure
         return samples
-
-
-def infer_parental_posterior(
-    df: pd.DataFrame,
-    posterior_label: str,
-    spin_posterior: list[float],
-    mass_posterior: list[float],
-    num_samples: int = 10,
-    output_dir: str | None = None,
-) -> pd.DataFrame:
-    """
-    Infer the parental posterior from the posterior of the child parameters.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        The prior dataframe.
-    spin_posterior : list[float]
-        The spin posterior of the remnant.
-    mass_posterior : list[float]
-        The mass posterior of the remnant.
-    num_samples : int
-        The number of samples to be returned
-    posterior_label : str
-        The label of the posterior.
-    output_dir : str, optional
-        The output directory, by default None
-
-    Returns
-    -------
-    posterior : pd.DataFrame
-        The posterior of the parental parameters.
-    """
-    sampler = PosteriorSampler(df, num_samples)
-    posterior = pd.concat(p_tqdm.p_map(sampler.infer_parental_mass, spin_posterior, mass_posterior))
-    if output_dir:
-        filepath = f"{output_dir}/{posterior_label}_parental_params.h5"
-        posterior.to_hdf(filepath, key="estimates", index=False)
-    return posterior

@@ -34,7 +34,7 @@ def main() -> None:
     3. Visualize the prior.
     """
     if main_config["prior"]["load_results"]:
-        df_prior = pd.read_csv(main_config["prior"]["path_to_csv"])
+        df_prior = pd.read_csv(main_config["prior"]["csv_path"])
     else:
         prior_args = utils.common.read_dict_from_yml("configs/prior.yml")
         utils.common.save_dict_as_yml(f"{output_dir}/prior.yml", prior_args)
@@ -66,7 +66,7 @@ def main() -> None:
     for label, posterior in posteriors.items():
         for bh_index in [1, 2]:
             posterior_label = f"{label},BH{bh_index}"
-            df_posterior = utils.posterior.infer_parental_posterior(
+            df_posterior = services.posterior.infer_parental_posterior(
                 df_prior,
                 posterior_label,
                 posterior[f"a_{bh_index}"],
@@ -74,7 +74,7 @@ def main() -> None:
                 output_dir=output_dir,
             )
             visualization.posterior.plot_mass_estimates(df_posterior, posterior_label, output_dir)
-            visualization.posterior.plot_corner(df_posterior, posterior_label, nbins, output_dir=output_dir)
+            visualization.posterior.plot_corner(df_posterior, posterior_label, output_dir=output_dir)
 
 
 if __name__ == "__main__":
