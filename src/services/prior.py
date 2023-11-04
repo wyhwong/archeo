@@ -41,7 +41,7 @@ def run_prior_simulation(generator: utils.binary.BinaryGenerator, num_binaries: 
     prior : pd.DataFrame
         Prior.
     """
-    prior = p_tqdm.p_map(_get_binary, p_tqdm.t_imap(utils.common.return_input, [generator] * len(num_binaries)))
+    prior = p_tqdm.p_map(_get_binary, p_tqdm.t_imap(utils.common.return_input, [generator] * num_binaries))
     df_prior = pd.DataFrame(prior, columns=["q", "mf", "vf", "chif"])
     df_prior.to_csv(f"{output_dir}/prior.csv", index=False)
     return df_prior
