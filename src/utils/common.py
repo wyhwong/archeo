@@ -1,6 +1,5 @@
 import os
 import json
-import h5py
 import yaml
 import utils.logger
 from typing import Any
@@ -42,38 +41,6 @@ def read_dict_from_json(filepath: str) -> dict:
     """
     with open(filepath, "r") as file:
         return json.load(file)
-
-
-def read_posterior_from_json(filepath: str) -> dict:
-    """
-    Read the posterior of parameter estimation from a json file.
-
-    Parameters
-    ----------
-    filepath : str
-        Path to the json file.
-
-    Returns
-    -------
-    posterior : dict
-        Dictionary containing the posterior.
-    """
-    return read_dict_from_json(filepath=filepath)["posterior"]["content"]
-
-
-def read_posterior_from_h5(filepath: str, fits="NRSur7dq4") -> dict:
-    """
-    Read the posterior of parameter estimation from a h5 file.
-
-    Parameters
-    ----------
-    filepath : str
-        Path to the h5 file.
-
-    fits : str
-        Name of the waveform model.
-    """
-    return h5py.File(filepath, "r")[fits]["posterior_samples"]
 
 
 def save_dict_as_yml(savepath: str, input_dict: dict) -> None:

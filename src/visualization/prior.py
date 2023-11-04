@@ -7,14 +7,14 @@ import schemas.visualization
 import visualization.base as base
 
 
-def plot_dist(df_prior: pd.DataFrame, output_dir=None, close=True) -> None:
+def plot_dist(df: pd.DataFrame, output_dir=None, close=True) -> None:
     """
     Plot the distribution of the prior parameters.
 
     Parameters
     ----------
 
-    df_prior : pd.DataFrame
+    df : pd.DataFrame
         Prior.
     output_dir : str, optional
         Output directory.
@@ -26,9 +26,9 @@ def plot_dist(df_prior: pd.DataFrame, output_dir=None, close=True) -> None:
     None
     """
     labels = schemas.visualization.Labels("Distribution of remnant black-hole parameters")
-    _, axes = base.initialize_plot(len(df_prior.columns), 1, (6, 8), labels)
-    for index, column in enumerate(df_prior.columns):
-        sns.histplot(df_prior[column], ax=axes[index], element="step", fill=False, stat="density")
+    _, axes = base.initialize_plot(len(df.columns), 1, (6, 8), labels)
+    for index, column in enumerate(df.columns):
+        sns.histplot(df[column], ax=axes[index], element="step", fill=False, stat="density")
     params_to_labels = [
         {"x": "Parent Mass Ratio $q$", "y": "Density"},
         {"x": "Remnant Mass $m_f$", "y": "Density"},
@@ -40,13 +40,13 @@ def plot_dist(df_prior: pd.DataFrame, output_dir=None, close=True) -> None:
     base.savefig_and_close("prior_dist.png", output_dir, close)
 
 
-def plot_kick_against_spin(df_prior: pd.DataFrame, output_dir=None, close=True) -> None:
+def plot_kick_against_spin(df: pd.DataFrame, output_dir=None, close=True) -> None:
     """
     Plot the distribution of the prior parameters.
 
     Parameters
     ----------
-    df_prior : pd.DataFrame
+    df : pd.DataFrame
         Prior.
     output_dir : str, optional
         Output directory.
@@ -61,22 +61,22 @@ def plot_kick_against_spin(df_prior: pd.DataFrame, output_dir=None, close=True) 
     )
     _, ax = base.initialize_plot(figsize=(8, 6), labels=labels, padding=padding)
 
-    sns.scatterplot(data=df_prior, x="chif", y="vf", s=5, color=".15", ax=ax)
+    sns.scatterplot(data=df, x="chif", y="vf", s=5, color=".15", ax=ax)
     ax.set(xlabel="", ylabel="")
     base.savefig_and_close("prior_kick_against_spin_scatter.png", output_dir, close)
-    sns.histplot(data=df_prior, x="chif", y="vf", bins=120, pthresh=0.05, ax=ax)
-    sns.kdeplot(data=df_prior, x="chif", y="vf", levels=[0.1, 0.3, 0.5], color="b", linewidths=1, ax=ax)
+    sns.histplot(data=df, x="chif", y="vf", bins=120, pthresh=0.05, ax=ax)
+    sns.kdeplot(data=df, x="chif", y="vf", levels=[0.1, 0.3, 0.5], color="b", linewidths=1, ax=ax)
     ax.set(xlabel="", ylabel="")
     base.savefig_and_close("prior_kick_against_spin.png", output_dir, close)
 
 
-def plot_kick_distribution_on_spin(df_prior: pd.DataFrame, output_dir=None, close=True) -> None:
+def plot_kick_distribution_on_spin(df: pd.DataFrame, output_dir=None, close=True) -> None:
     """
     Plot the distribution of the prior parameters.
 
     Parameters
     ----------
-    df_prior : pd.DataFrame
+    df : pd.DataFrame
         Prior.
     output_dir : str, optional
         Output directory.
@@ -92,17 +92,11 @@ def plot_kick_distribution_on_spin(df_prior: pd.DataFrame, output_dir=None, clos
     bounds = zip(np.linspace(0, 0.9, 10), np.linspace(0.1, 1, 10))
 
     for low_bound, up_bound in bounds:
-        data = df_prior.loc[(low_bound < df_prior["chif"]) & (df_prior["chif"] < up_bound)]["vf"]
+        data = df.loc[(low_bound < df["chif"]) & (df["chif"] < up_bound)]["vf"]
         # To avoid extreme density values
         if len(data.index) > 100:
-            sns.histplot(
-                data=data,
-                ax=ax,
-                element="step",
-                fill=False,
-                stat="density",
-                label=f"$\chi_f$ $\in$ $[{low_bound:.2f}, {up_bound:.2f}]$",
-            )
+            density, bins = np.histogram(a=data, density=True)
+            ax.stairs(density, bins, label=f"$\chi_f$ $\in$ $[{low_bound:.2f}, {up_bound:.2f}]$")
     ax.set(xlabel="Remnant Kick $v_f$ ($km/s$)", ylabel="Density")
     plt.legend()
     base.savefig_and_close("prior_kick_on_spin.png", output_dir, close)

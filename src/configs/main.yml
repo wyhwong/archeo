@@ -5,3 +5,10 @@ prior:
   load_results: false
   # Path to results.csv
   csv_path: "filepath"
+
+posterior:
+  json_path:
+    label: "filepath"
+
+  h5_path:
+    label: "filepath"
