@@ -1,12 +1,15 @@
 import pandas as pd
-import p_tqdm
+from tqdm import tqdm
+from concurrent.futures import ProcessPoolExecutor, wait
 
+import env
 import utils
+import schemas
 
 logger = utils.logger.get_logger(logger_name="utils|prior")
 
 
-def _get_binary(generator: utils.binary.BinaryGenerator) -> list[float]:
+def _get_remnant_params(binary: schemas.binary.Binary) -> list[float]:
     """
     Get a binary.
 
@@ -20,10 +23,10 @@ def _get_binary(generator: utils.binary.BinaryGenerator) -> list[float]:
     binary : list[float]
         Parameters of the binary remnant.
     """
-    return generator().get_remnant_params()
+    return binary.get_remnant_params(generator.config.fits)
 
 
-def run_simulation(generator: utils.binary.BinaryGenerator, num_binaries: int, output_dir: str) -> pd.DataFrame:
+def run_simulation(config: schemas.binary.BinaryConfig, num_binaries: int, output_dir: str) -> pd.DataFrame:
     """
     Run a prior simulation.
 
@@ -41,7 +44,14 @@ def run_simulation(generator: utils.binary.BinaryGenerator, num_binaries: int, o
     prior : pd.DataFrame
         Prior.
     """
-    prior = p_tqdm.p_map(_get_binary, p_tqdm.t_imap(utils.common.return_input, [generator] * num_binaries))
-    df_prior = pd.DataFrame(prior, columns=["q", "mf", "vf", "chif"])
+    global generator
+    generator = utils.binary.BinaryGenerator(config)
+
+    with ProcessPoolExecutor(max_workers=env.MAX_WORKER) as Executor:
+        futures = [Executor.submit(_get_remnant_params, generator()) for _ in tqdm(range(num_binaries))]
+    wait(futures)
+
+    prior_samples = [future.result() for future in futures]
+    df_prior = pd.DataFrame(prior_samples, columns=["q", "mf", "vf", "chif"])
     df_prior.to_csv(f"{output_dir}/prior.csv", index=False)
     return df_prior

@@ -35,7 +35,7 @@ def plot_mass_estimates(df: pd.DataFrame, label: str, output_dir=None, close=Tru
     for col, label_prefix in col_to_labels.items():
         density, bins = np.histogram(a=df[col], density=True)
         inv_low, med, inv_high = df[col].quantile(0.05), df[col].quantile(0.5), df[col].quantile(0.95)
-        ax_label = "%s: $%d_{-%d}^{+%d}$ %s" % (label_prefix, med, inv_low, inv_high, "[$M_{\odot}$]")
+        ax_label = "%s: $%d_{-%d}^{+%d}$ %s" % (label_prefix, med, med - inv_low, inv_high - med, "[$M_{\odot}$]")
         ax.stairs(density, bins, label=ax_label)
 
     plt.ylabel(""), plt.xlabel("")

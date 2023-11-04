@@ -43,8 +43,7 @@ def main() -> None:
         utils.common.save_dict_as_yml(f"{output_dir}/prior.yml", prior_args)
 
         prior_config = schemas.binary.BinaryConfig.from_dict(prior_args["binary_config"])
-        prior_generator = utils.binary.BinaryGenerator(prior_config)
-        df_prior = services.prior.run_simulation(prior_generator, prior_args["num_binaries"], output_dir)
+        df_prior = services.prior.run_simulation(prior_config, prior_args["num_binaries"], output_dir)
 
     visualization.prior.plot_dist(df_prior, output_dir)
     visualization.prior.plot_kick_against_spin(df_prior, output_dir)

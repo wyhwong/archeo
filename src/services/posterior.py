@@ -1,6 +1,8 @@
-import p_tqdm
 import pandas as pd
+from tqdm import tqdm
+from concurrent.futures import ProcessPoolExecutor, wait
 
+import env
 import utils.posterior
 
 
@@ -36,7 +38,15 @@ def infer_parental_posterior(
         The posterior of the parental parameters.
     """
     sampler = utils.posterior.PosteriorSampler(df, num_samples)
-    posterior = pd.concat(p_tqdm.p_map(sampler.infer_parental_params, spin_posterior, mass_posterior))
+
+    with ProcessPoolExecutor(max_workers=env.MAX_WORKER) as Executor:
+        futures = [
+            Executor.submit(sampler.infer_parental_params, spin_measure, mass_measure)
+            for spin_measure, mass_measure in zip(tqdm(spin_posterior), mass_posterior)
+        ]
+    wait(futures)
+
+    posterior = pd.concat([future.result() for future in futures])
     if output_dir:
         filepath = f"{output_dir}/{label}_parental_params.h5"
         posterior.to_hdf(filepath, key="estimates", index=False)

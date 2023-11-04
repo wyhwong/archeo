@@ -97,9 +97,7 @@ class BinaryGenerator:
         binary : schemas.binary.Binary
             Binary.
         """
-        return schemas.binary.Binary(
-            self.config.fits, generate_parameter(self.config.mass_ratio), self._get_spin(), self._get_spin()
-        )
+        return schemas.binary.Binary(generate_parameter(self.config.mass_ratio), self._get_spin(), self._get_spin())
 
     def simulate(self, num: int) -> list[schemas.binary.Binary]:
         """

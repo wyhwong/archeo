@@ -1,10 +1,9 @@
-import os
 import logging
+import env
 
-LOGLEVEL = int(os.getenv("LOGLEVEL", "20"))
 LOGFMT = "%(asctime)s [%(name)s | %(levelname)s]: %(message)s"
 DATEFMT = "%Y-%m-%d %H:%M:%S"
-logging.basicConfig(format=LOGFMT, datefmt=DATEFMT, level=LOGLEVEL)
+logging.basicConfig(format=LOGFMT, datefmt=DATEFMT, level=env.LOGLEVEL)
 
 
 def get_logger(logger_name: str, log_filepath=None) -> logging.Logger:
@@ -24,7 +23,7 @@ def get_logger(logger_name: str, log_filepath=None) -> logging.Logger:
         Logger.
     """
     logger = logging.getLogger(logger_name)
-    logger.setLevel(LOGLEVEL)
+    logger.setLevel(env.LOGLEVEL)
     if log_filepath:
         handler = logging.FileHandler(filename=log_filepath)
         formatter = logging.Formatter(fmt=LOGFMT, datefmt=DATEFMT)

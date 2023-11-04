@@ -13,8 +13,6 @@ class Binary:
 
     Parameters
     ----------
-    fits : surfinBH.surfinBH.SurFinBH
-        Gravitational wave waveform
     mass_ratio : float
         Mass ratio of the binary
     chi1 : np.ndarray
@@ -23,7 +21,6 @@ class Binary:
         Spin of the lighter black hole
     """
 
-    fits: surfinBH.surfinBH.SurFinBH
     mass_ratio: float
     chi1: np.ndarray
     chi2: np.ndarray
@@ -42,21 +39,29 @@ class Binary:
         chif : float
             Final spin of the remnant black hole, [0, 1]
         """
-        vf, _ = self.fits.vf(self.mass_ratio, self.chi1, self.chi2)
-        chif, _ = self.fits.chif(self.mass_ratio, self.chi1, self.chi2)
-        self.mf, _ = self.fits.mf(self.mass_ratio, self.chi1, self.chi2)
-        self.vf = np.sqrt(np.dot(vf, vf)) * scipy.constants.speed_of_light / 1000.0
-        self.chif = np.sqrt(np.dot(chif, chif))
+        self.mf = 0.0
+        self.vf = 0.0
+        self.chif = 0.0
 
-    def get_remnant_params(self) -> list[float]:
+    def get_remnant_params(self, fits: surfinBH.surfinBH.SurFinBH) -> list[float]:
         """
         Get the parameters of the binary remnant.
+
+        Parameters
+        ----------
+        fits : surfinBH.surfinBH.SurFinBH
+            Gravitational wave waveform
 
         Returns
         -------
         remnant_params : list[float]
             Parameters of the binary remnant.
         """
+        vf, _ = fits.vf(self.mass_ratio, self.chi1, self.chi2)
+        chif, _ = fits.chif(self.mass_ratio, self.chi1, self.chi2)
+        self.mf, _ = fits.mf(self.mass_ratio, self.chi1, self.chi2)
+        self.vf = np.sqrt(np.dot(vf, vf)) * scipy.constants.speed_of_light / 1000.0
+        self.chif = np.sqrt(np.dot(chif, chif))
         return [self.mass_ratio, self.mf, self.vf, self.chif]
 
 
@@ -67,16 +72,18 @@ class BinaryConfig:
 
     Parameters
     ----------
-    mass_ratio : schemas.common.Domain
-        Domain of the mass ratio of the binary
     aligned_spin : bool
         Whether the spin is aligned
+    mass_ratio : schemas.common.Domain
+        Domain of the mass ratio of the binary
     spin : schemas.common.Domain
         Domain of the spin of the black holes
     phi : schemas.common.Domain
         Domain of the azimuthal angle
     theta : schemas.common.Domain
         Domain of the polar angle
+    fits : surfinBH.surfinBH.SurFinBH
+        Gravitational wave waveform
     """
 
     aligned_spin: bool
