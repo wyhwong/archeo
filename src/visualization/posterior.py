@@ -28,14 +28,14 @@ def plot_mass_estimates(df: pd.DataFrame, label: str, output_dir=None, close=Tru
     None
     """
     padding = schemas.visualization.Padding(lpad=0.13, bpad=0.14)
-    labels = schemas.visualization.Labels("Distribution of Estimated Masses", "Mass $(M_{\odot})$", "Density")
+    labels = schemas.visualization.Labels("Distribution of Estimated Masses", "Mass [$M_{\odot}$]", "PDF")
     _, ax = base.initialize_plot(figsize=(9, 4), labels=labels, padding=padding)
     col_to_labels = {"mf": f"{label}: ", "m_p1": "Heavier Parent: ", "m_p2": "Ligher Parent: "}
 
     for col, label_prefix in col_to_labels.items():
         density, bins = np.histogram(a=df[col], density=True)
         inv_low, med, inv_high = df[col].quantile(0.05), df[col].quantile(0.5), df[col].quantile(0.95)
-        ax_label = "%s: $%d_{-%d}^{+%d}$ %s" % (label_prefix, med, inv_low, inv_high, "($M_{\odot}$)")
+        ax_label = "%s: $%d_{-%d}^{+%d}$ %s" % (label_prefix, med, inv_low, inv_high, "[$M_{\odot}$]")
         ax.stairs(density, bins, label=ax_label)
 
     plt.ylabel(""), plt.xlabel("")
@@ -80,6 +80,7 @@ def plot_corner(df: pd.DataFrame, label: str, levels=[0.68, 0.9], nbins=70, outp
         plot_datapoints=False,
         hist_kwargs=dict(density=True),
     )
+    plt.legend()
     base.savefig_and_close(f"{label}_corner.png", output_dir, close)
 
 
@@ -107,9 +108,7 @@ def plot_cumulative_kick_probability_curve(
     None
     """
     padding = schemas.visualization.Padding(bpad=0.14)
-    labels = schemas.visualization.Labels(
-        "Cumulative Kick Probability Curve", "Recoil Velocity $v_f$ ($km/s$)", "Cumulative Probability"
-    )
+    labels = schemas.visualization.Labels("Cumulative Kick Probability Curve", "Recoil Velocity $v_f$ ($km/s$)", "CDF")
     _, ax = base.initialize_plot(figsize=(9, 4), labels=labels, padding=padding)
     if include_pisn:
         data = df
