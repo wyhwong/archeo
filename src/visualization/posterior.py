@@ -106,14 +106,15 @@ def plot_cumulative_kick_probability_curve(
     -------
     None
     """
+    padding = schemas.visualization.Padding(bpad=0.14)
     labels = schemas.visualization.Labels(
         "Cumulative Kick Probability Curve", "Recoil Velocity $v_f$ ($km/s$)", "Cumulative Probability"
     )
-    _, ax = base.initialize_plot(figsize=(9, 4), labels=labels)
+    _, ax = base.initialize_plot(figsize=(9, 4), labels=labels, padding=padding)
     if include_pisn:
         data = df
     else:
-        data = df.loc[(data["m_p1"] < 65.0) & (data["m_p2"] < 65.0)]
+        data = df.loc[(df["m_p1"] < 65.0) & (df["m_p2"] < 65.0)]
 
     sns.kdeplot(data=data["vf"], cut=0, ax=ax, cumulative=True, label=label)
     ax.set(ylabel="", xlabel="")
