@@ -41,9 +41,11 @@ def main() -> None:
 
         prior_config = schemas.binary.BinaryConfig.from_dict(prior_args["binary_config"])
         prior_generator = utils.binary.BinaryGenerator(prior_config)
-        df_prior = services.prior.run_prior_simulation(prior_generator, prior_args["num_binaries"], output_dir)
+        df_prior = services.prior.run_simulation(prior_generator, prior_args["num_binaries"], output_dir)
 
-    visualization.prior.plot_prior_dist(df_prior, output_dir)
+    visualization.prior.plot_dist(df_prior, output_dir)
+    visualization.prior.plot_kick_against_spin(df_prior, output_dir)
+    visualization.prior.plot_kick_distribution_on_spin(df_prior, output_dir)
 
 
 if __name__ == "__main__":

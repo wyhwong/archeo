@@ -23,7 +23,7 @@ def _get_binary(generator: utils.binary.BinaryGenerator) -> list[float]:
     return generator().get_remnant_params()
 
 
-def run_prior_simulation(generator: utils.binary.BinaryGenerator, num_binaries: int, output_dir: str) -> pd.DataFrame:
+def run_simulation(generator: utils.binary.BinaryGenerator, num_binaries: int, output_dir: str) -> pd.DataFrame:
     """
     Run a prior simulation.
 
