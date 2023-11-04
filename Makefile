@@ -10,19 +10,16 @@ export PORT?=8888
 export LOGLEVEL?=20
 
 build:
-	mkdir -p ./results
-	mkdir -p ./posteriors
 	docker-compose build
 
 run:
-	docker-compose up paper
+	docker-compose up ancestral_bh
 
 jupyter_up:
-	mkdir -p ./notebooks
-	docker-compose up -d paper_jupyter
+	docker-compose up -d ancestral_bh_jupyter
 
 jupyter_down:
-	docker-compose kill paper_jupyter
+	docker-compose kill ancestral_bh_jupyter
 
 clean:
 	docker-compose down --remove-orphans

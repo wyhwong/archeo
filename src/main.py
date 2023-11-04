@@ -10,7 +10,11 @@ import visualization
 
 def main() -> None:
     """
-    Main function.
+    Setup
+
+    1. Create output directory.
+    2. Set random seed.
+    3. Save main config to yml file.
     """
     results_dir = "./results"
     utils.common.check_and_create_dir(dirpath=results_dir)
@@ -22,6 +26,13 @@ def main() -> None:
     utils.common.check_and_create_dir(output_dir)
     utils.common.save_dict_as_yml(f"{output_dir}/main.yml", main_config)
 
+    """
+    Prior
+    
+    1. Load prior from csv file if `load_results` is True.
+    2. Else, run prior simulation and save the results to csv file.
+    3. Plot prior distribution.
+    """
     if main_config["prior"]["load_results"]:
         df_prior = pd.read_csv(main_config["prior"]["path_to_csv"])
     else:

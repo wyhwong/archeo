@@ -18,4 +18,3 @@ USER ${USERNAME}
 
 COPY src /home/${USERNAME}/src
 WORKDIR /home/${USERNAME}/src
-RUN python3 main.py
