@@ -1,5 +1,7 @@
 import surfinBH
 import numpy as np
+import pandas as pd
+from typing import Callable
 
 import utils.common
 import utils.logger
@@ -64,6 +66,37 @@ def generate_parameter(domain: schemas.common.Domain) -> float:
     return np.random.uniform(low=domain.low, high=domain.high)
 
 
+def mass_ratio_pdf_from_csv(csv_path: str) -> Callable:
+    """
+    Generate a mass ratio function from a csv file.
+
+    Parameters
+    ----------
+    csv_path : str
+        Path to the csv file.
+
+    Returns
+    -------
+    mass_ratio_func : Callable
+        Mass ratio function
+    """
+    df = pd.read_csv(csv_path)
+    x, p = df["x"].values, df["y"].values
+
+    def mass_ratio_pdf() -> float:
+        """
+        Generate a mass ratio.
+
+        Returns
+        -------
+        mass_ratio : float
+            Mass ratio.
+        """
+        return np.random.choice(x, p=p)
+
+    return mass_ratio_pdf
+
+
 class BinaryGenerator:
     """
     Binary generator.
@@ -73,7 +106,7 @@ class BinaryGenerator:
             2. Lighter black hole
     """
 
-    def __init__(self, config: schemas.binary.BinaryConfig) -> None:
+    def __init__(self, config: schemas.binary.BinaryConfig, mass_ratio_pdf: Callable | None = None) -> None:
         """
         Initialize the binary generator.
 
@@ -81,12 +114,15 @@ class BinaryGenerator:
         ----------
         config : schemas.binary.BinaryConfig
             Configuration of the binary generator.
+        mass_ratio_pdf : Callable, optional
+            Mass ratio pdf, by default None
 
         Returns
         -------
         None
         """
         self.config = config
+        self.mass_ratio_pdf = mass_ratio_pdf
 
     def __call__(self) -> schemas.binary.Binary:
         """
@@ -97,7 +133,11 @@ class BinaryGenerator:
         binary : schemas.binary.Binary
             Binary.
         """
-        return schemas.binary.Binary(generate_parameter(self.config.mass_ratio), self._get_spin(), self._get_spin())
+        if self.mass_ratio_pdf:
+            mass_ratio = self.mass_ratio_pdf()
+        else:
+            mass_ratio = generate_parameter(self.config.mass_ratio)
+        return schemas.binary.Binary(mass_ratio, self._get_spin(), self._get_spin())
 
     def simulate(self, num: int) -> list[schemas.binary.Binary]:
         """

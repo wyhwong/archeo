@@ -10,6 +10,9 @@ binary_config:
   aligned_spin: false
 
   mass_ratio:
+    # If non uniform prior, set csv_path
+    # And ignore low and high
+    csv_path:
     low: 1.
     high: 6.
 
