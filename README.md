@@ -9,7 +9,7 @@ Ancestral BH is a repository for inferring the natal kick and parental masses po
 
 ```bash
 # Setup for the environment
-pip3 install pyyaml p_tqdm scipy seaborn numpy pandas matplotlib jupyterthemes notebook tables corner surfinbh
+pip3 install pyyaml scipy seaborn numpy pandas matplotlib tables corner surfinbh
 
 # Clone the repository
 git clone https://github.com/wyhwong/Ancestral-BH.git
