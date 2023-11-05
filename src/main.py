@@ -44,10 +44,14 @@ def main() -> None:
 
         prior_config = schemas.binary.BinaryConfig.from_dict(prior_args["binary_config"])
         if prior_args["binary_config"]["mass_ratio"]["csv_path"]:
-            mass_ratio_pdf = utils.binary.mass_ratio_pdf_from_csv(prior_args["binary_config"]["mass_ratio"]["csv_path"])
+            mass_ratio_from_pdf = utils.binary.get_mass_ratio_func_from_csv(
+                prior_args["binary_config"]["mass_ratio"]["csv_path"]
+            )
         else:
-            mass_ratio_pdf = None
-        df_prior = services.prior.run_simulation(prior_config, prior_args["num_binaries"], output_dir, mass_ratio_pdf)
+            mass_ratio_from_pdf = None
+        df_prior = services.prior.run_simulation(
+            prior_config, prior_args["num_binaries"], output_dir, mass_ratio_from_pdf
+        )
 
     visualization.prior.plot_dist(df_prior, output_dir)
     visualization.prior.plot_kick_against_spin(df_prior, output_dir)

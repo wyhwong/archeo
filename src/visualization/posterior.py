@@ -70,7 +70,7 @@ def plot_corner(df: pd.DataFrame, label: str, levels=[0.68, 0.9], nbins=70, outp
         df,
         nbins,
         var_names=["m_p1", "m_p2", "mf", "vf", "chif"],
-        labels=["$m_p1$", "$m_p2$", "$m_f$", "$v_f$", "$\chi_f$"],
+        labels=["$m_{p1}$", "$m_{p2}$", "$m_f$", "$v_f$", "$\chi_f$"],
         levels=levels,
         plot_density=True,
         plot_samples=False,
