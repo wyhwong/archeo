@@ -9,6 +9,13 @@ binary_config:
   fits: "NRSur7dq4Remnant"
   aligned_spin: false
 
+  mass:
+    # If non uniform prior, set csv_path
+    # And ignore low and high
+    csv_path:
+    low: 1.
+    high: 65.
+
   mass_ratio:
     # If non uniform prior, set csv_path
     # And ignore low and high

@@ -42,11 +42,11 @@ def sph2cart(theta: float, phi: float) -> np.ndarray:
 
     Returns
     -------
-    newUnitVector : np.ndarray
+    new_unit_vector : np.ndarray
         Cartesian coordinates.
     """
-    newUnitVector = [np.sin(theta) * np.cos(phi), np.sin(theta) * np.sin(phi), np.cos(theta)]
-    return np.array(newUnitVector, dtype=float)
+    new_unit_vector = [np.sin(theta) * np.cos(phi), np.sin(theta) * np.sin(phi), np.cos(theta)]
+    return np.array(new_unit_vector, dtype=float)
 
 
 def generate_parameter(domain: schemas.common.Domain) -> float:
@@ -66,9 +66,9 @@ def generate_parameter(domain: schemas.common.Domain) -> float:
     return np.random.uniform(low=domain.low, high=domain.high)
 
 
-def get_mass_ratio_func_from_csv(csv_path: str) -> Callable:
+def get_generator_from_csv(csv_path: str) -> Callable:
     """
-    Generate a mass ratio function from a csv file.
+    Generate a generator function from a csv file.
 
     Parameters
     ----------
@@ -77,24 +77,24 @@ def get_mass_ratio_func_from_csv(csv_path: str) -> Callable:
 
     Returns
     -------
-    mass_ratio_func : Callable
-        Mass ratio function
+    generator_func : Callable
+        Generator function to generate values for a paramter.
     """
     df = pd.read_csv(csv_path)
     x, p = df["x"].values, df["y"].values
 
-    def mass_ratio_from_pdf() -> float:
+    def parameter_from_pdf() -> float:
         """
-        Generate a mass ratio.
+        Generate a value for a parameter.
 
         Returns
         -------
-        mass_ratio : float
-            Mass ratio.
+        parameter : float
+            Value of the parameter.
         """
         return np.random.choice(x, p=p)
 
-    return mass_ratio_from_pdf
+    return parameter_from_pdf
 
 
 class BinaryGenerator:
@@ -106,7 +106,13 @@ class BinaryGenerator:
             2. Lighter black hole
     """
 
-    def __init__(self, config: schemas.binary.BinaryConfig, mass_ratio_from_pdf: Callable | None = None) -> None:
+    def __init__(
+        self,
+        config: schemas.binary.BinaryConfig,
+        mass_injection: bool = False,
+        mass_ratio_from_pdf: Callable | None = None,
+        mass_from_pdf: Callable | None = None,
+    ) -> None:
         """
         Initialize the binary generator.
 
@@ -114,15 +120,24 @@ class BinaryGenerator:
         ----------
         config : schemas.binary.BinaryConfig
             Configuration of the binary generator.
-        mass_ratio_pdf : Callable, optional
-            Mass ratio pdf, by default None
+        mass_injection : bool, optional
+            Whether to inject the masses, by default False
+        mass_ratio_from_pdf : Callable, optional
+            Generate mass ratio from pdf, by default None
+        mass_from_pdf : Callable, optional
+            Generate mass from pdf, by default None
 
         Returns
         -------
         None
         """
         self.config = config
+        self.mass_injection = mass_injection
         self.mass_ratio_from_pdf = mass_ratio_from_pdf
+        self.mass_from_pdf = mass_from_pdf
+
+        if self.mass_from_pdf and self.mass_ratio_from_pdf:
+            raise ValueError("Both mass_from_pdf and mass_ratio_from_pdf exist.")
 
     def __call__(self) -> schemas.binary.Binary:
         """
@@ -133,11 +148,21 @@ class BinaryGenerator:
         binary : schemas.binary.Binary
             Binary.
         """
-        if self.mass_ratio_from_pdf:
-            mass_ratio = self.mass_ratio_from_pdf()
+        chi1, chi2 = self._get_spin(), self._get_spin()
+
+        if self.mass_injection:
+            m1, m2 = self._get_masses()
+            mass_ratio = m1 / m2
+
         else:
-            mass_ratio = generate_parameter(self.config.mass_ratio)
-        return schemas.binary.Binary(mass_ratio, self._get_spin(), self._get_spin())
+            m1, m2 = None
+
+            if self.mass_ratio_from_pdf:
+                mass_ratio = self.mass_ratio_from_pdf()
+            else:
+                mass_ratio = generate_parameter(self.config.mass_ratio)
+
+        return schemas.binary.Binary(mass_ratio, chi1, chi2, m1, m2)
 
     def simulate(self, num: int) -> list[schemas.binary.Binary]:
         """
@@ -172,3 +197,27 @@ class BinaryGenerator:
 
         univ = sph2cart(theta, phi)
         return spin * univ
+
+    def _get_masses(self) -> tuple[float, float]:
+        """
+        Generate the masses of the binary.
+
+        Returns
+        -------
+        m1 : float
+            Mass of the heavier black hole.
+        m2 : float
+            Mass of the lighter black hole.
+        """
+        in_bound = False
+        while not in_bound:
+            if self.mass_from_pdf:
+                m_1, m_2 = self.mass_from_pdf(), self.mass_from_pdf()
+            else:
+                m_1, m_2 = generate_parameter(self.config.mass), generate_parameter(self.config.mass)
+
+            m1, m2 = max(m_1, m_2), min(m_1, m_2)
+            if self.config.mass_ratio.in_bound(m1 / m2):
+                in_bound = True
+
+        return (m1, m2)

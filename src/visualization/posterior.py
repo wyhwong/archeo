@@ -30,7 +30,7 @@ def plot_mass_estimates(df: pd.DataFrame, label: str, output_dir=None, close=Tru
     padding = schemas.visualization.Padding(lpad=0.13, bpad=0.14)
     labels = schemas.visualization.Labels("Distribution of Estimated Masses", "Mass [$M_{\odot}$]", "PDF")
     _, ax = base.initialize_plot(figsize=(9, 4), labels=labels, padding=padding)
-    col_to_labels = {"mf": f"{label}: ", "m_p1": "Heavier Parent: ", "m_p2": "Ligher Parent: "}
+    col_to_labels = {"mf": f"{label}: ", "m1": "Heavier Parent: ", "m2": "Ligher Parent: "}
 
     for col, label_prefix in col_to_labels.items():
         density, bins = np.histogram(a=df[col], density=True)
@@ -69,8 +69,8 @@ def plot_corner(df: pd.DataFrame, label: str, levels=[0.68, 0.9], nbins=70, outp
     corner.corner(
         df,
         nbins,
-        var_names=["m_p1", "m_p2", "mf", "vf", "chif"],
-        labels=["$m_{p1}$", "$m_{p2}$", "$m_f$", "$v_f$", "$\chi_f$"],
+        var_names=["m1", "m2", "mf_", "vf", "chif"],
+        labels=["$m_1$", "$m_2$", "$m_f$", "$v_f$", "$\chi_f$"],
         levels=levels,
         plot_density=True,
         plot_samples=False,
@@ -113,7 +113,7 @@ def plot_cumulative_kick_probability_curve(
     if include_pisn:
         data = df
     else:
-        data = df.loc[(df["m_p1"] < 65.0) & (df["m_p2"] < 65.0)]
+        data = df.loc[(df["m1"] < 65.0) & (df["m2"] < 65.0)]
 
     sns.kdeplot(data=data["vf"], cut=0, ax=ax, cumulative=True, label=label)
     ax.set(ylabel="", xlabel="")

@@ -19,13 +19,18 @@ class Binary:
         Spin of the heavier black hole
     chi2 : np.ndarray
         Spin of the lighter black hole
+    m1 : float | None
+        Optional, Mass of the heavier black hole
+    m2 : float | None
+        Optional, Mass of the lighter black hole
     """
 
     mass_ratio: float
     chi1: np.ndarray
     chi2: np.ndarray
+    m1: float | None = None
+    m2: float | None = None
 
-    # merger_params: [mass_ratio, spin_1, spin_2, remnant_mass, error, remnant_spin, error, remnant_speed, error]
     def __post_init__(self):
         """
         Post initialization.
@@ -62,7 +67,7 @@ class Binary:
         self.mf, _ = fits.mf(self.mass_ratio, self.chi1, self.chi2)
         self.vf = np.sqrt(np.dot(vf, vf)) * scipy.constants.speed_of_light / 1000.0
         self.chif = np.sqrt(np.dot(chif, chif))
-        return [self.mass_ratio, self.mf, self.vf, self.chif]
+        return [self.m1, self.m2, self.mass_ratio, self.mf, self.vf, self.chif]
 
 
 @dataclasses.dataclass
@@ -72,26 +77,29 @@ class BinaryConfig:
 
     Parameters
     ----------
+    fits : surfinBH.surfinBH.SurFinBH
+        Gravitational wave waveform
     aligned_spin : bool
         Whether the spin is aligned
-    mass_ratio : schemas.common.Domain
-        Domain of the mass ratio of the binary
     spin : schemas.common.Domain
         Domain of the spin of the black holes
     phi : schemas.common.Domain
         Domain of the azimuthal angle
     theta : schemas.common.Domain
         Domain of the polar angle
-    fits : surfinBH.surfinBH.SurFinBH
-        Gravitational wave waveform
+    mass_ratio : schemas.common.Domain
+        Domain of the mass ratio of the binary
+    mass: schemas.common.Domain
+        Domain of the mass of component black holes
     """
 
+    fits: surfinBH.surfinBH.SurFinBH
     aligned_spin: bool
-    mass_ratio: schemas.common.Domain
     spin: schemas.common.Domain
     phi: schemas.common.Domain
     theta: schemas.common.Domain
-    fits: surfinBH.surfinBH.SurFinBH
+    mass_ratio: schemas.common.Domain
+    mass: schemas.common.Domain
 
     def from_dict(args: dict):
         """
@@ -103,10 +111,11 @@ class BinaryConfig:
             Dictionary of the binary configuration
         """
         return BinaryConfig(
+            fits=surfinBH.LoadFits(args["fits"]),
             aligned_spin=args["aligned_spin"],
-            mass_ratio=schemas.common.Domain(args["mass_ratio"]["low"], args["mass_ratio"]["high"]),
             spin=schemas.common.Domain(args["spin"]["low"], args["spin"]["high"]),
             phi=schemas.common.Domain(args["phi"]["low"] * np.pi, args["phi"]["high"] * np.pi),
             theta=schemas.common.Domain(args["theta"]["low"] * np.pi, args["theta"]["high"] * np.pi),
-            fits=surfinBH.LoadFits(args["fits"]),
+            mass_ratio=schemas.common.Domain(args["mass_ratio"]["low"], args["mass_ratio"]["high"]),
+            mass=schemas.common.Domain(args["mass"]["low"], args["mass"]["high"]),
         )

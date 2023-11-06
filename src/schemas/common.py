@@ -16,3 +16,19 @@ class Domain:
 
     low: float
     high: float
+
+    def in_bound(self, value: float) -> bool:
+        """
+        Check if a value is in the domain.
+
+        Parameters
+        ----------
+        value : float
+            Value to be checked.
+
+        Returns
+        -------
+        in_bound : bool
+            Whether the value is in the domain.
+        """
+        return self.low <= value <= self.high

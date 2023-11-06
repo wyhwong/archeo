@@ -43,14 +43,21 @@ def main() -> None:
         utils.common.save_dict_as_yml(f"{output_dir}/prior.yml", prior_args)
 
         prior_config = schemas.binary.BinaryConfig.from_dict(prior_args["binary_config"])
-        if prior_args["binary_config"]["mass_ratio"]["csv_path"]:
-            mass_ratio_from_pdf = utils.binary.get_mass_ratio_func_from_csv(
-                prior_args["binary_config"]["mass_ratio"]["csv_path"]
-            )
-        else:
-            mass_ratio_from_pdf = None
+
+        func_from_pdf = {}
+        for para in ["mass", "mass_ratio"]:
+            if prior_args["binary_config"][para]["csv_path"]:
+                func_from_pdf[para] = utils.binary.get_generator_from_csv(prior_args["binary_config"][para]["csv_path"])
+            else:
+                func_from_pdf[para] = None
+
         df_prior = services.prior.run_simulation(
-            prior_config, prior_args["num_binaries"], output_dir, mass_ratio_from_pdf
+            prior_config,
+            main_config["prior"]["mass_injection"],
+            prior_args["num_binaries"],
+            output_dir,
+            func_from_pdf["mass"],
+            func_from_pdf["mass_ratio"],
         )
 
     visualization.prior.plot_dist(df_prior, output_dir)
@@ -81,6 +88,7 @@ def main() -> None:
                 posterior_label,
                 posterior[f"a_{bh_index}"],
                 posterior[f"mass_{bh_index}_source"],
+                main_config["posterior"]["mass_injection"],
                 output_dir=output_dir,
             )
             visualization.posterior.plot_mass_estimates(df_posterior, posterior_label, output_dir)

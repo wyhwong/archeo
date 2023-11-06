@@ -28,21 +28,30 @@ def _get_remnant_params(binary: schemas.binary.Binary) -> list[float]:
 
 
 def run_simulation(
-    config: schemas.binary.BinaryConfig, num_binaries: int, output_dir: str, mass_ratio_pdf: Callable | None = None
+    config: schemas.binary.BinaryConfig,
+    mass_injection: bool,
+    num_binaries: int,
+    output_dir: str,
+    mass_ratio_from_pdf: Callable | None = None,
+    mass_from_pdf: Callable | None = None,
 ) -> pd.DataFrame:
     """
     Run a prior simulation.
 
     Parameters
     ----------
-    generator : utils.binary.BinaryGenerator
-        Binary generator.
+    config : schemas.binary.BinaryConfig
+        Configuration of the binary generator.
+    mass_injection : bool
+        Whether to inject the masses.
     num_binaries : int
         Number of binaries to simulate.
     output_dir : str
         Output directory.
     mass_ratio_pdf : Callable, optional
         Mass ratio pdf, by default None
+    mass_pdf : Callable, optional
+        Mass pdf, by default None
 
     Returns
     -------
@@ -50,13 +59,13 @@ def run_simulation(
         Prior.
     """
     global generator
-    generator = utils.binary.BinaryGenerator(config, mass_ratio_pdf)
+    generator = utils.binary.BinaryGenerator(config, mass_injection, mass_ratio_from_pdf, mass_from_pdf)
 
     with ProcessPoolExecutor(max_workers=env.MAX_WORKER) as Executor:
         futures = [Executor.submit(_get_remnant_params, generator()) for _ in tqdm(range(num_binaries))]
     wait(futures)
 
     prior_samples = [future.result() for future in futures]
-    df_prior = pd.DataFrame(prior_samples, columns=["q", "mf", "vf", "chif"])
+    df_prior = pd.DataFrame(prior_samples, columns=["m1", "m2", "q", "mf", "vf", "chif"])
     df_prior.to_csv(f"{output_dir}/prior.csv", index=False)
     return df_prior
