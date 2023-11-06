@@ -26,8 +26,9 @@ def plot_dist(df: pd.DataFrame, output_dir=None, close=True) -> None:
     None
     """
     labels = schemas.visualization.Labels("Distribution of remnant black-hole parameters")
-    _, axes = base.initialize_plot(len(df.columns), 1, (6, 8), labels)
-    for index, column in enumerate(df.columns):
+    columns = ["q", "mf", "vf", "chif"]
+    _, axes = base.initialize_plot(len(columns), 1, (6, 8), labels)
+    for index, column in enumerate(columns):
         sns.histplot(df[column], ax=axes[index], element="step", fill=False, stat="density")
     params_to_labels = [
         {"x": "Parent Mass Ratio $q$", "y": "PDF"},

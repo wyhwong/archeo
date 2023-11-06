@@ -75,20 +75,3 @@ def check_and_create_dir(dirpath: str) -> None:
     if not os.path.isdir(dirpath):
         logger.info(f"{dirpath} does not exist, creating one...")
         os.mkdir(dirpath)
-
-
-def return_input(x: Any) -> Any:
-    """
-    Return the input.
-
-    Parameters
-    ----------
-    x : Any
-        Input.
-
-    Returns
-    -------
-    x : Any
-        Input.
-    """
-    return x

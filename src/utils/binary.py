@@ -155,7 +155,7 @@ class BinaryGenerator:
             mass_ratio = m1 / m2
 
         else:
-            m1, m2 = None
+            m1, m2 = None, None
 
             if self.mass_ratio_from_pdf:
                 mass_ratio = self.mass_ratio_from_pdf()
@@ -209,15 +209,16 @@ class BinaryGenerator:
         m2 : float
             Mass of the lighter black hole.
         """
-        in_bound = False
-        while not in_bound:
-            if self.mass_from_pdf:
+        if self.mass_from_pdf:
+            in_bound = False
+            while not in_bound:
                 m_1, m_2 = self.mass_from_pdf(), self.mass_from_pdf()
-            else:
-                m_1, m_2 = generate_parameter(self.config.mass), generate_parameter(self.config.mass)
-
-            m1, m2 = max(m_1, m_2), min(m_1, m_2)
-            if self.config.mass_ratio.in_bound(m1 / m2):
-                in_bound = True
+                m1, m2 = max(m_1, m_2), min(m_1, m_2)
+                if self.config.mass_ratio.in_bound(m1 / m2):
+                    in_bound = True
+        else:
+            mass_ratio = generate_parameter(self.config.mass_ratio)
+            m1 = generate_parameter(self.config.mass)
+            m2 = m1 / mass_ratio
 
         return (m1, m2)
