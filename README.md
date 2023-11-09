@@ -49,16 +49,7 @@ poetry install
 
 We can use the scripts in the repository to estimate the parental mass and kick of GW190521. Please find the related data of GW190521 in [LIGO Document P2000158-v4](https://dcc.ligo.org/LIGO-P2000158/public). After downloading the data and modify [main.yml](./src/configs/main.yml) accordingly, we can compute the results. One can also tune the prior settings at [prior.yml](./src/configs/prior.yml) accordingly.
 
-# Demonstration
-
-### Corner plot of the first component black hole in GW190521
-
-![plot](./images/GW190521_LVC_BH1_corner.png)
-
-
-### Corner plot of the second component black hole in GW190521
-
-![plot](./images/GW190521_LVC_BH2_corner.png)
+---
 
 # Authors
 [@wyhwong](https://github.com/wyhwong), [@juan.calderonbustillo](https://git.ligo.org/juan.calderonbustillo)
