@@ -1,17 +1,34 @@
+# Each run creates a folder to store the results at ./results
+# The run_label is used to name the folder
 run_label: "general"
+
+# Seed for numpy random number generator
 seed: 2023
 
+# Settings for prior simulation
 prior:
-  load_results: false
+  # The option to have mass priors or not
   mass_injection: false
-  # Path to results.csv
+
+  # This config is used to load the results of a previous run
+  # If you would like to skip the simulation,
+  # set load_results to true and provide the path to the results
+  load_results: false 
   csv_path: "filepath"
 
+# Settings for posterior simulation
 posterior:
+  # The option to use simulated mass priors or not
   mass_injection: false
 
+  # This config is used to load the posterior samples from json files
   json_path:
+    # Example:
+    # posterior1: "./posteriors/posterior1.json"
     label: "filepath"
 
+  # This config is used to load the posterior samples from h5 files
   h5_path:
+    # Example:
+    # posterior2: "./posteriors/posterior2.h5"
     label: "filepath"

@@ -1,4 +1,4 @@
-# amount of black-hole mergers to simulate
+# Number of black-hole mergers to simulate
 num_binaries: 500000
 
 binary_config:
@@ -7,31 +7,42 @@ binary_config:
   # NRSur7dq4Remnant: precessing BHs with mass ratio<=4, generic spin <= 0.8
   # surfinBH7dq2: precessing BHs with mass ratio <= 2, generic spin <= 0.8
   fits: "NRSur7dq4Remnant"
+
+  # The option to simulate only mergers with aligned spin
   aligned_spin: false
 
   mass:
-    # If non uniform prior, set csv_path
-    # And ignore low and high
-    csv_path:
-    mahapatra: true
+    # Domain settings
     low: 5.
     high: 65.
 
-  mass_ratio:
-    # If non uniform prior, set csv_path
-    # And ignore low and high
+    # The option to use Mahapatra mass distribution or not
+    mahapatra: true
+
+    # Provide a csv path if you have a customized mass distribution
+    # The csv should contains "x": mass, "y": probability density
     csv_path:
+
+  mass_ratio:
+    # Domain settings
     low: 1.
     high: 6.
 
+    # Provide a csv path if you have a customized mass ratio distribution
+    # The csv should contains "x": mass_ratio, "y": probability density
+    csv_path:
+
   spin:
+    # Domain settings
     low: -0.8
     high: 0.8
 
   theta:
+    # Domain settings
     low: 0.
     high: 1. # unit in pi
 
   phi:
+    # Domain settings
     low: 0.
     high: 2. # unit in pi
