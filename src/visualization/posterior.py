@@ -30,10 +30,10 @@ def plot_mass_estimates(df: pd.DataFrame, label: str, output_dir=None, close=Tru
     padding = schemas.visualization.Padding(lpad=0.13, bpad=0.14)
     labels = schemas.visualization.Labels("Distribution of Estimated Masses", "Mass [$M_{\odot}$]", "PDF")
     _, ax = base.initialize_plot(figsize=(9, 4), labels=labels, padding=padding)
-    col_to_labels = {"mf": f"{label}: ", "m1": "Heavier Parent: ", "m2": "Ligher Parent: "}
+    col_to_labels = {"mf_": f"{label}: ", "m1": "Heavier Parent: ", "m2": "Ligher Parent: "}
 
     for col, label_prefix in col_to_labels.items():
-        density, bins = np.histogram(a=df[col], density=True)
+        density, bins = np.histogram(a=df[col], bins=70, density=True)
         inv_low, med, inv_high = df[col].quantile(0.05), df[col].quantile(0.5), df[col].quantile(0.95)
         ax_label = "%s: $%d_{-%d}^{+%d}$ %s" % (label_prefix, med, med - inv_low, inv_high - med, "[$M_{\odot}$]")
         ax.stairs(density, bins, label=ax_label)

@@ -98,7 +98,7 @@ def plot_kick_distribution_on_spin(df: pd.DataFrame, output_dir=None, close=True
         data = df.loc[(low_bound < df["chif"]) & (df["chif"] < up_bound)]["vf"]
         # To avoid extreme density values
         if len(data.index) > 100:
-            density, bins = np.histogram(a=data, density=True)
+            density, bins = np.histogram(a=data, bins=70, density=True)
             ax.stairs(density, bins, label=f"$\chi_f$ $\in$ $[{low_bound:.2f}, {up_bound:.2f}]$")
     ax.set(xlabel="", ylabel="")
     plt.legend()

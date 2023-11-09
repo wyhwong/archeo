@@ -13,7 +13,8 @@ binary_config:
     # If non uniform prior, set csv_path
     # And ignore low and high
     csv_path:
-    low: 1.
+    mahapatra: true
+    low: 5.
     high: 65.
 
   mass_ratio:

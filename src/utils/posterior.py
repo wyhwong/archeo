@@ -76,7 +76,7 @@ class PosteriorSampler:
             The samples of the parental mass
         """
         if self.mass_injection:
-            samples = self.prior.loc[(self.prior["mf_"] - mass_measure).abs() < 1]
+            samples = self.prior.loc[(self.prior["mf_"] - mass_measure).abs() < 0.1]
 
         samples = self.prior.iloc[(self.prior["chif"] - spin_measure).abs().argsort()[: self.num_samples]]
 

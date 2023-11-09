@@ -48,6 +48,8 @@ def main() -> None:
         for para in ["mass", "mass_ratio"]:
             if prior_args["binary_config"][para]["csv_path"]:
                 func_from_pdf[para] = utils.binary.get_generator_from_csv(prior_args["binary_config"][para]["csv_path"])
+            elif para == "mass" and prior_args["binary_config"][para]["mahapatra"]:
+                func_from_pdf[para] = utils.mahapatra.get_mass_func_from_mahapatra(prior_config.mass)
             else:
                 func_from_pdf[para] = None
 

@@ -210,15 +210,15 @@ class BinaryGenerator:
             Mass of the lighter black hole.
         """
         if self.mass_from_pdf:
-            in_bound = False
-            while not in_bound:
-                m_1, m_2 = self.mass_from_pdf(), self.mass_from_pdf()
-                m1, m2 = max(m_1, m_2), min(m_1, m_2)
-                if self.config.mass_ratio.in_bound(m1 / m2):
-                    in_bound = True
+            m_1, m_2 = self.mass_from_pdf(), self.mass_from_pdf()
+            m1, m2 = max(m_1, m_2), min(m_1, m_2)
+            if not self.config.mass_ratio.in_bound(m1 / m2):
+                return self._get_masses()
         else:
             mass_ratio = generate_parameter(self.config.mass_ratio)
             m1 = generate_parameter(self.config.mass)
             m2 = m1 / mass_ratio
+            if m2 < self.config.mass.low:
+                return self._get_masses()
 
         return (m1, m2)
