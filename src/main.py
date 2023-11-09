@@ -24,7 +24,9 @@ def main() -> None:
 
     main_config = utils.common.read_dict_from_yml("configs/main.yml")
     np.random.seed(seed=main_config["seed"])
-    run_label = f"{int(len(glob.glob(f'{results_dir}/*')) + 1)}_{main_config['run_label']}"
+    run_label = (
+        f"{int(len(glob.glob(f'{results_dir}/*')) + 1)}_{main_config['run_label']}"
+    )
     output_dir = f"{results_dir}/{run_label}"
     utils.common.check_and_create_dir(output_dir)
     utils.common.save_dict_as_yml(f"{output_dir}/main.yml", main_config)
@@ -42,24 +44,30 @@ def main() -> None:
         prior_args = utils.common.read_dict_from_yml("configs/prior.yml")
         utils.common.save_dict_as_yml(f"{output_dir}/prior.yml", prior_args)
 
-        prior_config = schemas.binary.BinaryConfig.from_dict(prior_args["binary_config"])
+        prior_config = schemas.binary.BinaryConfig.from_dict(
+            prior_args["binary_config"]
+        )
 
         func_from_pdf = {}
         for para in ["mass", "mass_ratio"]:
             if prior_args["binary_config"][para]["csv_path"]:
-                func_from_pdf[para] = utils.binary.get_generator_from_csv(prior_args["binary_config"][para]["csv_path"])
+                func_from_pdf[para] = utils.binary.get_generator_from_csv(
+                    prior_args["binary_config"][para]["csv_path"]
+                )
             elif para == "mass" and prior_args["binary_config"][para]["mahapatra"]:
-                func_from_pdf[para] = utils.mahapatra.get_mass_func_from_mahapatra(prior_config.mass)
+                func_from_pdf[para] = utils.mahapatra.get_mass_func_from_mahapatra(
+                    prior_config.mass
+                )
             else:
                 func_from_pdf[para] = None
 
         df_prior = services.prior.run_simulation(
-            prior_config,
-            main_config["prior"]["mass_injection"],
-            prior_args["num_binaries"],
-            output_dir,
-            func_from_pdf["mass"],
-            func_from_pdf["mass_ratio"],
+            config=prior_config,
+            mass_injection=main_config["prior"]["mass_injection"],
+            num_binaries=prior_args["num_binaries"],
+            output_dir=output_dir,
+            mass_ratio_from_pdf=func_from_pdf["mass_ratio"],
+            mass_from_pdf=func_from_pdf["mass"],
         )
 
     visualization.prior.plot_dist(df_prior, output_dir)
@@ -76,25 +84,33 @@ def main() -> None:
     posteriors = {}
     if main_config["posterior"]["json_path"]:
         for label, posterior_filepath in main_config["posterior"]["json_path"].items():
-            posteriors[label] = utils.posterior.read_posterior_from_json(posterior_filepath)
+            posteriors[label] = utils.posterior.read_posterior_from_json(
+                posterior_filepath
+            )
 
     if main_config["posterior"]["h5_path"]:
         for label, posterior_filepath in main_config["posterior"]["h5_path"].items():
-            posteriors[label] = utils.posterior.read_posterior_from_h5(posterior_filepath)
+            posteriors[label] = utils.posterior.read_posterior_from_h5(
+                posterior_filepath
+            )
 
     for label, posterior in posteriors.items():
         for bh_index in [1, 2]:
             posterior_label = f"{label},BH{bh_index}"
             df_posterior = services.posterior.infer_parental_posterior(
-                df_prior,
-                posterior_label,
-                posterior[f"a_{bh_index}"],
-                posterior[f"mass_{bh_index}_source"],
-                main_config["posterior"]["mass_injection"],
+                df=df_prior,
+                label=posterior_label,
+                spin_posterior=posterior[f"a_{bh_index}"],
+                mass_posterior=posterior[f"mass_{bh_index}_source"],
+                mass_injection=main_config["posterior"]["mass_injection"],
                 output_dir=output_dir,
             )
-            visualization.posterior.plot_mass_estimates(df_posterior, posterior_label, output_dir)
-            visualization.posterior.plot_corner(df_posterior, posterior_label, output_dir=output_dir)
+            visualization.posterior.plot_mass_estimates(
+                df_posterior, posterior_label, output_dir
+            )
+            visualization.posterior.plot_corner(
+                df_posterior, posterior_label, output_dir=output_dir
+            )
             visualization.posterior.plot_cumulative_kick_probability_curve(
                 df_posterior, posterior_label, output_dir=output_dir
             )
