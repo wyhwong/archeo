@@ -8,6 +8,7 @@ export TZ?=Asia/Hong_Kong
 export VERSION?=devel
 export PORT?=8888
 export LOGLEVEL?=20
+export MAX_WORKER?=20
 
 build:
 	docker-compose build
