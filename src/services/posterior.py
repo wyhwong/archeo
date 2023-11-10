@@ -3,35 +3,31 @@ from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor, wait
 
 import env
-import utils.posterior
+import utils
+
+logger = utils.get_logger(logger_name="services|posterior")
 
 
 def infer_parental_posterior(
-    df: pd.DataFrame,
+    sampler: utils.posterior.PosteriorSampler,
     label: str,
     spin_posterior: list[float],
     mass_posterior: list[float],
-    mass_injection: bool,
-    num_samples: int = 10,
-    output_dir: str | None = None,
+    output_dir: str = "",
 ) -> pd.DataFrame:
     """
     Infer the parental posterior from the posterior of the child parameters.
 
     Parameters
     ----------
-    df : pd.DataFrame
-        The prior of the child parameters.
+    sampler : utils.posterior.PosteriorSampler
+        The posterior sampler.
     label : str
         The label of the child parameters.
     spin_posterior : list[float]
         The posterior of the spin parameter.
     mass_posterior : list[float]
         The posterior of the mass parameter.
-    mass_injection : bool
-        Whether the mass is injected.
-    num_samples : int, optional
-        The number of samples to draw from the prior per posterior sample, by default 10
     output_dir : str, optional
         The directory to save the posterior to, by default None
 
@@ -40,7 +36,7 @@ def infer_parental_posterior(
     posterior : pd.DataFrame
         The posterior of the parental parameters.
     """
-    sampler = utils.posterior.PosteriorSampler(df, mass_injection, num_samples)
+    logger.info("Running the parental posterior inference... (%s)", label)
 
     with ProcessPoolExecutor(max_workers=env.MAX_WORKER) as Executor:
         futures = [

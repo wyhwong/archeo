@@ -34,11 +34,8 @@ class Labels:
         the label of the x-axis.
     ylabel: str
         the label of the y-axis.
-    zlabel: str
-        the label of the z-axis.
     """
 
     title: str = ""
     xlabel: str = ""
     ylabel: str = ""
-    zlabel: str = ""

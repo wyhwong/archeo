@@ -40,12 +40,21 @@ def initialize_plot(
     fig.tight_layout(pad=padding.tpad)
     fig.subplots_adjust(left=padding.lpad, bottom=padding.bpad)
     fig.suptitle(labels.title, fontsize=fontsize)
-    fig.text(x=0.04, y=0.5, s=labels.ylabel, fontsize=fontsize, rotation="vertical", verticalalignment="center")
-    fig.text(x=0.5, y=0.04, s=labels.xlabel, fontsize=fontsize, horizontalalignment="center")
+    fig.text(
+        x=0.04,
+        y=0.5,
+        s=labels.ylabel,
+        fontsize=fontsize,
+        rotation="vertical",
+        verticalalignment="center",
+    )
+    fig.text(
+        x=0.5, y=0.04, s=labels.xlabel, fontsize=fontsize, horizontalalignment="center"
+    )
     return (fig, axes)
 
 
-def savefig_and_close(filename: str | None = None, output_dir=None, close=True) -> None:
+def savefig_and_close(filename="", output_dir="", close=True) -> None:
     """
     Save the figure and close it.
 

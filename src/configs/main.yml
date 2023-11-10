@@ -8,7 +8,7 @@ seed: 2023
 # Settings for prior simulation
 prior:
   # The option to have mass priors or not
-  mass_injection: false
+  is_mass_injected: false
 
   # This config is used to load the results of a previous run
   # If you would like to skip the simulation,
@@ -19,7 +19,8 @@ prior:
 # Settings for posterior simulation
 posterior:
   # The option to use simulated mass priors or not
-  mass_injection: false
+  is_mass_injected: false
+  sampling: 10
 
   # This config is used to load the posterior samples from json files
   json_path:

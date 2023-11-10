@@ -6,7 +6,7 @@ DATEFMT = "%Y-%m-%d %H:%M:%S"
 logging.basicConfig(format=LOGFMT, datefmt=DATEFMT, level=env.LOGLEVEL)
 
 
-def get_logger(logger_name: str, log_filepath=None) -> logging.Logger:
+def get_logger(logger_name: str, log_filepath=env.LOGFILEPATH) -> logging.Logger:
     """
     Get a logger.
 

@@ -7,7 +7,8 @@ import env
 import utils
 import schemas
 
-logger = utils.logger.get_logger(logger_name="utils|prior")
+
+logger = utils.get_logger(logger_name="services|prior")
 
 
 def _get_remnant_params(binary: schemas.binary.Binary) -> list[float]:
@@ -29,11 +30,11 @@ def _get_remnant_params(binary: schemas.binary.Binary) -> list[float]:
 
 def run_simulation(
     config: schemas.binary.BinaryConfig,
-    mass_injection: bool,
+    is_mass_injected: bool,
     num_binaries: int,
-    output_dir: str,
     mass_ratio_from_pdf: Callable | None = None,
     mass_from_pdf: Callable | None = None,
+    output_dir: str = "",
 ) -> pd.DataFrame:
     """
     Run a prior simulation.
@@ -42,30 +43,39 @@ def run_simulation(
     ----------
     config : schemas.binary.BinaryConfig
         Configuration of the binary generator.
-    mass_injection : bool
-        Whether to inject the masses.
+    is_mass_injected : bool
+        Whether to inject the masses
     num_binaries : int
         Number of binaries to simulate.
-    output_dir : str
-        Output directory.
     mass_ratio_pdf : Callable, optional
         Mass ratio pdf, by default None
     mass_pdf : Callable, optional
         Mass pdf, by default None
+    output_dir : str
+        Output directory.
 
     Returns
     -------
     prior : pd.DataFrame
         Prior.
     """
+    logger.info("Running the prior simulation...")
+    logger.info("Number of binaries: %d", num_binaries)
+    logger.info("Is mass injected: %s", is_mass_injected)
+
     global generator
-    generator = utils.binary.BinaryGenerator(config, mass_injection, mass_ratio_from_pdf, mass_from_pdf)
+    generator = utils.binary.BinaryGenerator(
+        config, is_mass_injected, mass_ratio_from_pdf, mass_from_pdf
+    )
 
     with ProcessPoolExecutor(max_workers=env.MAX_WORKER) as Executor:
-        futures = [Executor.submit(_get_remnant_params, generator()) for _ in tqdm(range(num_binaries))]
+        futures = [
+            Executor.submit(_get_remnant_params, generator())
+            for _ in tqdm(range(num_binaries))
+        ]
     wait(futures)
 
-    prior_samples = [future.result() for future in futures]
-    df_prior = pd.DataFrame(prior_samples, columns=["m1", "m2", "q", "mf", "vf", "chif"])
-    df_prior.to_csv(f"{output_dir}/prior.csv", index=False)
-    return df_prior
+    samples = [future.result() for future in futures]
+    df = pd.DataFrame(samples, columns=["m1", "m2", "q", "mf", "vf", "chif"])
+    df.to_csv(f"{output_dir}/prior.csv", index=False)
+    return df

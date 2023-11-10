@@ -109,13 +109,24 @@ class BinaryConfig:
         ----------
         args : dict
             Dictionary of the binary configuration
+
+        Returns
+        -------
+        BinaryConfig
+            Binary configuration
         """
         return BinaryConfig(
             fits=surfinBH.LoadFits(args["fits"]),
             aligned_spin=args["aligned_spin"],
             spin=schemas.common.Domain(args["spin"]["low"], args["spin"]["high"]),
-            phi=schemas.common.Domain(args["phi"]["low"] * np.pi, args["phi"]["high"] * np.pi),
-            theta=schemas.common.Domain(args["theta"]["low"] * np.pi, args["theta"]["high"] * np.pi),
-            mass_ratio=schemas.common.Domain(args["mass_ratio"]["low"], args["mass_ratio"]["high"]),
+            phi=schemas.common.Domain(
+                args["phi"]["low"] * np.pi, args["phi"]["high"] * np.pi
+            ),
+            theta=schemas.common.Domain(
+                args["theta"]["low"] * np.pi, args["theta"]["high"] * np.pi
+            ),
+            mass_ratio=schemas.common.Domain(
+                args["mass_ratio"]["low"], args["mass_ratio"]["high"]
+            ),
             mass=schemas.common.Domain(args["mass"]["low"], args["mass"]["high"]),
         )

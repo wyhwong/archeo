@@ -12,7 +12,7 @@ binary_config:
   aligned_spin: false
 
   mass:
-    # Domain settings
+    # Domain settings (unit in solar mass)
     low: 5.
     high: 65.
 
@@ -24,7 +24,7 @@ binary_config:
     csv_path:
 
   mass_ratio:
-    # Domain settings
+    # Domain settings (Dimensionless)
     low: 1.
     high: 6.
 
@@ -33,16 +33,16 @@ binary_config:
     csv_path:
 
   spin:
-    # Domain settings
+    # Domain settings (Dimensionless)
     low: -0.8
     high: 0.8
 
   theta:
-    # Domain settings
+    # Domain settings (unit in pi)
     low: 0.
-    high: 1. # unit in pi
+    high: 1.
 
   phi:
-    # Domain settings
+    # Domain settings (unit in pi)
     low: 0.
-    high: 2. # unit in pi
+    high: 2.

@@ -13,19 +13,24 @@ logger = utils.logger.get_logger(logger_name="utils|fits")
 
 def load_fits(fits_name: str) -> surfinBH.surfinBH.SurFinBH:
     """
-    Load a fits file.
+    Load a surfinBH fits.
 
     Parameters
     ----------
     fits_name : str
-        Name of the fits file.
+        Name of the fits data.
+        - NRSur3dq8Remnant: non precessing BHs with mass ratio<=8, anti-/aligned spin <= 0.8
+        - NRSur7dq4Remnant: precessing BHs with mass ratio<=4, generic spin <= 0.8
+        - surfinBH7dq2: precessing BHs with mass ratio <= 2, generic spin <= 0.8
 
     Returns
     -------
     fits : surfinBH.surfinBH.SurFinBH
-        Gravitational wave waveform.
+        Binary black hole merger fits
     """
-    logger.info(f"Loading surfinBH {fits_name=}, description: {surfinBH.fits_collection[fits_name].desc}.")
+    logger.info(
+        f"Loading surfinBH {fits_name=}, description: {surfinBH.fits_collection[fits_name].desc}."
+    )
     return surfinBH.LoadFits(fits_name)
 
 
@@ -42,11 +47,15 @@ def sph2cart(theta: float, phi: float) -> np.ndarray:
 
     Returns
     -------
-    new_unit_vector : np.ndarray
+    cartesian_vector : np.ndarray
         Cartesian coordinates.
     """
-    new_unit_vector = [np.sin(theta) * np.cos(phi), np.sin(theta) * np.sin(phi), np.cos(theta)]
-    return np.array(new_unit_vector, dtype=float)
+    cartesian_vector = [
+        np.sin(theta) * np.cos(phi),
+        np.sin(theta) * np.sin(phi),
+        np.cos(theta),
+    ]
+    return np.array(cartesian_vector, dtype=float)
 
 
 def generate_parameter(domain: schemas.common.Domain) -> float:
@@ -68,7 +77,7 @@ def generate_parameter(domain: schemas.common.Domain) -> float:
 
 def get_generator_from_csv(csv_path: str) -> Callable:
     """
-    Generate a generator function from a csv file.
+    Get a generator function from a csv file.
 
     Parameters
     ----------
@@ -80,6 +89,7 @@ def get_generator_from_csv(csv_path: str) -> Callable:
     generator_func : Callable
         Generator function to generate values for a paramter.
     """
+    logger.info("Reading PDF from %s...", csv_path)
     df = pd.read_csv(csv_path)
     x, p = df["x"].values, df["y"].values
 
@@ -109,7 +119,7 @@ class BinaryGenerator:
     def __init__(
         self,
         config: schemas.binary.BinaryConfig,
-        mass_injection: bool = False,
+        is_mass_injected: bool,
         mass_ratio_from_pdf: Callable | None = None,
         mass_from_pdf: Callable | None = None,
     ) -> None:
@@ -120,8 +130,8 @@ class BinaryGenerator:
         ----------
         config : schemas.binary.BinaryConfig
             Configuration of the binary generator.
-        mass_injection : bool, optional
-            Whether to inject the masses, by default False
+        is_mass_injected : bool
+            Whether to inject the masses
         mass_ratio_from_pdf : Callable, optional
             Generate mass ratio from pdf, by default None
         mass_from_pdf : Callable, optional
@@ -132,12 +142,19 @@ class BinaryGenerator:
         None
         """
         self.config = config
-        self.mass_injection = mass_injection
+        self.is_mass_injected = is_mass_injected
         self.mass_ratio_from_pdf = mass_ratio_from_pdf
         self.mass_from_pdf = mass_from_pdf
 
         if self.mass_from_pdf and self.mass_ratio_from_pdf:
             raise ValueError("Both mass_from_pdf and mass_ratio_from_pdf exist.")
+
+        logger.info("Constructed a binary generator.")
+        logger.info("Is mass injected: %s", self.is_mass_injected)
+        if self.mass_from_pdf:
+            logger.info("Mass will be sampled from a PDF.")
+        if self.mass_ratio_from_pdf:
+            logger.info("Mass ratio will be sampled from a PDF.")
 
     def __call__(self) -> schemas.binary.Binary:
         """
@@ -150,7 +167,7 @@ class BinaryGenerator:
         """
         chi1, chi2 = self._get_spin(), self._get_spin()
 
-        if self.mass_injection:
+        if self.is_mass_injected:
             m1, m2 = self._get_masses()
             mass_ratio = m1 / m2
 

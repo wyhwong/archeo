@@ -9,7 +9,7 @@ import visualization.base as base
 
 
 def plot_mass_estimates(
-    df: pd.DataFrame, label: str, output_dir=None, close=True
+    df: pd.DataFrame, label: str, output_dir="", close=True
 ) -> None:
     """
     Plot the distribution of the estimated masses.
@@ -66,7 +66,7 @@ def plot_corner(
     label: str,
     levels=[0.68, 0.9],
     nbins=70,
-    output_dir=None,
+    output_dir="",
     close=True,
 ) -> None:
     """

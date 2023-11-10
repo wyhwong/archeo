@@ -7,7 +7,9 @@ import schemas.common
 NUM_SAMPLES = 500000
 
 
-def get_mass_func_from_mahapatra(mass: schemas.common.Domain, alpha=2.3, dm=4.83) -> Callable:
+def get_mass_func_from_mahapatra(
+    mass: schemas.common.Domain, alpha=2.3, dm=4.83
+) -> Callable:
     """
     Get a mass function from Mahapatra's mass distribution.
 
