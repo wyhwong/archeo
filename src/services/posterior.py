@@ -5,7 +5,7 @@ from concurrent.futures import ProcessPoolExecutor, wait
 import env
 import utils
 
-logger = utils.get_logger(logger_name="services|posterior")
+logger = utils.logger.get_logger(logger_name="services|posterior")
 
 
 def infer_parental_posterior(

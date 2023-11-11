@@ -9,7 +9,7 @@ import visualization
 import warnings
 
 warnings.filterwarnings("ignore")
-logger = utils.get_logger(logger_name="main")
+logger = utils.logger.get_logger(logger_name="main")
 
 
 def main() -> None:

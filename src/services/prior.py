@@ -8,7 +8,7 @@ import utils
 import schemas
 
 
-logger = utils.get_logger(logger_name="services|prior")
+logger = utils.logger.get_logger(logger_name="services|prior")
 
 
 def _get_remnant_params(binary: schemas.binary.Binary) -> list[float]:
