@@ -89,15 +89,17 @@ class PosteriorSampler:
             The samples of the parental mass
         """
         if self.is_mass_injected:
-            samples = self.prior.loc[(self.prior["mf_"] - mass_measure).abs() < 1.0]
+            samples = self.prior.loc[(self.prior["mf_"] - mass_measure).abs() < 0.5]
             if len(samples) < self.sampling:
                 logger.warning("Not enough similar samples in the prior.")
-
-        samples = self.prior.iloc[
-            (self.prior["chif"] - spin_measure).abs().argsort()[: self.sampling]
-        ]
+            samples = samples.iloc[
+                (samples["chif"] - spin_measure).abs().argsort()[: self.sampling]
+            ]
 
         if not self.is_mass_injected:
+            samples = self.prior.iloc[
+                (self.prior["chif"] - spin_measure).abs().argsort()[: self.sampling]
+            ]
             samples["m1"] = (
                 mass_measure / samples["mf"] * samples["q"] / (1 + samples["q"])
             )
