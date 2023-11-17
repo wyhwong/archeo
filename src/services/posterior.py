@@ -1,6 +1,7 @@
 import pandas as pd
 from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor, wait
+from typing import Optional
 
 import env
 import utils
@@ -13,7 +14,7 @@ def infer_parental_posterior(
     label: str,
     spin_posterior: list[float],
     mass_posterior: list[float],
-    output_dir: str = "",
+    output_dir: Optional[str] = None,
 ) -> pd.DataFrame:
     """
     Infer the parental posterior from the posterior of the child parameters.

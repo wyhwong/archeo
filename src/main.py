@@ -75,9 +75,9 @@ def main() -> None:
         )
 
     logger.info("Visualizing the prior...")
-    visualization.prior.plot_dist(df_prior, output_dir)
-    visualization.prior.plot_kick_against_spin(df_prior, output_dir)
-    visualization.prior.plot_kick_distribution_on_spin(df_prior, output_dir)
+    visualization.prior.distribution(df_prior, output_dir)
+    visualization.prior.kick_against_spin(df_prior, output_dir)
+    visualization.prior.kick_distribution_on_spin(df_prior, output_dir)
 
     """
     Posterior
@@ -115,13 +115,13 @@ def main() -> None:
                 output_dir=output_dir,
             )
             logger.info("Visualizing the posterior (%s)...", posterior_label)
-            visualization.posterior.plot_mass_estimates(
+            visualization.posterior.mass_estimates(
                 df_posterior, posterior_label, output_dir
             )
-            visualization.posterior.plot_corner(
+            visualization.posterior.corner_estimates(
                 df_posterior, posterior_label, output_dir=output_dir
             )
-            visualization.posterior.plot_cumulative_kick_probability_curve(
+            visualization.posterior.cumulative_kick_probability_curve(
                 df_posterior, posterior_label, output_dir=output_dir
             )
 

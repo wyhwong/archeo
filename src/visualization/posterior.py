@@ -3,14 +3,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 import corner
+from typing import Optional
 
 import schemas.visualization
 import visualization.base as base
 
 
-def plot_mass_estimates(
-    df: pd.DataFrame, label: str, output_dir="", close=True
-) -> None:
+def mass_estimates(
+    df: pd.DataFrame, label: str, output_dir: Optional[str] = None, close: bool = True
+):
     """
     Plot the distribution of the estimated masses.
 
@@ -24,16 +25,12 @@ def plot_mass_estimates(
         Output directory.
     close : bool, optional
         Whether to close the figure.
-
-    Returns
-    -------
-    None
     """
     padding = schemas.visualization.Padding(lpad=0.13, bpad=0.14)
     labels = schemas.visualization.Labels(
         "Distribution of Estimated Masses", "Mass [$M_{\odot}$]", "PDF"
     )
-    _, ax = base.initialize_plot(figsize=(9, 4), labels=labels, padding=padding)
+    fig, ax = base.initialize_plot(figsize=(9, 4), labels=labels, padding=padding)
     col_to_labels = {
         "mf_": f"{label}: ",
         "m1": "Heavier Parent: ",
@@ -59,16 +56,17 @@ def plot_mass_estimates(
     plt.ylabel(""), plt.xlabel("")
     plt.legend()
     base.savefig_and_close(f"{label}_mass_estimates.png", output_dir, close)
+    return (fig, ax)
 
 
-def plot_corner(
+def corner_estimates(
     df: pd.DataFrame,
     label: str,
-    levels=[0.68, 0.9],
-    nbins=70,
-    output_dir="",
-    close=True,
-) -> None:
+    levels: list[float] = [0.68, 0.9],
+    nbins: int = 70,
+    output_dir: Optional[str] = None,
+    close: bool = True,
+):
     """
     Plot the posterior corner plot.
 
@@ -86,12 +84,8 @@ def plot_corner(
         Output directory.
     close : bool, optional
         Whether to close the figure.
-
-    Returns
-    -------
-    None
     """
-    corner.corner(
+    fig = corner.corner(
         df,
         nbins,
         var_names=["m1", "m2", "mf_", "vf", "chif"],
@@ -107,11 +101,12 @@ def plot_corner(
     )
     plt.legend()
     base.savefig_and_close(f"{label}_corner.png", output_dir, close)
+    return fig
 
 
-def plot_cumulative_kick_probability_curve(
-    df: pd.DataFrame, label: str, output_dir=None, close=True
-) -> None:
+def cumulative_kick_probability_curve(
+    df: pd.DataFrame, label: str, output_dir: Optional[str] = None, close: bool = True
+):
     """
     Plot the cumulative kick probability curve.
 
@@ -125,16 +120,12 @@ def plot_cumulative_kick_probability_curve(
         Output directory.
     close : bool, optional
         Whether to close the figure.
-
-    Returns
-    -------
-    None
     """
     padding = schemas.visualization.Padding(bpad=0.14)
     labels = schemas.visualization.Labels(
         "Cumulative Kick Probability Curve", "Recoil Velocity $v_f$ ($km/s$)", "CDF"
     )
-    _, ax = base.initialize_plot(figsize=(9, 4), labels=labels, padding=padding)
+    fig, ax = base.initialize_plot(figsize=(9, 4), labels=labels, padding=padding)
     data = df.loc[(df["m1"] < 65) & (df["m2"] < 65)]
     norm_factor = len(data) / len(df)
     density, bins = np.histogram(data["vf"], 70, density=True)
@@ -148,3 +139,4 @@ def plot_cumulative_kick_probability_curve(
     base.savefig_and_close(
         f"{label}_cumulative_kick_probability_curve.png", output_dir, close
     )
+    return (fig, ax)

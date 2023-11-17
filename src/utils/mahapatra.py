@@ -8,7 +8,7 @@ NUM_SAMPLES = 500000
 
 
 def get_mass_func_from_mahapatra(
-    mass: schemas.common.Domain, alpha=2.3, dm=4.83
+    mass: schemas.common.Domain, alpha: float = 2.3, dm: float = 4.83
 ) -> Callable:
     """
     Get a mass function from Mahapatra's mass distribution.
@@ -69,7 +69,7 @@ def get_mass_func_from_mahapatra(
     probis = smoothing_func(masses)
     probis /= probis.sum()
 
-    def mass_from_mahapatra():
+    def mass_from_mahapatra() -> float:
         """
         Generate a mass from Mahapatra's mass distribution.
 

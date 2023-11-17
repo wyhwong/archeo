@@ -1,17 +1,18 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from typing import Optional
 
 import utils.common
 import schemas.visualization
 
 
 def initialize_plot(
-    nrows=1,
-    ncols=1,
-    figsize=(10, 6),
-    labels=schemas.visualization.Labels(),
-    padding=schemas.visualization.Padding(),
-    fontsize=12,
+    nrows: int = 1,
+    ncols: int = 1,
+    figsize: tuple[int, int] = (10, 6),
+    labels: schemas.visualization.Labels = schemas.visualization.Labels(),
+    padding: schemas.visualization.Padding = schemas.visualization.Padding(),
+    fontsize: int = 12,
 ) -> tuple[plt.Figure, np.ndarray[plt.Axes] | plt.Axes]:
     """
     Initialize the plot.
@@ -54,7 +55,9 @@ def initialize_plot(
     return (fig, axes)
 
 
-def savefig_and_close(filename="", output_dir="", close=True) -> None:
+def savefig_and_close(
+    filename: Optional[str] = None, output_dir: Optional[str] = None, close: bool = True
+) -> None:
     """
     Save the figure and close it.
 

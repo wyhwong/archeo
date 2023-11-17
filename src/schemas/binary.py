@@ -2,6 +2,7 @@ import surfinBH
 import numpy as np
 import scipy.constants
 import dataclasses
+from typing import Optional
 
 import schemas.common
 
@@ -19,17 +20,17 @@ class Binary:
         Spin of the heavier black hole
     chi2 : np.ndarray
         Spin of the lighter black hole
-    m1 : float | None
+    m1 : Optional[float]
         Optional, Mass of the heavier black hole
-    m2 : float | None
+    m2 : Optional[float]
         Optional, Mass of the lighter black hole
     """
 
     mass_ratio: float
     chi1: np.ndarray
     chi2: np.ndarray
-    m1: float | None = None
-    m2: float | None = None
+    m1: Optional[float] = None
+    m2: Optional[float] = None
 
     def __post_init__(self):
         """

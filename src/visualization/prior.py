@@ -2,12 +2,15 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
+from typing import Optional
 
 import schemas.visualization
 import visualization.base as base
 
 
-def plot_dist(df: pd.DataFrame, output_dir="", close=True) -> None:
+def distribution(
+    df: pd.DataFrame, output_dir: Optional[str] = None, close: bool = True
+):
     """
     Plot the distribution of the prior parameters.
 
@@ -20,16 +23,12 @@ def plot_dist(df: pd.DataFrame, output_dir="", close=True) -> None:
         Output directory.
     close : bool, optional
         Whether to close the figure.
-
-    Returns
-    -------
-    None
     """
     labels = schemas.visualization.Labels(
         "Distribution of remnant black-hole parameters"
     )
     columns = ["q", "mf", "vf", "chif"]
-    _, axes = base.initialize_plot(len(columns), 1, (6, 8), labels)
+    fig, axes = base.initialize_plot(len(columns), 1, (6, 8), labels)
     for index, column in enumerate(columns):
         sns.histplot(
             df[column], ax=axes[index], element="step", fill=False, stat="density"
@@ -42,10 +41,13 @@ def plot_dist(df: pd.DataFrame, output_dir="", close=True) -> None:
     ]
     for index, param_to_label in enumerate(params_to_labels):
         axes[index].set(xlabel=param_to_label["x"], ylabel=param_to_label["y"])
-    base.savefig_and_close("prior_dist.png", output_dir, close)
+    base.savefig_and_close("prior_distribution.png", output_dir, close)
+    return (fig, axes)
 
 
-def plot_kick_against_spin(df: pd.DataFrame, output_dir="", close=True) -> None:
+def kick_against_spin(
+    df: pd.DataFrame, output_dir: Optional[str] = None, close: bool = True
+):
     """
     Plot the distribution of the prior parameters.
 
@@ -64,7 +66,7 @@ def plot_kick_against_spin(df: pd.DataFrame, output_dir="", close=True) -> None:
         "Remnant Spin $\\chi_f$",
         "Remnant Kick $v_f [$kms^{-1}$]$",
     )
-    _, ax = base.initialize_plot(figsize=(8, 6), labels=labels, padding=padding)
+    fig, ax = base.initialize_plot(figsize=(8, 6), labels=labels, padding=padding)
 
     sns.scatterplot(data=df, x="chif", y="vf", s=5, color=".15", ax=ax)
     ax.set(xlabel="", ylabel="")
@@ -81,9 +83,12 @@ def plot_kick_against_spin(df: pd.DataFrame, output_dir="", close=True) -> None:
     )
     ax.set(xlabel="", ylabel="")
     base.savefig_and_close("prior_kick_against_spin.png", output_dir, close)
+    return (fig, ax)
 
 
-def plot_kick_distribution_on_spin(df: pd.DataFrame, output_dir="", close=True) -> None:
+def kick_distribution_on_spin(
+    df: pd.DataFrame, output_dir: Optional[str] = None, close: bool = True
+):
     """
     Plot the distribution of the prior parameters.
 
@@ -95,17 +100,13 @@ def plot_kick_distribution_on_spin(df: pd.DataFrame, output_dir="", close=True) 
         Output directory.
     close : bool, optional
         Whether to close the figure.
-
-    Returns
-    -------
-    None
     """
     labels = schemas.visualization.Labels(
         "Remnant Kick Distribution on Different Spin Range",
         "Remnant Kick $v_f$ [$km/s$]",
         "PDF",
     )
-    _, ax = base.initialize_plot(figsize=(9, 4), labels=labels)
+    fig, ax = base.initialize_plot(figsize=(9, 4), labels=labels)
     bounds = zip(np.linspace(0, 0.9, 10), np.linspace(0.1, 1, 10))
 
     for low_bound, up_bound in bounds:
@@ -121,3 +122,4 @@ def plot_kick_distribution_on_spin(df: pd.DataFrame, output_dir="", close=True) 
     ax.set(xlabel="", ylabel="")
     plt.legend()
     base.savefig_and_close("prior_kick_on_spin.png", output_dir, close)
+    return (fig, ax)

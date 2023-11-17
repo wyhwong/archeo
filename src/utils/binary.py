@@ -1,7 +1,7 @@
 import surfinBH
 import numpy as np
 import pandas as pd
-from typing import Callable
+from typing import Callable, Optional
 
 import utils.common
 import utils.logger
@@ -120,8 +120,8 @@ class BinaryGenerator:
         self,
         config: schemas.binary.BinaryConfig,
         is_mass_injected: bool,
-        mass_ratio_from_pdf: Callable | None = None,
-        mass_from_pdf: Callable | None = None,
+        mass_ratio_from_pdf: Optional[Callable] = None,
+        mass_from_pdf: Optional[Callable] = None,
     ) -> None:
         """
         Initialize the binary generator.
@@ -181,7 +181,7 @@ class BinaryGenerator:
 
         return schemas.binary.Binary(mass_ratio, chi1, chi2, m1, m2)
 
-    def simulate(self, num: int) -> list[schemas.binary.Binary]:
+    def simulate(self, num: int = 1) -> list[schemas.binary.Binary]:
         """
         Simulate binaries.
 

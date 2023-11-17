@@ -1,7 +1,7 @@
 import pandas as pd
 from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor, wait
-from typing import Callable
+from typing import Callable, Optional
 
 import env
 import utils
@@ -32,9 +32,9 @@ def run_simulation(
     config: schemas.binary.BinaryConfig,
     is_mass_injected: bool,
     num_binaries: int,
-    mass_ratio_from_pdf: Callable | None = None,
-    mass_from_pdf: Callable | None = None,
-    output_dir: str = "",
+    mass_ratio_from_pdf: Optional[Callable] = None,
+    mass_from_pdf: Optional[Callable] = None,
+    output_dir: Optional[str] = None,
 ) -> pd.DataFrame:
     """
     Run a prior simulation.
@@ -51,8 +51,8 @@ def run_simulation(
         Mass ratio pdf, by default None
     mass_pdf : Callable, optional
         Mass pdf, by default None
-    output_dir : str
-        Output directory.
+    output_dir : str, optional
+        Output directory, by default None
 
     Returns
     -------
@@ -77,5 +77,6 @@ def run_simulation(
 
     samples = [future.result() for future in futures]
     df = pd.DataFrame(samples, columns=["m1", "m2", "q", "mf", "vf", "chif"])
-    df.to_csv(f"{output_dir}/prior.csv", index=False)
+    if output_dir:
+        df.to_csv(f"{output_dir}/prior.csv", index=False)
     return df
