@@ -100,7 +100,9 @@ def main() -> None:
     sampler = utils.posterior.PosteriorSampler(
         df=df_prior,
         is_mass_injected=main_config["posterior"]["is_mass_injected"],
-        sampling=main_config["posterior"]["sampling"],
+        n_sample=main_config["posterior"]["n_sample"],
+        spin_tolerance=main_config["posterior"]["spin_tolerance"],
+        mass_tolerance=main_config["posterior"]["mass_tolerance"],
     )
     for label, posterior in posteriors.items():
         for bh_index in [1, 2]:

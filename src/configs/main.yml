@@ -1,6 +1,6 @@
 # Each run creates a folder to store the results at ./results
 # The run_label is used to name the folder
-run_label: "general"
+run_label: "observational-based"
 
 # Seed for numpy random number generator
 seed: 2023
@@ -8,7 +8,7 @@ seed: 2023
 # Settings for prior simulation
 prior:
   # The option to have mass priors or not
-  is_mass_injected: false
+  is_mass_injected: true
 
   # This config is used to load the results of a previous run
   # If you would like to skip the simulation,
@@ -19,8 +19,10 @@ prior:
 # Settings for posterior simulation
 posterior:
   # The option to use simulated mass priors or not
-  is_mass_injected: false
-  sampling: 10
+  is_mass_injected: true
+  n_sample: 10
+  spin_tolerance: 0.05
+  mass_tolerance: 1.0
 
   # This config is used to load the posterior samples from json files
   json_path:
