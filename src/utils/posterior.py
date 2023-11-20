@@ -110,26 +110,42 @@ class PosteriorSampler:
         """
 
         if self.is_mass_injected:
-            samples = self.prior.loc[
+            df = self.prior.loc[
                 ((self.prior["mf_"] - mass_measure).abs() < self.mass_tolerance)
                 & ((self.prior["chif"] - spin_measure).abs() < self.spin_tolerance)
             ]
-
+            samples = self.sample_from_df(df)
         else:
-            samples = self.prior.loc[
+            df = self.prior.loc[
                 ((self.prior["chif"] - spin_measure).abs() < self.spin_tolerance)
             ]
+            samples = self.sample_from_df(df)
             samples["m1"] = (
                 mass_measure / samples["mf"] * samples["q"] / (1 + samples["q"])
             )
             samples["m2"] = mass_measure / samples["mf"] / (1 + samples["q"])
             samples["mf_"] = mass_measure
 
-        if samples.empty:
+        return samples
+
+    def sample_from_df(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Sample from the targeted prior samples.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            The prior dataframe (constrainted samples).
+
+        Returns
+        -------
+        df : pd.DataFrame
+            The sampled dataframe.
+        """
+        if df.empty:
             logger.warning("No similar samples in the prior.")
-        elif len(samples) < self.n_sample:
+        elif len(df) < self.n_sample:
             logger.warning("Not enough similar samples in the prior.")
         else:
-            samples.sample(self.n_sample)
-
-        return samples
+            df = df.sample(self.n_sample)
+        return df
