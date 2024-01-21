@@ -42,9 +42,9 @@ def infer_parental_posterior(
     with ProcessPoolExecutor(max_workers=env.MAX_WORKER) as Executor:
         futures = [
             Executor.submit(sampler.infer_parental_params, spin_measure, mass_measure)
-            for spin_measure, mass_measure in zip(tqdm(spin_posterior), mass_posterior)
+            for spin_measure, mass_measure in zip(spin_posterior, mass_posterior)
         ]
-    wait(futures)
+    wait(tqdm(futures))
 
     posterior = pd.concat([future.result() for future in futures])
     if output_dir:
