@@ -7,24 +7,24 @@ import schemas.common
 NUM_SAMPLES = 500000
 
 
-def get_mass_func_from_mahapatra(
-    mass: schemas.common.Domain, alpha: float = 2.3, dm: float = 4.83
-) -> Callable:
+def get_mass_func_from_mahapatra(mass: schemas.common.Domain, alpha: float = 2.3, dm: float = 4.83) -> Callable:
     """
     Get a mass function from Mahapatra's mass distribution.
 
-    Parameters
-    ----------
-    mass : schemas.common.Domain
+    Args:
+    -----
+    mass (schemas.common.Domain):
         Mass domain.
-    alpha : float, optional
+
+    alpha (float, optional):
         Power law index, by default 2.3.
-    dm : float, optional
+
+    dm (float, optional):
         Tapering parameter, by default 4.83.
 
-    Returns
+    Returns:
     -------
-    mass_from_mahapatra : Callable
+    mass_from_mahapatra (Callable):
         Mass function.
     """
 
@@ -32,16 +32,17 @@ def get_mass_func_from_mahapatra(
         """
         Calculate the function f.
 
-        Parameters
-        ----------
+        Args:
+        -----
         ds : pd.Series
             mass
 
         Returns
-        -------
+        -----
         f : pd.Series
             Value of the function.
         """
+
         mp = ds - mass.low
         return np.exp(dm / mp + dm / (mp - dm))
 
@@ -49,16 +50,17 @@ def get_mass_func_from_mahapatra(
         """
         Smoothing function.
 
-        Parameters
-        ----------
+        Args:
+        -----
         ds : pd.Series
             mass
 
         Returns
-        -------
+        -----
         probis : pd.Series
             Probability.
         """
+
         probis = ds.copy()
         probis[ds < mass.low + dm] = 1 / (_f(ds[ds < mass.low + dm]) + 1)
         probis[ds > mass.low + dm] = 1
@@ -74,10 +76,11 @@ def get_mass_func_from_mahapatra(
         Generate a mass from Mahapatra's mass distribution.
 
         Returns
-        -------
-        mass : float
+        -----
+        mass (float):
             Value of mass.
         """
+
         return np.random.choice(masses, p=probis)
 
     return mass_from_mahapatra
