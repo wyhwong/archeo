@@ -9,7 +9,7 @@ local_logger = logger.get_logger(__name__)
 
 
 def infer_parental_posterior(
-    sampler: core.posterior.PosteriorSampler,
+    sampler: core.posterior.sampler.PosteriorSampler,
     label: str,
     spin_posterior: list[float],
     mass_posterior: list[float],
@@ -20,7 +20,7 @@ def infer_parental_posterior(
 
     Args:
     -----
-        sampler (core.posterior.PosteriorSampler):
+        sampler (core.posterior.sampler.PosteriorSampler):
             Posterior sampler.
 
         label (str):
