@@ -26,7 +26,7 @@ def get_posterior_from_json(filepath: str) -> dict:
     return core.utils.load_json(filepath=filepath)["posterior"]["content"]
 
 
-def read_posterior_from_h5(filepath: str, fits: str = "NRSur7dq4") -> dict:
+def get_posterior_from_h5(filepath: str, fits: str = "NRSur7dq4") -> dict:
     """
     Read posterior from h5 file.
 
