@@ -51,48 +51,6 @@ class MultiExecutor(ABC):
                 The results of the function.
         """
 
-    def _check_args(self, func: Callable, input_kwargs: list[dict[str, Any]]) -> None:
-        """
-        Check the input arguments.
-
-        Args:
-        -----
-            func (Callable):
-                The function to be executed.
-
-            input_kwargs (list[dict[str, Any]]):
-                The input arguments.
-
-        Returns:
-        -----
-            None
-        """
-
-        if not callable(func):
-            local_logger.error("func must be a Callable, not %s", type(func))
-            raise TypeError(f"func must be a Callable, not {type(func)}")
-
-        if not isinstance(input_kwargs, list):
-            local_logger.error("input_kwargs must be a list, not %s", type(input_kwargs))
-            raise TypeError(f"input_kwargs must be a list, not {type(input_kwargs)}")
-
-        func_keywords = set(func.__code__.co_varnames)
-        for kwargs in input_kwargs:
-            input_keywords = set(kwargs.keys())
-            if not func_keywords.issubset(input_keywords):
-                local_logger.error(
-                    "input_kwargs must contain all keywords of function, not %s.",
-                    input_keywords,
-                )
-                raise ValueError(f"input_kwargs must contain all keywords of func, not {input_keywords}")
-
-            if not input_keywords.issubset(func_keywords):
-                local_logger.error(
-                    "input_kwargs must contain only keywords of function, not %s.",
-                    input_keywords,
-                )
-                raise ValueError(f"input_kwargs must contain only keywords of func, not {input_keywords}")
-
 
 class MultiProcessExecutor(MultiExecutor):
     """
@@ -134,8 +92,6 @@ class MultiProcessExecutor(MultiExecutor):
             results (list[Any]):
                 The results of the function.
         """
-
-        self._check_args(func, input_kwargs)
 
         with ProcessPoolExecutor(max_workers=self.max_executors) as executor:
             futures = [executor.submit(func, **kwargs) for kwargs in input_kwargs]
