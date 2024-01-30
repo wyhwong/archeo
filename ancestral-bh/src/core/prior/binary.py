@@ -59,17 +59,17 @@ class BinaryGenerator:
             local_logger.info("Using mass_from_pdf.")
             self._mass_generator = mass_from_pdf
         else:
-            self._mass_generator = core.utils.math.get_generator_from_domain(self.config.mass)
+            self._mass_generator = core.math.get_generator_from_domain(self.config.mass)
 
         if mass_ratio_from_pdf:
             local_logger.info("Using mass_ratio_from_pdf.")
             self._mass_ratio_generator = mass_ratio_from_pdf
         else:
-            self._mass_ratio_generator = core.utils.math.get_generator_from_domain(self.config.mass_ratio)
+            self._mass_ratio_generator = core.math.get_generator_from_domain(self.config.mass_ratio)
 
-        self._spin_generator = core.utils.math.get_generator_from_domain(self.config.spin)
-        self._phi_generator = core.utils.math.get_generator_from_domain(self.config.phi)
-        self._theta_generator = core.utils.math.get_generator_from_domain(self.config.theta)
+        self._spin_generator = core.math.get_generator_from_domain(self.config.spin)
+        self._phi_generator = core.math.get_generator_from_domain(self.config.phi)
+        self._theta_generator = core.math.get_generator_from_domain(self.config.theta)
 
         local_logger.info(
             "Constructed a binary generator: mass injected: %s, config: %s",
