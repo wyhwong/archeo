@@ -97,11 +97,10 @@ class PosteriorSampler:
             self._prior["mf_"] = self._prior["mf"] * (self._prior["m1"] + self._prior["m2"])
 
         local_logger.info(
-            "Constructed a posterior sampler: mass injected: %s, spin tol: %.2f, mass tol: %.2f config: %s",
+            "Constructed a posterior sampler: mass injected: %s, spin tol: %.2f, mass tol: %.2f.",
             self.is_mass_injected,
             self.spin_tolerance,
             self.mass_tolerance,
-            self.config,
         )
 
     def infer_parental_params(self, spin_measure: float, mass_measure: float) -> pd.DataFrame:
