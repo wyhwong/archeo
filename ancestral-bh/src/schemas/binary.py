@@ -58,16 +58,13 @@ class Fits(enum.Enum):
 
 
 @dataclass
-class BinaryConfig:
+class BinarySettings:
     """
     Binary configuration.
 
     Attributes
     -----
-    fits (Fits):
-        Fits of the surrogate model
-
-    aligned_spin (bool):
+    is_spin_aligned (bool):
         Whether the spins are aligned or not
 
     spin (schemas.common.Domain):
@@ -86,8 +83,7 @@ class BinaryConfig:
         Domain of the mass
     """
 
-    fits: Fits
-    aligned_spin: bool
+    is_spin_aligned: bool
     spin: schemas.common.Domain
     phi: schemas.common.Domain
     theta: schemas.common.Domain

@@ -6,37 +6,50 @@ import corner
 from typing import Optional
 
 import schemas.visualization
-import visualization.base as base
+import core.visualization.base as base
 
 
 def mass_estimates(
-    df: pd.DataFrame, label: str, output_dir: Optional[str] = None, close: bool = True
+    df: pd.DataFrame,
+    label: str,
+    output_dir: Optional[str] = None,
+    close: bool = True,
 ):
     """
-    Plot the distribution of the estimated masses.
+    Plot the posterior mass estimates.
 
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Posterior.
-    label : str
-        Posterior label.
-    output_dir : str, optional
-        Output directory.
-    close : bool, optional
-        Whether to close the figure.
+    Args:
+    -----
+        df (pd.DataFrame):
+            The posterior dataframe.
+
+        label (str):
+            Label of the posterior.
+
+        output_dir (Optional[str]):
+            Output directory.
+
+        close (bool):
+            Whether to close the figure.
+
+    Returns:
+    -----
+        fig (plt.Figure):
+            Figure.
+
+        axes (plt.Axes):
+            Axes.
     """
+
     padding = schemas.visualization.Padding(lpad=0.13, bpad=0.14)
-    labels = schemas.visualization.Labels(
-        "Distribution of Estimated Masses", "Mass [$M_{\odot}$]", "PDF"
-    )
+    labels = schemas.visualization.Labels("Distribution of Estimated Masses", "Mass [$M_{\odot}$]", "PDF")
     fig, ax = base.initialize_plot(figsize=(9, 4), labels=labels, padding=padding)
+
     col_to_labels = {
         "mf_": f"{label}: ",
         "m1": "Heavier Parent: ",
         "m2": "Ligher Parent: ",
     }
-
     for col, label_prefix in col_to_labels.items():
         density, bins = np.histogram(a=df[col], bins=70, density=True)
         inv_low, med, inv_high = (
@@ -52,9 +65,9 @@ def mass_estimates(
             "[$M_{\odot}$]",
         )
         ax.stairs(density, bins, label=ax_label)
-
-    plt.ylabel(""), plt.xlabel("")
+    ax.set(ylabel="", xlabel="")
     plt.legend()
+
     base.savefig_and_close(f"{label}_mass_estimates.png", output_dir, close)
     return (fig, ax)
 
@@ -70,21 +83,32 @@ def corner_estimates(
     """
     Plot the posterior corner plot.
 
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Posterior.
-    label : str
-        Posterior label.
-    levels : list, optional
-        The contour levels, by default [0.68, 0.9].
-    nbins : int, optional
-        The number of bins, by default 70.
-    output_dir : str, optional
-        Output directory.
-    close : bool, optional
-        Whether to close the figure.
+    Args:
+    -----
+        df (pd.DataFrame):
+            The posterior dataframe.
+
+        label (str):
+            Label of the posterior.
+
+        levels (list[float]):
+            Contour levels.
+
+        nbins (int):
+            Number of bins.
+
+        output_dir (Optional[str]):
+            Output directory.
+
+        close (bool):
+            Whether to close the figure.
+
+    Returns:
+    -----
+        fig (plt.Figure):
+            Figure.
     """
+
     fig = corner.corner(
         df,
         nbins,
@@ -105,30 +129,44 @@ def corner_estimates(
 
 
 def cumulative_kick_probability_curve(
-    df: pd.DataFrame, label: str, output_dir: Optional[str] = None, close: bool = True
+    df: pd.DataFrame,
+    label: str,
+    output_dir: Optional[str] = None,
+    close: bool = True,
 ):
     """
     Plot the cumulative kick probability curve.
 
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Posterior.
-    label : str
-        Posterior label.
-    output_dir : str, optional
-        Output directory.
-    close : bool, optional
-        Whether to close the figure.
+    Args:
+    -----
+        df (pd.DataFrame):
+            The posterior dataframe.
+
+        label (str):
+            Label of the posterior.
+
+        output_dir (Optional[str]):
+            Output directory.
+
+        close (bool):
+            Whether to close the figure.
+
+    Returns:
+    -----
+        fig (plt.Figure):
+            Figure.
+
+        axes (plt.Axes):
+            Axes.
     """
+
     padding = schemas.visualization.Padding(bpad=0.14)
-    labels = schemas.visualization.Labels(
-        "Cumulative Kick Probability Curve", "Recoil Velocity $v_f$ ($km/s$)", "CDF"
-    )
+    labels = schemas.visualization.Labels("Cumulative Kick Probability Curve", "Recoil Velocity $v_f$ ($km/s$)", "CDF")
     fig, ax = base.initialize_plot(figsize=(9, 4), labels=labels, padding=padding)
-    data = df.loc[(df["m1"] < 65) & (df["m2"] < 65)]
-    norm_factor = len(data) / len(df)
-    density, bins = np.histogram(data["vf"], 70, density=True)
+
+    df_under_PISN = df.loc[(df["m1"] < 65) & (df["m2"] < 65)]
+    norm_factor = len(df_under_PISN) / len(df)
+    density, bins = np.histogram(df_under_PISN["vf"], 70, density=True)
     dbin = bins[1] - bins[0]
     density *= norm_factor
     cdf = np.cumsum(density) * dbin
@@ -136,7 +174,6 @@ def cumulative_kick_probability_curve(
     sns.lineplot(y=[0] + list(cdf), x=[0] + list(x), ax=ax, label=label)
     ax.set(ylabel="", xlabel="")
     plt.legend()
-    base.savefig_and_close(
-        f"{label}_cumulative_kick_probability_curve.png", output_dir, close
-    )
+
+    base.savefig_and_close(f"{label}_cumulative_kick_probability_curve.png", output_dir, close)
     return (fig, ax)

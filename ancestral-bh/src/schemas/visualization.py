@@ -35,24 +35,3 @@ class Labels:
     xlabel: str = ""
     ylabel: str = ""
     zlabel: str = ""
-
-
-@dataclass
-class Line:
-    """
-    Line for plot.
-
-    Attributes
-    ---
-    left_bottom: tuple[float, float], the left bottom point of the line.
-    right_top: tuple[float, float], the right top point of the line.
-    color: str, the color of the line.
-    linestyle: str, the linestyle of the line.
-    label: str, the label of the line.
-    """
-
-    left_bottom: tuple[float, float]
-    right_top: tuple[float, float]
-    color: str = "blue"
-    linestyle: str = "--"
-    label: str = ""

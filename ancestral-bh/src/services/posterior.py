@@ -1,53 +1,58 @@
 import pandas as pd
-from tqdm import tqdm
-from concurrent.futures import ProcessPoolExecutor, wait
 from typing import Optional
 
-import env
-import utils
+import core.posterior
+import core.executor
+import logger
 
-logger = utils.logger.get_logger(logger_name="services|posterior")
+local_logger = logger.get_logger(__name__)
 
 
 def infer_parental_posterior(
-    sampler: utils.posterior.PosteriorSampler,
+    sampler: core.posterior.PosteriorSampler,
     label: str,
     spin_posterior: list[float],
     mass_posterior: list[float],
     output_dir: Optional[str] = None,
 ) -> pd.DataFrame:
     """
-    Infer the parental posterior from the posterior of the child parameters.
+    Infer the parental posterior.
 
-    Parameters
-    ----------
-    sampler : utils.posterior.PosteriorSampler
-        The posterior sampler.
-    label : str
-        The label of the child parameters.
-    spin_posterior : list[float]
-        The posterior of the spin parameter.
-    mass_posterior : list[float]
-        The posterior of the mass parameter.
-    output_dir : str, optional
-        The directory to save the posterior to, by default None
+    Args:
+    -----
+        sampler (core.posterior.PosteriorSampler):
+            Posterior sampler.
 
-    Returns
-    -------
-    posterior : pd.DataFrame
-        The posterior of the parental parameters.
+        label (str):
+            Label of the run.
+
+        spin_posterior (list[float]):
+            Spin posterior.
+
+        mass_posterior (list[float]):
+            Mass posterior.
+
+        output_dir (Optional[str]):
+            Output directory.
+
+    Returns:
+    -----
+        posterior (pd.DataFrame):
+            Parental posterior.
     """
-    logger.info("Running the parental posterior inference... (%s)", label)
 
-    with ProcessPoolExecutor(max_workers=env.MAX_WORKER) as Executor:
-        futures = [
-            Executor.submit(sampler.infer_parental_params, spin_measure, mass_measure)
-            for spin_measure, mass_measure in zip(spin_posterior, mass_posterior)
-        ]
-    wait(tqdm(futures))
+    local_logger.info("Running the parental posterior inference... (%s)", label)
 
-    posterior = pd.concat([future.result() for future in futures])
+    executor = core.executor.MultiProcessExecutor()
+    input_kwargs = [
+        dict(spin_measure=spin_measure, mass_measure=mass_measure)
+        for spin_measure, mass_measure in zip(spin_posterior, mass_posterior)
+    ]
+    results = executor.run(func=sampler.infer_parental_params, input_kwargs=input_kwargs)
+    posterior = pd.concat(results)
+
     if output_dir:
         filepath = f"{output_dir}/{label}_parental_params.h5"
         posterior.to_hdf(filepath, key="estimates", index=False)
+
     return posterior
