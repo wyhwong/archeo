@@ -151,7 +151,7 @@ class SimulationFacade:
                     mass_posterior=posterior[f"mass_{bh_index}_source"],
                     output_dir=self._output_dir,
                 )
-                logger.info("Visualizing the posterior (%s)...", posterior_label)
+                local_logger.info("Visualizing the posterior (%s)...", posterior_label)
                 core.visualization.posterior.mass_estimates(
                     df_posterior,
                     posterior_label,
