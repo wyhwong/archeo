@@ -94,7 +94,7 @@ class SimulationFacade:
             else None
         )
         fits = schemas.binary.Fits(self._prior_settings["fits"])
-        df = services.prior.run_simulation(
+        services.prior.run_simulation(
             fits=fits,
             settings=settings,
             is_mass_injected=self._main_settings["prior"]["is_mass_injected"],
@@ -103,7 +103,6 @@ class SimulationFacade:
             mass_from_pdf=mass_from_pdf,
             output_dir=self._output_dir,
         )
-        df.to_csv(f"{self._output_dir}/prior.csv", index=False)
 
         local_logger.info("Finished running the prior simulation.")
 
@@ -127,11 +126,11 @@ class SimulationFacade:
         posteriors: dict[str, pd.DataFrame] = {}
         if self._main_settings["posterior"]["json_path"]:
             for label, filepath in self._main_settings["posterior"]["json_path"].items():
-                posteriors[label] = core.posterior.sampler.read_posterior_from_json(filepath)
+                posteriors[label] = core.posterior.sampler.get_posterior_from_json(filepath)
 
         if self._main_settings["posterior"]["h5_path"]:
             for label, filepath in self._main_settings["posterior"]["h5_path"].items():
-                posteriors[label] = core.posterior.sampler.read_posterior_from_h5(filepath)
+                posteriors[label] = core.posterior.sampler.get_posterior_from_h5(filepath)
 
         df_prior = pd.read_csv(f"{self._output_dir}/prior.csv")
         sampler = core.posterior.sampler.PosteriorSampler(
@@ -178,13 +177,13 @@ class SimulationFacade:
 
         if self._main_settings["prior"]["load_results"]:
             local_logger.info("Loading prior from csv file %s...", self._main_settings["prior"]["csv_path"])
-            df_prior = pd.read_csv(self._main_settings["prior"]["csv_path"])
+            df = pd.read_csv(self._main_settings["prior"]["csv_path"])
+            df.to_csv(f"{self._output_dir}/prior.csv", index=False)
         else:
             local_logger.info("Running the prior simulation...")
-            df_prior = self._run_prior_simulation()
+            self._run_prior_simulation()
 
         local_logger.info("Saving the prior to csv file...")
-        df_prior.to_csv(f"{self._output_dir}/prior.csv", index=False)
 
         local_logger.info("Visualizing the prior...")
         self._run_prior_visualization()

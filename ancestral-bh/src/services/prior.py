@@ -12,6 +12,24 @@ import core.executor
 local_logger = logger.get_logger(__name__)
 
 
+def _get_remnant_params(binary: schemas.binary.Binary) -> dict[str, float]:
+    """
+    Get remnant parameters.
+
+    Args:
+    -----
+        binary (schemas.binary.Binary):
+            The binary to simulate.
+
+    Returns:
+    -----
+        remnant_params (list[float]):
+            The remnant parameters.
+    """
+
+    return core.prior.simulation.simulate_remnant(binary, Fits)
+
+
 def run_simulation(
     fits: schemas.binary.Fits,
     settings: schemas.binary.BinarySettings,
@@ -62,24 +80,8 @@ def run_simulation(
         settings,
     )
 
-    _fits = core.prior.simulation.load_fits(fits)
-
-    def _get_remnant_params(binary: schemas.binary.Binary) -> dict[str, float]:
-        """
-        Get remnant parameters.
-
-        Args:
-        -----
-            binary (schemas.binary.Binary):
-                The binary to simulate.
-
-        Returns:
-        -----
-            remnant_params (list[float]):
-                The remnant parameters.
-        """
-
-        return core.prior.simulation.simulate_remnant(binary, _fits)
+    global Fits
+    Fits = core.prior.simulation.load_fits(fits)
 
     local_logger.info("Generating binaries...")
     generator = core.prior.binary.BinaryGenerator(
