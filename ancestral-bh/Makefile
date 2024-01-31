@@ -11,7 +11,7 @@ export PRIOR_CONFIG_PATH?=./prior.yml
 export RANDOM_SEED?=2023
 
 # Install Python dependencies in poetry environment
-local:
+install:
 	poetry install
 	poetry run pre-commit install -f
 
