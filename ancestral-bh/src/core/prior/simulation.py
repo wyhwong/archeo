@@ -1,6 +1,6 @@
-import surfinBH
 import numpy as np
 import scipy.constants
+import surfinBH
 
 import logger
 import schemas.binary
@@ -28,7 +28,11 @@ def load_fits(fits: schemas.binary.Fits) -> surfinBH.surfinBH.SurFinBH:
     """
 
     fits_name = fits.value
-    local_logger.info(f"Loading surfinBH {fits_name=}, description: {surfinBH.fits_collection[fits_name].desc}.")
+    local_logger.info(
+        "Loading surfinBH %s, description: %s.",
+        fits_name,
+        surfinBH.fits_collection[fits_name].desc,
+    )
     return surfinBH.LoadFits(fits_name)
 
 

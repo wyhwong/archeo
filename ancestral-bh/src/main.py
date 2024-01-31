@@ -1,6 +1,6 @@
-import services.facade
 import core.utils
 import env
+import services.facade
 
 
 def main():

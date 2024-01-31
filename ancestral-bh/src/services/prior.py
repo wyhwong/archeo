@@ -1,18 +1,23 @@
-import pandas as pd
-from tqdm import tqdm
 from typing import Callable, Optional
 
+import pandas as pd
+import surfinBH
+from tqdm import tqdm
+
+import core.executor
+import core.prior.binary
+import core.prior.simulation
 import logger
 import schemas.binary
-import core.prior.simulation
-import core.prior.binary
-import core.executor
 
 
 local_logger = logger.get_logger(__name__)
 
 
-def _get_remnant_params(binary: schemas.binary.Binary) -> dict[str, float]:
+def _get_remnant_params(
+    binary: schemas.binary.Binary,
+    fits: surfinBH.surfinBH.SurFinBH,
+) -> dict[str, float]:
     """
     Get remnant parameters.
 
@@ -21,13 +26,16 @@ def _get_remnant_params(binary: schemas.binary.Binary) -> dict[str, float]:
         binary (schemas.binary.Binary):
             The binary to simulate.
 
+        fits (surfinBH.surfinBH.SurFinBH):
+            Loaded fits.
+
     Returns:
     -----
         remnant_params (list[float]):
             The remnant parameters.
     """
 
-    return core.prior.simulation.simulate_remnant(binary, Fits)
+    return core.prior.simulation.simulate_remnant(binary, fits)
 
 
 def run_simulation(
@@ -80,8 +88,7 @@ def run_simulation(
         settings,
     )
 
-    global Fits
-    Fits = core.prior.simulation.load_fits(fits)
+    fits = core.prior.simulation.load_fits(fits)
 
     local_logger.info("Generating binaries...")
     generator = core.prior.binary.BinaryGenerator(
@@ -90,15 +97,15 @@ def run_simulation(
         mass_from_pdf=mass_from_pdf,
         mass_ratio_from_pdf=mass_ratio_from_pdf,
     )
-    input_kwargs = [{"binary": generator()} for _ in tqdm(range(num_binaries))]
+    input_kwargs = [{"binary": generator(), "fits": fits} for _ in tqdm(range(num_binaries))]
 
     local_logger.info("Running simulation...")
-    executor = core.executor.MultiProcessExecutor()
+    executor = core.executor.MultiThreadExecutor()
     samples = executor.run(_get_remnant_params, input_kwargs)
     df = pd.DataFrame(samples)
 
     if output_dir:
-        local_logger.info("Saving results to csv file...")
-        df.to_csv(f"{output_dir}/prior.csv", index=False)
+        local_logger.info("Saving results to feather file...")
+        df.to_feather(f"{output_dir}/prior.feather")
 
     return df

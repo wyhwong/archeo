@@ -1,8 +1,14 @@
-import numpy as np
-import pandas as pd
 from typing import Callable
 
+import numpy as np
+import pandas as pd
+
+import logger
 import schemas.common
+
+
+local_logger = logger.get_logger(__name__)
+
 
 NUM_SAMPLES = 500000
 
@@ -61,11 +67,19 @@ def get_mass_func_from_mahapatra(mass: schemas.common.Domain, alpha: float = 2.3
             Probability.
         """
 
+        if mass.low is None or mass.high is None:
+            local_logger.error("Both low and high mass must be specified.")
+            raise ValueError("Both low and high mass must be specified.")
+
         probis = ds.copy()
         probis[ds < mass.low + dm] = 1 / (_f(ds[ds < mass.low + dm]) + 1)
         probis[ds > mass.low + dm] = 1
         probis *= ds ** (-alpha)
         return probis
+
+    if mass.low is None or mass.high is None:
+        local_logger.error("Both low and high mass must be specified.")
+        raise ValueError("Both low and high mass must be specified.")
 
     masses = pd.Series(np.random.uniform(mass.low, mass.high, NUM_SAMPLES))
     probis = smoothing_func(masses)

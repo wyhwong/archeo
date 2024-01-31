@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from concurrent.futures import ProcessPoolExecutor, wait
+from concurrent.futures import ThreadPoolExecutor, wait
 from typing import Any, Callable, Optional
 
 from tqdm import tqdm
@@ -52,9 +52,9 @@ class MultiExecutor(ABC):
         """
 
 
-class MultiProcessExecutor(MultiExecutor):
+class MultiThreadExecutor(MultiExecutor):
     """
-    Multi-process executor.
+    Multi-thread executor.
     """
 
     def __init__(self, max_executors: Optional[int] = None) -> None:
@@ -71,9 +71,9 @@ class MultiProcessExecutor(MultiExecutor):
             None
         """
 
-        super().__init__(max_executors if max_executors else env.MAX_MULTIPROCESS_WORKER)
+        super().__init__(max_executors if max_executors else env.MAX_MULTITHREAD_WORKER)
 
-        local_logger.info("Initialized MultiProcessExecutor, max_executors: %d.", self.max_executors)
+        local_logger.info("Initialized MultiThreadExecutor, max_executors: %d.", self.max_executors)
 
     def run(self, func: Callable, input_kwargs: list[dict[str, Any]]) -> list[Any]:
         """
@@ -93,7 +93,7 @@ class MultiProcessExecutor(MultiExecutor):
                 The results of the function.
         """
 
-        with ProcessPoolExecutor(max_workers=self.max_executors) as executor:
+        with ThreadPoolExecutor(max_workers=self.max_executors) as executor:
             futures = [executor.submit(func, **kwargs) for kwargs in input_kwargs]
             wait(tqdm(futures))
 

@@ -1,14 +1,16 @@
 from glob import glob
-import pandas as pd
-import numpy as np
 from typing import Any
 
-import env
-import schemas
+import numpy as np
+import pandas as pd
+
 import core
-import services.prior
-import services.posterior
+import env
 import logger
+import schemas
+import services.posterior
+import services.prior
+
 
 np.random.seed(env.RANDOM_SEED)
 local_logger = logger.get_logger(__name__)
@@ -34,7 +36,7 @@ class SimulationFacade:
 
         self._main_settings = main_settings
         self._prior_settings = prior_settings
-        self._output_dir: str = None
+        self._output_dir: str = ""
 
         self._initialize()
 
@@ -89,7 +91,7 @@ class SimulationFacade:
             else None
         )
         mass_ratio_from_pdf = (
-            core.prior.binary.get_generator_from_csv(self._prior_settings["mass_ratio"]["csv_path"])
+            core.math.get_generator_from_csv(self._prior_settings["mass_ratio"]["csv_path"])
             if self._prior_settings["mass_ratio"]["csv_path"]
             else None
         )
@@ -111,7 +113,7 @@ class SimulationFacade:
         Visualize the prior.
         """
 
-        df = pd.read_csv(f"{self._output_dir}/prior.csv")
+        df = pd.read_feather(f"{self._output_dir}/prior.feather")
         core.visualization.prior.distribution(df, output_dir=self._output_dir)
         core.visualization.prior.kick_against_spin(df, output_dir=self._output_dir)
         core.visualization.prior.kick_distribution_on_spin(df, output_dir=self._output_dir)
@@ -132,7 +134,7 @@ class SimulationFacade:
             for label, filepath in self._main_settings["posterior"]["h5_path"].items():
                 posteriors[label] = core.posterior.sampler.get_posterior_from_h5(filepath)
 
-        df_prior = pd.read_csv(f"{self._output_dir}/prior.csv")
+        df_prior = pd.read_feather(f"{self._output_dir}/prior.feather")
         sampler = core.posterior.sampler.PosteriorSampler(
             df=df_prior,
             is_mass_injected=self._main_settings["posterior"]["is_mass_injected"],
@@ -177,13 +179,13 @@ class SimulationFacade:
 
         if self._main_settings["prior"]["load_results"]:
             local_logger.info("Loading prior from csv file %s...", self._main_settings["prior"]["csv_path"])
-            df = pd.read_csv(self._main_settings["prior"]["csv_path"])
-            df.to_csv(f"{self._output_dir}/prior.csv", index=False)
+            df = pd.read_feather(self._main_settings["prior"]["data_path"])
+            df.to_feather(f"{self._output_dir}/prior.feather")
         else:
             local_logger.info("Running the prior simulation...")
             self._run_prior_simulation()
 
-        local_logger.info("Saving the prior to csv file...")
+        local_logger.info("Saving the prior to feather file...")
 
         local_logger.info("Visualizing the prior...")
         self._run_prior_visualization()

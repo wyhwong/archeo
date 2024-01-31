@@ -1,12 +1,13 @@
-import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
-import seaborn as sns
-import corner
 from typing import Optional
 
-import schemas.visualization
+import corner
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+
 import core.visualization.base as base
+import schemas.visualization
 
 
 def mass_estimates(
@@ -42,7 +43,7 @@ def mass_estimates(
     """
 
     padding = schemas.visualization.Padding(lpad=0.13, bpad=0.14)
-    labels = schemas.visualization.Labels("Distribution of Estimated Masses", "Mass [$M_{\odot}$]", "PDF")
+    labels = schemas.visualization.Labels("Distribution of Estimated Masses", r"Mass [$M_{\odot}$]", "PDF")
     fig, ax = base.initialize_plot(figsize=(9, 4), labels=labels, padding=padding)
 
     col_to_labels = {
@@ -62,7 +63,7 @@ def mass_estimates(
             med,
             med - inv_low,
             inv_high - med,
-            "[$M_{\odot}$]",
+            r"[$M_{\odot}$]",
         )
         ax.stairs(density, bins, label=ax_label)
     ax.set(ylabel="", xlabel="")
@@ -75,7 +76,7 @@ def mass_estimates(
 def corner_estimates(
     df: pd.DataFrame,
     label: str,
-    levels: list[float] = [0.68, 0.9],
+    levels: Optional[list[float]] = None,
     nbins: int = 70,
     output_dir: Optional[str] = None,
     close: bool = True,
@@ -109,11 +110,14 @@ def corner_estimates(
             Figure.
     """
 
+    if not levels:
+        levels = [0.68, 0.9]
+
     fig = corner.corner(
         df,
         nbins,
         var_names=["m1", "m2", "mf_", "vf", "chif"],
-        labels=["$m_1$", "$m_2$", "$m_f$", "$v_f$", "$\chi_f$"],
+        labels=["$m_1$", "$m_2$", "$m_f$", "$v_f$", r"$\chi_f$"],
         levels=levels,
         plot_density=True,
         plot_samples=False,
