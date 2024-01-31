@@ -1,11 +1,12 @@
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-import numpy as np
 from typing import Optional
 
-import schemas.visualization
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+
 import core.visualization.base as base
+import schemas.visualization
 
 
 def distribution(
@@ -43,12 +44,12 @@ def distribution(
     labels = schemas.visualization.Labels("Distribution of remnant black-hole parameters")
     col_to_labels = {
         "q": {"x": "Parent Mass Ratio $q$", "y": "PDF"},
-        "mf": {"x": "Remnant Mass $m_f$ [$M_{\odot}$]", "y": "PDF"},
+        "mf": {"x": r"Remnant Mass $m_f$ [$M_{\odot}$]", "y": "PDF"},
         "vf": {"x": "Recoil Kick $v_f$ [$kms^{-1}$]", "y": "PDF"},
         "chif": {"x": "Spin $\\chi_f$", "y": "PDF"},
     }
     fig, axes = base.initialize_plot(nrows=4, ncols=1, figsize=(6, 8), labels=labels)
-    for index, (col, labels) in enumerate(col_to_labels.items()):
+    for index, (col, line_labels) in enumerate(col_to_labels.items()):
         sns.histplot(
             df[col],
             ax=axes[index],
@@ -56,7 +57,7 @@ def distribution(
             fill=False,
             stat="density",
         )
-        axes[index].set(xlabel=labels["x"], ylabel=labels["y"])
+        axes[index].set(xlabel=line_labels["x"], ylabel=line_labels["y"])
 
     base.savefig_and_close(filename, output_dir, close)
     return (fig, axes)
@@ -98,7 +99,7 @@ def kick_against_spin(
     labels = schemas.visualization.Labels(
         "Remnant Kick against Remnant Spin",
         "Remnant Spin $\\chi_f$",
-        "Remnant Kick $v_f$ [$kms^{-1}$]",
+        r"Remnant Kick $v_f$ [$kms^{-1}$]",
     )
     fig, ax = base.initialize_plot(figsize=(8, 6), labels=labels, padding=padding)
 
@@ -166,7 +167,7 @@ def kick_distribution_on_spin(
             ax.stairs(
                 density,
                 bins,
-                label=f"$\chi_f$ $\in$ $[{low_bound:.2f}, {up_bound:.2f}]$",
+                label=rf"$\chi_f$ $\in$ $[{low_bound:.2f}, {up_bound:.2f}]$",
             )
     ax.set(xlabel="", ylabel="")
     plt.legend()

@@ -1,10 +1,11 @@
 from typing import Callable
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 import logger
 import schemas.common
+
 
 local_logger = logger.get_logger(__name__)
 
@@ -67,6 +68,10 @@ def get_generator_from_domain(domain: schemas.common.Domain) -> Callable:
             value (float):
                 The generated value.
         """
+
+        if domain.low is None or domain.high is None:
+            local_logger.error("Both low and high must be specified.")
+            raise ValueError("Both low and high must be specified.")
 
         return np.random.uniform(low=domain.low, high=domain.high)
 

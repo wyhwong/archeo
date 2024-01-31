@@ -3,51 +3,20 @@ Ancestral BH is a repository for inferring the natal kick and parental masses po
 
 ---
 
-# Runtime
-
-### LIGO JupyterLab Environment
-
-```bash
-# Setup for the environment
-pip3 install pyyaml scipy seaborn numpy pandas matplotlib tables corner surfinbh
-
-# Clone the repository
-git clone https://github.com/wyhwong/Ancestral-BH.git
-
-# Modify src/configs/main.yml and src/configs/prior.yml according to your needs
-cd Ancestral-BH/src
-python3 main.py
-```
+## Prerequisites
+- Poetry: [https://python-poetry.org](https://python-poetry.org)
+- GNU make: [https://www.gnu.org/software/make/manual/make.html](https://www.gnu.org/software/make/manual/make.html)
 
 ---
 
-### Docker Environment
-
-```bash
-# Build Docker image
-make build
-
-# Start container (simulation)
-make run
-
-# For visualization or development
-make jupyter_up
-```
+## Usage
+Please see [README.md](./ancestral-bh/README.md) inside `ancestral-bh` folder.
 
 ---
 
-### Local Environment
+# Application - GW190521
 
-```bash
-# Install dependencies with poetry
-poetry install
-```
-
----
-
-# Application
-
-We can use the scripts in the repository to estimate the parental mass and kick of GW190521. Please find the related data of GW190521 in [LIGO Document P2000158-v4](https://dcc.ligo.org/LIGO-P2000158/public). After downloading the data and modify [main.yml](./src/configs/main.yml) accordingly, we can compute the results. One can also tune the prior settings at [prior.yml](./src/configs/prior.yml) accordingly.
+We can use the scripts in the repository to estimate the parental mass and kick of component black holes in GW190521. Please find the related data of GW190521 in [LIGO Document P2000158-v4](https://dcc.ligo.org/LIGO-P2000158/public). After downloading the data and modify [main.yml](./ancestral-bh/main.yml) accordingly, we can compute the results. One can also tune the prior settings at [prior.yml](./ancestral-bh/prior.yml) accordingly.
 
 ---
 

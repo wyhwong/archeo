@@ -1,39 +1,23 @@
 export DOCKER_BUILDKIT=1
 
-# For Docker image
-export VERSION?=devel
-export USERNAME?=$(shell whoami)
-export USER_ID?=$(shell id -u)
-export GROUP_ID?=$(shell id -g)
-
 # Environment variables
-export TZ?=Asia/Hong_Kong
 export LOGLEVEL?=10
+export LOGFILE_PATH?=./runtime.log
 
-# For Code analysis
-export TEST_REPORT_DIR?=./test_report
-
-# Build Docker image
-build:
-	docker build -t TBC:${VERSION} \
-	--build-arg USERNAME=${USERNAME} \
-	--build-arg USER_ID=${USER_ID} \
-	--build-arg GROUP_ID=${GROUP_ID} \
-	--build-arg TZ=${TZ} \
-	--no-cache .
-
-# Run Docker container
-run:
-	docker run --rm -it -d --name TBC \
-	--env LOGLEVEL=${LOGLEVEL} \
-	--env TZ=${TZ} \
-	-p ${PORT}:8888 \
-	TBC:${VERSION}
+export RESULTS_DIR?=./results
+export MAX_MULTITHREAD_WORKER?=20
+export CONFIG_PATH?=./main.yml
+export PRIOR_CONFIG_PATH?=./prior.yml
+export RANDOM_SEED?=2023
 
 # Install Python dependencies in poetry environment
-local:
+install:
 	poetry install
 	poetry run pre-commit install -f
+
+# Run code in poetry environment
+run:
+	poetry run python3 src/main.py
 
 # Upate Python dependencies in poetry environment
 update:
@@ -49,19 +33,8 @@ analyze:
 	poetry run isort src --check-only
 	poetry run mypy src --show-error-codes
 	poetry run radon cc src
-	poetry run pytest --disable-warnings --cov-report=html:${TEST_REPORT_DIR} --cov=src/core src
-	open ${TEST_REPORT_DIR}/index.html
-
-# Upate Python dependencies in poetry environment
-update:
-	poetry update
 
 # Format src using black, isort
 format:
 	poetry run black src
 	poetry run isort src
-
-# Run test cases in poetry environment and open coverage report
-test:
-	poetry run pytest --disable-warnings --cov-report=html:${TEST_REPORT_DIR} --cov=src/core src
-	open ${TEST_REPORT_DIR}/index.html

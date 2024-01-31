@@ -1,6 +1,6 @@
+import enum
 from dataclasses import dataclass
 from typing import Optional
-import enum
 
 import schemas.common
 

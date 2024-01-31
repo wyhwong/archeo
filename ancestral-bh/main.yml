@@ -13,8 +13,8 @@ prior:
   # This config is used to load the results of a previous run
   # If you would like to skip the simulation,
   # set load_results to true and provide the path to the results
-  load_results: false 
-  csv_path: "filepath"
+  load_results: false
+  data_path: "filepath"
 
 # Settings for posterior simulation
 posterior:

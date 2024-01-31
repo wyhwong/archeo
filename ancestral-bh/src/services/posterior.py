@@ -1,9 +1,11 @@
-import pandas as pd
 from typing import Optional
 
-import core.posterior
+import pandas as pd
+
 import core.executor
+import core.posterior
 import logger
+
 
 local_logger = logger.get_logger(__name__)
 
@@ -43,7 +45,7 @@ def infer_parental_posterior(
 
     local_logger.info("Running the parental posterior inference... (%s)", label)
 
-    executor = core.executor.MultiProcessExecutor()
+    executor = core.executor.MultiThreadExecutor()
     input_kwargs = [
         dict(spin_measure=spin_measure, mass_measure=mass_measure)
         for spin_measure, mass_measure in zip(spin_posterior, mass_posterior)
@@ -52,7 +54,7 @@ def infer_parental_posterior(
     posterior = pd.concat(results)
 
     if output_dir:
-        filepath = f"{output_dir}/{label}_parental_params.h5"
-        posterior.to_hdf(filepath, key="estimates", index=False)
+        filepath = f"{output_dir}/{label}_parental_params.feather"
+        posterior.to_feather(filepath)
 
     return posterior

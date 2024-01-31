@@ -1,11 +1,13 @@
-import numpy as np
 from typing import Callable, Optional
 
-import schemas.common
-import schemas.binary
-import core.utils
+import numpy as np
+
 import core.math
+import core.utils
 import logger
+import schemas.binary
+import schemas.common
+
 
 local_logger = logger.get_logger(__name__)
 
@@ -94,24 +96,7 @@ class BinaryGenerator:
 
         return schemas.binary.Binary(mass_ratio, chi1, chi2, m1, m2)
 
-    def simulate(self, num: int = 1) -> list[schemas.binary.Binary]:
-        """
-        Simulate binaries.
-
-        Args:
-        -----
-            num (int):
-                Number of binaries to simulate.
-
-        Returns:
-        -----
-            binaries (list[schemas.binary.Binary]):
-                The simulated binaries.
-        """
-
-        return [self.__call__() for _ in range(num)]
-
-    def _get_spin(self) -> np.ndarray:
+    def _get_spin(self) -> tuple[float, float, float]:
         """
         Get spin.
 
@@ -130,7 +115,7 @@ class BinaryGenerator:
             theta = self._theta_generator()
 
         univ = core.math.sph2cart(theta, phi)
-        return spin * univ
+        return tuple(spin * univ)
 
     def _get_masses_from_mass_ratio(self, mass_ratio: float) -> tuple[Optional[float], Optional[float]]:
         """
