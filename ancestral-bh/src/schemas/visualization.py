@@ -1,3 +1,4 @@
+import enum
 from dataclasses import dataclass
 
 
@@ -35,3 +36,12 @@ class Labels:
     xlabel: str = ""
     ylabel: str = ""
     zlabel: str = ""
+
+
+class Color(enum.Enum):
+    """Color for plot."""
+
+    BLUE = "blue"
+    ORANGE = "orange"
+    GREY = "grey"
+    GREEN = "green"

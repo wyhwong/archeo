@@ -3,6 +3,7 @@ from typing import Optional
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import scipy.stats
 import seaborn as sns
 
 import core.visualization.base as base
@@ -104,16 +105,9 @@ def kick_against_spin(
     fig, ax = base.initialize_plot(figsize=(8, 6), labels=labels, padding=padding)
 
     # Plot the scatter plot
-    sns.scatterplot(data=df, x="chif", y="vf", s=5, color=".15", ax=ax)
-    ax.set(xlabel="", ylabel="")
-
-    # Save once
-    base.savefig_and_close(f"scatter_{filename}", output_dir, close=False)
-
-    # Plot the contour plot
-    sns.histplot(data=df, x="chif", y="vf", bins=120, pthresh=0.05, ax=ax)
-    sns.kdeplot(data=df, x="chif", y="vf", levels=[0.1, 0.3, 0.5], color="b", linewidths=1, ax=ax)
-    ax.set(xlabel="", ylabel="")
+    values = np.vstack([df["chif"], df["vf"]])
+    kernel = scipy.stats.gaussian_kde(values)(values)
+    sns.scatterplot(data=df, x="chif", y="vf", c=kernel, cmap="viridis", ax=ax, s=5)
 
     base.savefig_and_close(filename, output_dir, close)
     return (fig, ax)

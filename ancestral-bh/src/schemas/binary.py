@@ -89,3 +89,12 @@ class BinarySettings:
     theta: schemas.common.Domain
     mass_ratio: schemas.common.Domain
     mass: schemas.common.Domain
+
+
+class EscapeVelocity(enum.Enum):
+    """Escape velocity (Unit in km s^-1)"""
+
+    GLOBULAR_CLUSTER = 50.0
+    MILKY_WAY = 600.0
+    NUCLEAR_STAR_CLUSTER = 1500.0
+    ELLIPTICAL_GALAXY = 2500.0

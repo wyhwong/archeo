@@ -91,7 +91,7 @@ class SimulationFacade:
             else None
         )
         mass_ratio_from_pdf = (
-            core.math.get_generator_from_csv(self._prior_settings["mass_ratio"]["csv_path"])
+            core.math.get_generator_from_csv(self._prior_settings["mass_ratio"]["data_path"])
             if self._prior_settings["mass_ratio"]["csv_path"]
             else None
         )
@@ -160,13 +160,15 @@ class SimulationFacade:
                     output_dir=self._output_dir,
                 )
                 core.visualization.posterior.corner_estimates(
-                    df_posterior,
-                    posterior_label,
+                    dfs=[df_posterior],
+                    labels=[posterior_label],
+                    filename=f"{posterior_label}.png",
                     output_dir=self._output_dir,
                 )
                 core.visualization.posterior.cumulative_kick_probability_curve(
-                    df_posterior,
-                    posterior_label,
+                    dfs=[df_posterior],
+                    labels=[posterior_label],
+                    filename=f"{posterior_label}.png",
                     output_dir=self._output_dir,
                 )
 
@@ -178,7 +180,7 @@ class SimulationFacade:
         """
 
         if self._main_settings["prior"]["load_results"]:
-            local_logger.info("Loading prior from csv file %s...", self._main_settings["prior"]["csv_path"])
+            local_logger.info("Loading prior from data file %s...", self._main_settings["prior"]["data_path"])
             df = pd.read_feather(self._main_settings["prior"]["data_path"])
             df.to_feather(f"{self._output_dir}/prior.feather")
         else:

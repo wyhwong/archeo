@@ -1,6 +1,7 @@
 from typing import Optional
 
 import corner
+import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -45,6 +46,7 @@ def mass_estimates(
     padding = schemas.visualization.Padding(lpad=0.13, bpad=0.14)
     labels = schemas.visualization.Labels("Distribution of Estimated Masses", r"Mass [$M_{\odot}$]", "PDF")
     fig, ax = base.initialize_plot(figsize=(9, 4), labels=labels, padding=padding)
+    colors = iter([color.value for color in schemas.visualization.Color])
 
     col_to_labels = {
         "mf_": f"{label}: ",
@@ -52,6 +54,7 @@ def mass_estimates(
         "m2": "Ligher Parent: ",
     }
     for col, label_prefix in col_to_labels.items():
+        color = next(colors)
         density, bins = np.histogram(a=df[col], bins=70, density=True)
         inv_low, med, inv_high = (
             df[col].quantile(0.05),
@@ -65,7 +68,12 @@ def mass_estimates(
             inv_high - med,
             r"[$M_{\odot}$]",
         )
-        ax.stairs(density, bins, label=ax_label)
+        ax.stairs(density, bins, label=ax_label, color=color)
+
+    color = next(colors)
+    ax.axvline(65, color=color, linewidth=0.9, linestyle="--", label="PISN Gap")
+    ax.axvline(130, color=color, linewidth=0.9, linestyle="--")
+
     ax.set(ylabel="", xlabel="")
     plt.legend()
 
@@ -74,10 +82,11 @@ def mass_estimates(
 
 
 def corner_estimates(
-    df: pd.DataFrame,
-    label: str,
+    dfs: list[pd.DataFrame],
+    labels: list[str],
     levels: Optional[list[float]] = None,
     nbins: int = 70,
+    filename: str = "corner.png",
     output_dir: Optional[str] = None,
     close: bool = True,
 ):
@@ -86,17 +95,20 @@ def corner_estimates(
 
     Args:
     -----
-        df (pd.DataFrame):
-            The posterior dataframe.
+        dfs (list[pd.DataFrame]):
+            The posterior dataframes.
 
-        label (str):
-            Label of the posterior.
+        labels (list[str]):
+            Label of each posterior.
 
         levels (list[float]):
             Contour levels.
 
         nbins (int):
             Number of bins.
+
+        filename (str):
+            Output filename.
 
         output_dir (Optional[str]):
             Output directory.
@@ -106,35 +118,61 @@ def corner_estimates(
 
     Returns:
     -----
-        fig (plt.Figure):
-            Figure.
+        None
     """
 
     if not levels:
         levels = [0.68, 0.9]
 
-    fig = corner.corner(
-        df,
-        nbins,
-        var_names=["m1", "m2", "mf_", "vf", "chif"],
-        labels=["$m_1$", "$m_2$", "$m_f$", "$v_f$", r"$\chi_f$"],
-        levels=levels,
-        plot_density=True,
-        plot_samples=False,
-        color="blue",
-        fill_contours=False,
-        smooth=True,
-        plot_datapoints=False,
-        hist_kwargs=dict(density=True),
-    )
-    plt.legend()
-    base.savefig_and_close(f"{label}_corner.png", output_dir, close)
-    return fig
+    corner_type_to_var_names = {
+        "full": ["m1", "m2", "mf_", "vf", "chif"],
+        "part": ["m1", "m2", "vf"],
+    }
+    corner_type_to_labels = {
+        "full": ["$m_1$", "$m_2$", "$m_f$", "$v_f$", "$\\chi_f$"],
+        "part": ["$m_1$", "$m_2$", "$v_f$"],
+    }
+
+    for corner_type, var_names in corner_type_to_var_names.items():
+        fig, _ = base.initialize_plot(ncols=len(var_names), nrows=len(var_names), figsize=(9, 9))
+        colors = iter([color.value for color in schemas.visualization.Color])
+        corner_labels = iter(labels)
+        handles = []
+
+        for df in dfs:
+            color = next(colors)
+            corner.corner(
+                data=df[var_names],
+                bins=nbins,
+                var_names=var_names,
+                labels=corner_type_to_labels[corner_type],
+                levels=levels,
+                plot_density=True,
+                plot_samples=False,
+                color=color,
+                fill_contours=False,
+                smooth=True,
+                plot_datapoints=False,
+                hist_kwargs=dict(density=True),
+                fig=fig,
+            )
+            handles.append(mlines.Line2D([], [], color=color, label=next(corner_labels)))
+
+        fig.legend(
+            handles=handles,
+            fontsize=15,
+            frameon=True,
+            bbox_to_anchor=(1.0, 0.95),
+            loc="upper right",
+        )
+        base.savefig_and_close(f"{corner_type}_{filename}", output_dir, close)
 
 
 def cumulative_kick_probability_curve(
-    df: pd.DataFrame,
-    label: str,
+    dfs: list[pd.DataFrame],
+    labels: list[str],
+    xlim: Optional[tuple[float, float]] = None,
+    filename: str = "cumulative_kick_probability_curve.png",
     output_dir: Optional[str] = None,
     close: bool = True,
 ):
@@ -143,11 +181,14 @@ def cumulative_kick_probability_curve(
 
     Args:
     -----
-        df (pd.DataFrame):
-            The posterior dataframe.
+        dfs (list[pd.DataFrame]):
+            The posterior dataframes.
 
-        label (str):
-            Label of the posterior.
+        label (list[str]):
+            Label of each posterior.
+
+        xlim (Optional[tuple[float, float]]):
+            X-axis limits.
 
         output_dir (Optional[str]):
             Output directory.
@@ -164,20 +205,61 @@ def cumulative_kick_probability_curve(
             Axes.
     """
 
-    padding = schemas.visualization.Padding(bpad=0.14)
-    labels = schemas.visualization.Labels("Cumulative Kick Probability Curve", "Recoil Velocity $v_f$ ($km/s$)", "CDF")
-    fig, ax = base.initialize_plot(figsize=(9, 4), labels=labels, padding=padding)
+    if not xlim:
+        xlim = (0.0, 3000.0)
 
-    df_under_PISN = df.loc[(df["m1"] < 65) & (df["m2"] < 65)]
-    norm_factor = len(df_under_PISN) / len(df)
-    density, bins = np.histogram(df_under_PISN["vf"], 70, density=True)
-    dbin = bins[1] - bins[0]
-    density *= norm_factor
-    cdf = np.cumsum(density) * dbin
-    x = bins[:-1] + dbin / 2
-    sns.lineplot(y=[0] + list(cdf), x=[0] + list(x), ax=ax, label=label)
-    ax.set(ylabel="", xlabel="")
+    padding = schemas.visualization.Padding(bpad=0.14)
+    plot_labels = schemas.visualization.Labels(
+        "Cumulative Kick Probability Curve", "Recoil Velocity $v_f$ ($km/s$)", "CDF"
+    )
+    fig, ax = base.initialize_plot(figsize=(10, 8), labels=plot_labels, padding=padding, fontsize=15)
+    v_values = [
+        schemas.binary.EscapeVelocity.GLOBULAR_CLUSTER.value,
+        schemas.binary.EscapeVelocity.MILKY_WAY.value,
+        schemas.binary.EscapeVelocity.NUCLEAR_STAR_CLUSTER.value,
+        schemas.binary.EscapeVelocity.ELLIPTICAL_GALAXY.value,
+    ]
+    v_labels = [
+        "$v_{esc}$ Globular Cluster",
+        "$v_{esc}$ Milky Way",
+        "$v_{esc}$ Nuclear Star Cluster",
+        "$v_{esc}$ (Elliptical Galaxy)",
+    ]
+    v_colors = ["brown", "black", "red", "purple"]
+    horizontal_values = []
+
+    colors = iter([color.value for color in schemas.visualization.Color])
+    x = np.linspace(xlim[0], xlim[1], 1000)
+    for idx_1, df in enumerate(dfs):
+        y = []
+        for kick in x:
+            df_samples = df.loc[(df["vf"] <= kick) & (df["m1"] <= 65) & (df["m2"] <= 65)]
+            if df_samples.empty:
+                y.append(0.0)
+            else:
+                y.append(len(df_samples) / len(df))
+
+        for idx_2, v_value in enumerate(v_values):
+            if v_value > xlim[1]:
+                break
+
+            # Vertical lines at v_esc
+            ax.axvline(x=v_value, color=v_colors[idx_2], linestyle="--", linewidth=0.5)
+            shift = 20.0 * xlim[1] / 3000.0
+            ax.text(v_value + shift, 0.7, v_labels[idx_2], color=v_colors[idx_2], rotation=90, va="center", fontsize=12)
+
+            # Horizontal lines at intersection
+            index = np.abs(x - v_value).argmin()
+            intersection = y[index]
+            ax.axhline(y=intersection, color=v_colors[idx_2], linestyle="--", linewidth=0.5)
+            horizontal_values.append(intersection)
+
+        color = next(colors)
+        sns.lineplot(y=y, x=x, ax=ax, color=color, label=labels[idx_1])
+
+    ax.set_yticks(horizontal_values)
+    ax.set(ylabel="", xlabel="", xlim=xlim)
     plt.legend()
 
-    base.savefig_and_close(f"{label}_cumulative_kick_probability_curve.png", output_dir, close)
+    base.savefig_and_close(filename, output_dir, close)
     return (fig, ax)
