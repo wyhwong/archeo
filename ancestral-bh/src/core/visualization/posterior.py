@@ -129,8 +129,8 @@ def corner_estimates(
         "part": ["m1", "m2", "vf"],
     }
     corner_type_to_labels = {
-        "full": ["$m_1$", "$m_2$", "$m_f$", "$v_f$", "$\\chi_f$"],
-        "part": ["$m_1$", "$m_2$", "$v_f$"],
+        "full": ["$m_1$ [$M_{\odot}$]", "$m_2$ [$M_{\odot}$]", "$m_f$ [$M_{\odot}$]", "$v_f$ [km s$^{-1}$]", "$\\chi_f$"],
+        "part": ["$m_1$ [$M_{\odot}$]", "$m_2$ [$M_{\odot}$]", "$v_f$ [km s$^{-1}$]"],
     }
 
     for corner_type, var_names in corner_type_to_var_names.items():
@@ -210,7 +210,7 @@ def cumulative_kick_probability_curve(
 
     padding = schemas.visualization.Padding(bpad=0.14)
     plot_labels = schemas.visualization.Labels(
-        "Cumulative Kick Probability Curve", "Recoil Velocity $v_f$ ($km/s$)", "CDF"
+        "Cumulative Kick Probability Curve", "Recoil Velocity $v_f$ [km s$^{-1}$]", "CDF"
     )
     fig, ax = base.initialize_plot(figsize=(10, 8), labels=plot_labels, padding=padding, fontsize=15)
     v_values = [
