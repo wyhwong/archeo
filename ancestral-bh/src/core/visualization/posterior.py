@@ -241,6 +241,7 @@ def cumulative_kick_probability_curve(
 
     # Plot vertical lines and labels (escape velocities)
     for idx, v_value in enumerate(v_values):
+        # Skip if out of scope
         if v_value > xlim[1]:
             break
 
@@ -261,6 +262,10 @@ def cumulative_kick_probability_curve(
 
         # Plot horizontal lines (intersection with escape velocities)
         for idx_2, v_value in enumerate(v_values):
+            # Skip if out of scope
+            if v_value > xlim[1]:
+                break
+
             # Horizontal lines at intersection
             intersection = y[h_indices[idx_2]]
             ax.axhline(y=intersection, color=v_colors[idx_2], linestyle="--", linewidth=0.5)
