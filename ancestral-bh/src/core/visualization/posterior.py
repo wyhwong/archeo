@@ -276,7 +276,7 @@ def cumulative_kick_probability_curve(
         sns.lineplot(y=y, x=x, ax=ax, color=color, label=labels[idx_1])
 
     # Set y-ticks (this step is to avoid overlapping y-ticks)
-    sorted(potential_yticks)
+    potential_yticks = sorted(potential_yticks)
     yticks = [potential_yticks[0]]
     for potential_ytick in potential_yticks:
         if (potential_ytick - yticks[-1]) > 0.05:

@@ -131,3 +131,7 @@ dmypy.json
 # Project specific
 results
 posteriors
+*.feather
+*.h5
+*.json
+*.csv
