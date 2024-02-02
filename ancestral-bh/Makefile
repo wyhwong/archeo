@@ -1,7 +1,7 @@
 export DOCKER_BUILDKIT=1
 
 # Environment variables
-export LOGLEVEL?=10
+export LOGLEVEL?=20
 export LOGFILE_PATH?=./runtime.log
 
 export RESULTS_DIR?=./results

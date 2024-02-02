@@ -129,7 +129,13 @@ def corner_estimates(
         "part": ["m1", "m2", "vf"],
     }
     corner_type_to_labels = {
-        "full": ["$m_1$ [$M_{\odot}$]", "$m_2$ [$M_{\odot}$]", "$m_f$ [$M_{\odot}$]", "$v_f$ [km s$^{-1}$]", "$\\chi_f$"],
+        "full": [
+            "$m_1$ [$M_{\odot}$]",
+            "$m_2$ [$M_{\odot}$]",
+            "$m_f$ [$M_{\odot}$]",
+            "$v_f$ [km s$^{-1}$]",
+            "$\\chi_f$",
+        ],
         "part": ["$m_1$ [$M_{\odot}$]", "$m_2$ [$M_{\odot}$]", "$v_f$ [km s$^{-1}$]"],
     }
 
@@ -210,7 +216,9 @@ def cumulative_kick_probability_curve(
 
     padding = schemas.visualization.Padding(bpad=0.14)
     plot_labels = schemas.visualization.Labels(
-        "Cumulative Kick Probability Curve", "Recoil Velocity $v_f$ [km s$^{-1}$]", "CDF"
+        title="Cumulative Kick Probability Curve",
+        xlabel="Recoil Velocity $v_f$ [km s$^{-1}$]",
+        ylabel="CDF",
     )
     fig, ax = base.initialize_plot(figsize=(10, 8), labels=plot_labels, padding=padding, fontsize=15)
     v_values = [
@@ -226,11 +234,23 @@ def cumulative_kick_probability_curve(
         "$v_{esc}$ (Elliptical Galaxy)",
     ]
     v_colors = ["brown", "black", "red", "purple"]
-    horizontal_values = []
 
     colors = iter([color.value for color in schemas.visualization.Color])
     x = np.linspace(xlim[0], xlim[1], 1000)
+    h_indices = [np.abs(x - v_value).argmin() for v_value in v_values]
+
+    # Plot vertical lines and labels (escape velocities)
+    for idx, v_value in enumerate(v_values):
+        if v_value > xlim[1]:
+            break
+
+        ax.axvline(x=v_value, color=v_colors[idx], linestyle="--", linewidth=0.5)
+        shift = 20.0 * xlim[1] / 3000.0
+        ax.text(v_value + shift, 0.7, v_labels[idx], color=v_colors[idx], rotation=90, va="center", fontsize=12)
+
+    potential_yticks = []
     for idx_1, df in enumerate(dfs):
+        # Calculate the CDF
         y = []
         for kick in x:
             df_samples = df.loc[(df["vf"] <= kick) & (df["m1"] <= 65) & (df["m2"] <= 65)]
@@ -239,25 +259,25 @@ def cumulative_kick_probability_curve(
             else:
                 y.append(len(df_samples) / len(df))
 
+        # Plot horizontal lines (intersection with escape velocities)
         for idx_2, v_value in enumerate(v_values):
-            if v_value > xlim[1]:
-                break
-
-            # Vertical lines at v_esc
-            ax.axvline(x=v_value, color=v_colors[idx_2], linestyle="--", linewidth=0.5)
-            shift = 20.0 * xlim[1] / 3000.0
-            ax.text(v_value + shift, 0.7, v_labels[idx_2], color=v_colors[idx_2], rotation=90, va="center", fontsize=12)
-
             # Horizontal lines at intersection
-            index = np.abs(x - v_value).argmin()
-            intersection = y[index]
+            intersection = y[h_indices[idx_2]]
             ax.axhline(y=intersection, color=v_colors[idx_2], linestyle="--", linewidth=0.5)
-            horizontal_values.append(intersection)
+            potential_yticks.append(intersection)
 
         color = next(colors)
+        # Plot the CDF
         sns.lineplot(y=y, x=x, ax=ax, color=color, label=labels[idx_1])
 
-    ax.set_yticks(horizontal_values)
+    # Set y-ticks (this step is to avoid overlapping y-ticks)
+    sorted(potential_yticks)
+    yticks = [potential_yticks[0]]
+    for potential_ytick in potential_yticks:
+        if (potential_ytick - yticks[-1]) > 0.05:
+            yticks.append(potential_ytick)
+    ax.set_yticks(yticks)
+
     ax.set(ylabel="", xlabel="", xlim=xlim)
     plt.legend()
 

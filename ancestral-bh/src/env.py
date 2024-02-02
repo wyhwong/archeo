@@ -2,7 +2,7 @@ import os
 
 
 # For logger
-LOGLEVEL = int(os.getenv("LOGLEVEL", "10"))
+LOGLEVEL = int(os.getenv("LOGLEVEL", "20"))
 LOGFILE_PATH = os.getenv("LOGFILE_PATH", "./runtime.log")
 
 # For facade
