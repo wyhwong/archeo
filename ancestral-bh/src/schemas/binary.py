@@ -5,6 +5,9 @@ from typing import Optional
 import schemas.common
 
 
+SPEED_OF_LIGHT = 299792.458  # km/s
+
+
 @dataclass
 class Binary:
     """

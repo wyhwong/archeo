@@ -1,5 +1,4 @@
 import numpy as np
-import scipy.constants
 import surfinBH
 
 import logger
@@ -57,7 +56,7 @@ def simulate_remnant(binary: schemas.binary.Binary, fits: surfinBH.surfinBH.SurF
     vf, _ = fits.vf(binary.mass_ratio, binary.chi1, binary.chi2)
     chif, _ = fits.chif(binary.mass_ratio, binary.chi1, binary.chi2)
     remnant_mass, _ = fits.mf(binary.mass_ratio, binary.chi1, binary.chi2)
-    remannt_speed = np.sqrt(np.dot(vf, vf)) * scipy.constants.speed_of_light / 1000.0
+    remannt_speed = np.sqrt(np.dot(vf, vf)) * schemas.binary.SPEED_OF_LIGHT
     remnant_spin = np.sqrt(np.dot(chif, chif))
 
     data = {
