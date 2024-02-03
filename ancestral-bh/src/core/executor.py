@@ -95,7 +95,7 @@ class MultiThreadExecutor(MultiExecutor):
 
         with ThreadPoolExecutor(max_workers=self.max_executors) as executor:
             futures = [executor.submit(func, **kwargs) for kwargs in input_kwargs]
-            tqdm(wait(futures))
+            wait(tqdm(futures))
 
         results = [future.result() for future in futures]
 
