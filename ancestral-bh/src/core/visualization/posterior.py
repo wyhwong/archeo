@@ -130,13 +130,13 @@ def corner_estimates(
     }
     corner_type_to_labels = {
         "full": [
-            "$m_1$ [$M_{\odot}$]",
-            "$m_2$ [$M_{\odot}$]",
-            "$m_f$ [$M_{\odot}$]",
-            "$v_f$ [km s$^{-1}$]",
+            r"$m_1$ [$M_{\odot}$]",
+            r"$m_2$ [$M_{\odot}$]",
+            r"$m_f$ [$M_{\odot}$]",
+            r"$v_f$ [km s$^{-1}$]",
             "$\\chi_f$",
         ],
-        "part": ["$m_1$ [$M_{\odot}$]", "$m_2$ [$M_{\odot}$]", "$v_f$ [km s$^{-1}$]"],
+        "part": [r"$m_1$ [$M_{\odot}$]", r"$m_2$ [$M_{\odot}$]", r"$v_f$ [km s$^{-1}$]"],
     }
 
     for corner_type, var_names in corner_type_to_var_names.items():

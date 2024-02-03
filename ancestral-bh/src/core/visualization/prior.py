@@ -3,11 +3,26 @@ from typing import Optional
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import scipy.stats
 import seaborn as sns
+from matplotlib.colors import LinearSegmentedColormap
 
 import core.visualization.base as base
 import schemas.visualization
+
+
+white_viridis = LinearSegmentedColormap.from_list(
+    "white_viridis",
+    [  # type: ignore
+        (0, "#ffffff"),
+        (1e-20, "#440053"),
+        (0.2, "#404388"),
+        (0.4, "#2a788e"),
+        (0.6, "#21a784"),
+        (0.8, "#78d151"),
+        (1, "#fde624"),
+    ],
+    N=256,
+)
 
 
 def distribution(
@@ -96,18 +111,19 @@ def kick_against_spin(
             Axes.
     """
 
-    padding = schemas.visualization.Padding(lpad=0.13)
-    labels = schemas.visualization.Labels(
-        "Remnant Kick against Remnant Spin",
-        "Remnant Spin $\\chi_f$",
-        r"Remnant Kick $v_f$ [$kms^{-1}$]",
-    )
-    fig, ax = base.initialize_plot(figsize=(8, 6), labels=labels, padding=padding)
+    # mpl_scatter_density import is for ax.scatter_density
+    # implicitly used in kick_against_spin
+    # pylint: disable-next=unused-import, import-outside-toplevel
+    import mpl_scatter_density  # type: ignore
 
-    # Plot the scatter plot
-    values = np.vstack([df["chif"], df["vf"]])
-    kernel = scipy.stats.gaussian_kde(values)(values)
-    sns.scatterplot(data=df, x="chif", y="vf", c=kernel, cmap="viridis", ax=ax, s=5)
+    fig = plt.figure(figsize=(8, 6))
+    ax = fig.add_subplot(1, 1, 1, projection="scatter_density")
+    ax.scatter_density(df["chif"], df["vf"], cmap=white_viridis)  # type: ignore
+    ax.set(
+        title="Remnant Kick against Remnant Spin",
+        xlabel="Remnant Spin $\\chi_f$",
+        ylabel=r"Remnant Kick $v_f$ [$kms^{-1}$]",
+    )
 
     base.savefig_and_close(filename, output_dir, close)
     return (fig, ax)

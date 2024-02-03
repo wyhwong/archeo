@@ -509,6 +509,30 @@ files = [
 test = ["pytest (>=6)"]
 
 [[package]]
+name = "fast-histogram"
+version = "0.12"
+description = "Fast simple 1D and 2D histograms"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "fast_histogram-0.12-cp38-abi3-macosx_10_9_x86_64.whl", hash = "sha256:650a6472805761bca7c89fa50076c8cf1cdfed2a898473a05c2b9240b61ae5e5"},
+    {file = "fast_histogram-0.12-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:98e1d33d2a0db9196ae4561ff456b1f5884ca7934abb446f907a0594c49c3e4d"},
+    {file = "fast_histogram-0.12-cp38-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:9323569ab79cb1b27139a06599dc7502906c3e0dd0b9ab09228609248386ab62"},
+    {file = "fast_histogram-0.12-cp38-abi3-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ada2e6a594ba79076d1f1581d31623caecf4d199577209c8cc78f89628cc3645"},
+    {file = "fast_histogram-0.12-cp38-abi3-musllinux_1_1_x86_64.whl", hash = "sha256:36381627ad8a7ecb44aa99aa621e615d8a19e5edd6da0fb4e9c6b4f80f6c8b6c"},
+    {file = "fast_histogram-0.12-cp38-abi3-win32.whl", hash = "sha256:d634ac4f7b82bb63d8c00ddfbd14873a7ef7a1ee9a9111022713b4ac45542c29"},
+    {file = "fast_histogram-0.12-cp38-abi3-win_amd64.whl", hash = "sha256:d82e92e95f05b279a3969152a3ec7f14c9103ac2034b86610d84ed1f970ee950"},
+    {file = "fast_histogram-0.12-pp38-pypy38_pp73-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a2418b285685d0b272f1f6844d812bdcc5cb980e201cab8b4f25f650c6da58fb"},
+    {file = "fast_histogram-0.12-pp39-pypy39_pp73-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:544e91031e9ddcbe6a802b82fab5f9c51488b36012ae172e343f1a64c1babc39"},
+]
+
+[package.dependencies]
+numpy = "*"
+
+[package.extras]
+test = ["hypothesis[numpy]", "pytest", "pytest-cov"]
+
+[[package]]
 name = "filelock"
 version = "3.13.1"
 description = "A platform independent file lock."
@@ -985,6 +1009,25 @@ files = [
     {file = "mdurl-0.1.2-py3-none-any.whl", hash = "sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8"},
     {file = "mdurl-0.1.2.tar.gz", hash = "sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba"},
 ]
+
+[[package]]
+name = "mpl-scatter-density"
+version = "0.7"
+description = "Matplotlib helpers to make density scatter plots"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "mpl-scatter-density-0.7.tar.gz", hash = "sha256:cace750887916d3881b3a42ab5805769cc8d7eb70ef610938cbb57c967277620"},
+    {file = "mpl_scatter_density-0.7-py3-none-any.whl", hash = "sha256:721b4efeafcbc0ba4a5c1ecd8f401dc2d1aa6a372445c5b49e1da34e70a95ead"},
+]
+
+[package.dependencies]
+fast-histogram = ">=0.3"
+matplotlib = ">=3.0"
+numpy = "*"
+
+[package.extras]
+test = ["pytest", "pytest-cov", "pytest-mpl"]
 
 [[package]]
 name = "mypy"
@@ -2017,4 +2060,4 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "5d2157f395ec3aead177d05d1aa1c61b09d43e72f9eb765b9f1d22ff86e67e26"
+content-hash = "5225bfebf8ec5a56cbcaf97a4879ff8c5c342b23b79a461697b1cfecc7f30dcd"
