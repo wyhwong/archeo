@@ -277,7 +277,7 @@ def cumulative_kick_probability_curve(
 
     # Set y-ticks (this step is to avoid overlapping y-ticks)
     potential_yticks = sorted(potential_yticks)
-    yticks = [potential_yticks[0]]
+    yticks = [1.0, 0.0]
     for potential_ytick in potential_yticks:
         if (potential_ytick - yticks[-1]) > 0.05:
             yticks.append(potential_ytick)
