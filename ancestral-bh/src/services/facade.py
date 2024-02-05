@@ -165,7 +165,7 @@ class SimulationFacade:
                     filename=f"{posterior_label}.png",
                     output_dir=self._output_dir,
                 )
-                core.visualization.posterior.cumulative_kick_probability_curve(
+                core.visualization.posterior.conditional_retention_probability_curve(
                     dfs=[df_posterior],
                     labels=[posterior_label],
                     filename=f"{posterior_label}.png",

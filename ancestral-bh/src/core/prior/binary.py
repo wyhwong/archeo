@@ -109,7 +109,7 @@ class BinaryGenerator:
         spin = self._spin_generator()
         if self._is_spin_aligned:
             phi = 0.0
-            theta = 0.0 + np.round(np.random.rand()) * np.pi
+            theta = np.random.choice([0.0, 1.0]) * np.pi
         else:
             phi = self._phi_generator()
             theta = self._theta_generator()

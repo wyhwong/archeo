@@ -174,7 +174,7 @@ def corner_estimates(
         base.savefig_and_close(f"{corner_type}_{filename}", output_dir, close)
 
 
-def cumulative_kick_probability_curve(
+def conditional_retention_probability_curve(
     dfs: list[pd.DataFrame],
     labels: list[str],
     xlim: Optional[tuple[float, float]] = None,
@@ -216,9 +216,9 @@ def cumulative_kick_probability_curve(
 
     padding = schemas.visualization.Padding(bpad=0.14)
     plot_labels = schemas.visualization.Labels(
-        title="Cumulative Kick Probability Curve",
-        xlabel="Recoil Velocity $v_f$ [km s$^{-1}$]",
-        ylabel="CDF",
+        title="Conditional Retention Probability Curve",
+        xlabel="Escape Velocity $v_{esc}$ [km s$^{-1}$]",
+        ylabel="Conditional Retention Probability",
     )
     fig, ax = base.initialize_plot(figsize=(10, 8), labels=plot_labels, padding=padding, fontsize=15)
     v_values = [
@@ -279,7 +279,7 @@ def cumulative_kick_probability_curve(
     potential_yticks = sorted(potential_yticks)
     yticks = [1.0, 0.0]
     for potential_ytick in potential_yticks:
-        if (potential_ytick - yticks[-1]) > 0.05:
+        if (potential_ytick - yticks[-1]) > 0.05 and potential_ytick < 0.95:
             yticks.append(potential_ytick)
     ax.set_yticks(yticks)
 

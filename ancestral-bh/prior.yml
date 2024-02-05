@@ -24,8 +24,8 @@ mass_ratio:
 
 spin:
   # Domain settings (Dimensionless)
-  low: -0.8
-  high: 0.8
+  low: 0.0
+  high: 1.0
 
 theta:
   # Domain settings (unit in pi)
