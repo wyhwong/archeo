@@ -60,6 +60,8 @@ def simulate_remnant(binary: schemas.binary.Binary, fits: surfinBH.surfinBH.SurF
     remnant_spin = np.sqrt(np.dot(chif, chif))
 
     data = {
+        "a1": binary.chi1,
+        "a2": binary.chi2,
         "m1": binary.m1,
         "m2": binary.m2,
         "q": binary.mass_ratio,
