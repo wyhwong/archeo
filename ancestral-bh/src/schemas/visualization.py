@@ -1,5 +1,6 @@
 import enum
 from dataclasses import dataclass
+from typing import Iterator
 
 
 @dataclass
@@ -45,3 +46,9 @@ class Color(enum.Enum):
     ORANGE = "orange"
     GREY = "grey"
     GREEN = "green"
+
+    @staticmethod
+    def value_iter() -> Iterator[str]:
+        """Get the generator of the color."""
+
+        return iter([color.value for color in Color])

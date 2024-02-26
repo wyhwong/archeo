@@ -10,7 +10,14 @@ from schemas.visualization import Labels, Padding
 local_logger = logger.get_logger(__name__)
 
 
-def initialize_plot(nrows=1, ncols=1, figsize=(10, 6), labels=Labels(), padding=Padding(), fontsize=12):
+def initialize_plot(
+    nrows=1,
+    ncols=1,
+    figsize=(10, 6),
+    labels=Labels(),
+    padding=Padding(),
+    fontsize: int = 12,
+):
     """
     Initialize a plot from matplotlib.
 
@@ -75,7 +82,11 @@ def initialize_plot(nrows=1, ncols=1, figsize=(10, 6), labels=Labels(), padding=
     return (fig, axes)
 
 
-def savefig_and_close(filename: Optional[str] = None, output_dir: Optional[str] = None, close=True) -> None:
+def savefig_and_close(
+    filename: Optional[str] = None,
+    output_dir: Optional[str] = None,
+    close: bool = True,
+) -> None:
     """
     Save the figure and close it.
 

@@ -108,24 +108,3 @@ def load_json(filepath: str) -> dict:
     local_logger.info("Read json: %s", filepath)
     with open(filepath, "r", encoding="utf-8") as file:
         return json.load(file)
-
-
-def save_as_json(filepath: str, content: dict) -> None:
-    """
-    Save dict as json file.
-
-    Args:
-    -----
-        filepath (str):
-            Filepath of the json file.
-        content (dict):
-            Content of the json file.
-
-    Returns:
-    -----
-        None
-    """
-
-    with open(filepath, "w", encoding="utf-8") as file:
-        json.dump(content, file, indent=4, sort_keys=True)
-    local_logger.info("Saved config at %s", filepath)

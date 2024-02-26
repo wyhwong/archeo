@@ -64,6 +64,7 @@ class SimulationFacade:
 
         settings = schemas.binary.BinarySettings(
             is_spin_aligned=self._prior_settings["is_spin_aligned"],
+            only_up_aligned_spin=self._prior_settings["only_up_aligned_spin"],
             spin=schemas.common.Domain(
                 low=self._prior_settings["spin"]["low"],
                 high=self._prior_settings["spin"]["high"],
@@ -143,32 +144,48 @@ class SimulationFacade:
             mass_tolerance=self._main_settings["posterior"]["mass_tolerance"],
         )
 
-        for label, posterior in posteriors.items():
-            for bh_index in [1, 2]:
-                posterior_label = f"{label},BH{bh_index}"
+        for bh in [1, 2]:
+            for label, posterior in posteriors.items():
+                posterior_label = f"{label},BH{bh}"
                 df_posterior = services.posterior.infer_parental_posterior(
                     sampler=sampler,
                     label=posterior_label,
-                    spin_posterior=posterior[f"a_{bh_index}"],
-                    mass_posterior=posterior[f"mass_{bh_index}_source"],
+                    spin_posterior=posterior[f"a_{bh}"],
+                    mass_posterior=posterior[f"mass_{bh}_source"],
                     output_dir=self._output_dir,
                 )
+
                 local_logger.info("Visualizing the posterior (%s)...", posterior_label)
                 core.visualization.posterior.mass_estimates(
-                    df_posterior,
-                    posterior_label,
+                    df=df_posterior,
+                    label=posterior_label,
+                    filename=f"{posterior_label}_mass_estimates.png",
                     output_dir=self._output_dir,
                 )
+                # NOTE: Here df_prior is not included because
+                #       the prior may not be a mass-injected prior.
                 core.visualization.posterior.corner_estimates(
                     dfs=[df_posterior],
                     labels=[posterior_label],
-                    filename=f"{posterior_label}.png",
+                    filename=f"{posterior_label}_corner.png",
                     output_dir=self._output_dir,
                 )
                 core.visualization.posterior.conditional_retention_probability_curve(
                     dfs=[df_posterior],
                     labels=[posterior_label],
-                    filename=f"{posterior_label}.png",
+                    filename=f"{posterior_label}_kick_curve.png",
+                    output_dir=self._output_dir,
+                )
+                core.visualization.posterior.effective_spin_estimates(
+                    dfs=[df_prior, df_posterior],
+                    labels=["Prior", posterior_label],
+                    filename=f"{posterior_label}_effective_spin.png",
+                    output_dir=self._output_dir,
+                )
+                core.visualization.posterior.precession_spin_estimates(
+                    dfs=[df_prior, df_posterior],
+                    labels=["Prior", posterior_label],
+                    filename=f"{posterior_label}_precession_spin.png",
                     output_dir=self._output_dir,
                 )
 

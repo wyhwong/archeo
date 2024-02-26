@@ -51,6 +51,7 @@ class BinaryGenerator:
         """
 
         self._is_spin_aligned = settings.is_spin_aligned
+        self._only_up_aligned_spin = settings.only_up_aligned_spin
         self._is_mass_injected = is_mass_injected
         self._mass_domain = settings.mass
 
@@ -109,13 +110,16 @@ class BinaryGenerator:
         spin = self._spin_generator()
         if self._is_spin_aligned:
             phi = 0.0
-            theta = np.random.choice([0.0, 1.0]) * np.pi
+            if self._only_up_aligned_spin:
+                theta = 0.0
+            else:
+                theta = np.random.choice([0.0, np.pi])
         else:
             phi = self._phi_generator()
             theta = self._theta_generator()
 
         univ = core.math.sph2cart(theta, phi)
-        return tuple(spin * univ)
+        return tuple(np.sqrt(spin) * univ)
 
     def _get_masses_from_mass_ratio(self, mass_ratio: float) -> tuple[Optional[float], Optional[float]]:
         """

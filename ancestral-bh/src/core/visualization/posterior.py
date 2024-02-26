@@ -14,6 +14,7 @@ import schemas.visualization
 def mass_estimates(
     df: pd.DataFrame,
     label: str,
+    filename: Optional[str] = None,
     output_dir: Optional[str] = None,
     close: bool = True,
 ):
@@ -44,41 +45,45 @@ def mass_estimates(
     """
 
     padding = schemas.visualization.Padding(lpad=0.13, bpad=0.14)
-    labels = schemas.visualization.Labels("Distribution of Estimated Masses", r"Mass [$M_{\odot}$]", "PDF")
+    labels = schemas.visualization.Labels(
+        title="Distribution of Estimated Masses",
+        xlabel=r"Mass [$M_{\odot}$]",
+        ylabel="PDF",
+    )
     fig, ax = base.initialize_plot(figsize=(9, 4), labels=labels, padding=padding)
-    colors = iter([color.value for color in schemas.visualization.Color])
+    colors = schemas.visualization.Color.value_iter()
 
-    col_to_labels = {
-        "mf_": f"{label}: ",
-        "m1": "Heavier Parent: ",
-        "m2": "Ligher Parent: ",
-    }
-    for col, label_prefix in col_to_labels.items():
-        color = next(colors)
-        density, bins = np.histogram(a=df[col], bins=70, density=True)
-        inv_low, med, inv_high = (
-            df[col].quantile(0.05),
-            df[col].quantile(0.5),
-            df[col].quantile(0.95),
-        )
-        ax_label = "%s: $%d_{-%d}^{+%d}$ %s" % (
-            label_prefix,
-            med,
-            med - inv_low,
-            inv_high - med,
-            r"[$M_{\odot}$]",
-        )
-        ax.stairs(density, bins, label=ax_label, color=color)
+    col_to_name = {"mf_": f"{label}: ", "m1": "Heavier Parent: ", "m2": "Ligher Parent: "}
+    for col, name in col_to_name.items():
+        _plot_pdf(ax, next(colors), df[col], name, unit=r"[$M_{\odot}$]")
 
-    color = next(colors)
-    ax.axvline(65, color=color, linewidth=0.9, linestyle="--", label="PISN Gap")
-    ax.axvline(130, color=color, linewidth=0.9, linestyle="--")
-
+    _add_pisn_gap(ax, next(colors))
     ax.set(ylabel="", xlabel="")
     plt.legend()
 
-    base.savefig_and_close(f"{label}_mass_estimates.png", output_dir, close)
+    base.savefig_and_close(filename, output_dir, close)
     return (fig, ax)
+
+
+def _add_pisn_gap(ax, color: str) -> None:
+    """
+    Add PISN gap to the plot.
+
+    Args:
+    -----
+        ax (plt.Axes):
+            Axes.
+
+        color (str):
+            Color.
+
+    Returns:
+    -----
+        None
+    """
+
+    ax.axvline(65, color=color, linewidth=0.9, linestyle="--", label="PISN Gap")
+    ax.axvline(130, color=color, linewidth=0.9, linestyle="--")
 
 
 def corner_estimates(
@@ -86,7 +91,7 @@ def corner_estimates(
     labels: list[str],
     levels: Optional[list[float]] = None,
     nbins: int = 70,
-    filename: str = "corner.png",
+    filename: Optional[str] = None,
     output_dir: Optional[str] = None,
     close: bool = True,
 ):
@@ -141,7 +146,7 @@ def corner_estimates(
 
     for corner_type, var_names in corner_type_to_var_names.items():
         fig, _ = base.initialize_plot(ncols=len(var_names), nrows=len(var_names), figsize=(9, 9))
-        colors = iter([color.value for color in schemas.visualization.Color])
+        colors = schemas.visualization.Color.value_iter()
         corner_labels = iter(labels)
         handles = []
 
@@ -177,8 +182,7 @@ def corner_estimates(
 def conditional_retention_probability_curve(
     dfs: list[pd.DataFrame],
     labels: list[str],
-    xlim: Optional[tuple[float, float]] = None,
-    filename: str = "cumulative_kick_probability_curve.png",
+    filename: Optional[str] = None,
     output_dir: Optional[str] = None,
     close: bool = True,
 ):
@@ -193,8 +197,8 @@ def conditional_retention_probability_curve(
         label (list[str]):
             Label of each posterior.
 
-        xlim (Optional[tuple[float, float]]):
-            X-axis limits.
+        filename (str):
+            Output filename.
 
         output_dir (Optional[str]):
             Output directory.
@@ -211,46 +215,23 @@ def conditional_retention_probability_curve(
             Axes.
     """
 
-    if not xlim:
-        xlim = (0.0, 3000.0)
+    # Set up x-axis
+    x_max = 0.0
+    for df in dfs:
+        if df["vf"].max() > x_max:
+            x_max = df["vf"].max()
+    x = np.linspace(0.0, x_max, 300)
 
-    padding = schemas.visualization.Padding(bpad=0.14)
-    plot_labels = schemas.visualization.Labels(
+    _padding = schemas.visualization.Padding(bpad=0.14)
+    _labels = schemas.visualization.Labels(
         title="Conditional Retention Probability Curve",
         xlabel="Escape Velocity $v_{esc}$ [km s$^{-1}$]",
         ylabel="Conditional Retention Probability",
     )
-    fig, ax = base.initialize_plot(figsize=(10, 8), labels=plot_labels, padding=padding, fontsize=15)
-    v_values = [
-        schemas.binary.EscapeVelocity.GLOBULAR_CLUSTER.value,
-        schemas.binary.EscapeVelocity.MILKY_WAY.value,
-        schemas.binary.EscapeVelocity.NUCLEAR_STAR_CLUSTER.value,
-        schemas.binary.EscapeVelocity.ELLIPTICAL_GALAXY.value,
-    ]
-    v_labels = [
-        "$v_{esc}$ Globular Cluster",
-        "$v_{esc}$ Milky Way",
-        "$v_{esc}$ Nuclear Star Cluster",
-        "$v_{esc}$ (Elliptical Galaxy)",
-    ]
-    v_colors = ["brown", "black", "red", "purple"]
+    fig, ax = base.initialize_plot(figsize=(10, 8), labels=_labels, padding=_padding, fontsize=15)
+    colors = schemas.visualization.Color.value_iter()
 
-    colors = iter([color.value for color in schemas.visualization.Color])
-    x = np.linspace(xlim[0], xlim[1], 1000)
-    h_indices = [np.abs(x - v_value).argmin() for v_value in v_values]
-
-    # Plot vertical lines and labels (escape velocities)
-    for idx, v_value in enumerate(v_values):
-        # Skip if out of scope
-        if v_value > xlim[1]:
-            break
-
-        ax.axvline(x=v_value, color=v_colors[idx], linestyle="--", linewidth=0.5)
-        shift = 20.0 * xlim[1] / 3000.0
-        ax.text(v_value + shift, 0.7, v_labels[idx], color=v_colors[idx], rotation=90, va="center", fontsize=12)
-
-    potential_yticks = []
-    for idx_1, df in enumerate(dfs):
+    for idx, df in enumerate(dfs):
         # Calculate the CDF
         y = []
         for kick in x:
@@ -260,31 +241,197 @@ def conditional_retention_probability_curve(
             else:
                 y.append(len(df_samples) / len(df))
 
-        # Plot horizontal lines (intersection with escape velocities)
-        for idx_2, v_value in enumerate(v_values):
-            # Skip if out of scope
-            if v_value > xlim[1]:
-                break
-
-            # Horizontal lines at intersection
-            intersection = y[h_indices[idx_2]]
-            ax.axhline(y=intersection, color=v_colors[idx_2], linestyle="--", linewidth=0.5)
-            potential_yticks.append(intersection)
-
-        color = next(colors)
         # Plot the CDF
-        sns.lineplot(y=y, x=x, ax=ax, color=color, label=labels[idx_1])
+        sns.lineplot(y=y, x=x, ax=ax, color=next(colors), label=labels[idx])
 
-    # Set y-ticks (this step is to avoid overlapping y-ticks)
-    potential_yticks = sorted(potential_yticks)
-    yticks = [1.0, 0.0]
-    for potential_ytick in potential_yticks:
-        if (potential_ytick - yticks[-1]) > 0.05 and potential_ytick < 0.95:
-            yticks.append(potential_ytick)
-    ax.set_yticks(yticks)
-
-    ax.set(ylabel="", xlabel="", xlim=xlim)
+    _add_escape_velocity(ax, x_max)
+    ax.set(ylabel="", xlabel="")
     plt.legend()
 
     base.savefig_and_close(filename, output_dir, close)
     return (fig, ax)
+
+
+def _add_escape_velocity(ax, v_max: float) -> None:
+    """
+    Add escape velocity to the plot.
+
+    Args:
+    -----
+        ax (plt.Axes):
+            Axes.
+
+        v_max (float):
+            Maximum escape velocity.
+
+    Returns:
+    -----
+        None
+    """
+
+    labels = schemas.binary.EscapeVelocity.label_iter()
+    colors = schemas.visualization.Color.value_iter()
+
+    # Plot vertical lines and labels (escape velocities)
+    for v_esc in schemas.binary.EscapeVelocity.value_iter():
+        # Skip if out of scope
+        if v_esc > v_max:
+            return
+
+        label = next(labels)
+        color = next(colors)
+
+        ax.axvline(x=v_esc, color=color, linestyle="--", linewidth=0.5)
+        text_shift = 20.0 * v_max / 3000.0
+        ax.text(v_esc + text_shift, 0.7, label, color=color, rotation=90, va="center", fontsize=12)
+
+
+def effective_spin_estimates(
+    dfs: list[pd.DataFrame],
+    labels: list[str],
+    filename: Optional[str] = None,
+    output_dir: Optional[str] = None,
+    close: bool = True,
+):
+    """
+    Plot the effective spin PDF.
+
+    Args:
+    -----
+        dfs (list[pd.DataFrame]):
+            The posterior dataframes.
+
+        labels (list[str]):
+            Label of each posterior.
+
+        filename (str):
+            Output filename.
+
+        output_dir (Optional[str]):
+            Output directory.
+
+        close (bool):
+            Whether to close the figure.
+
+    Returns:
+    -----
+        fig (plt.Figure):
+            Figure.
+
+        axes (plt.Axes):
+            Axes.
+    """
+
+    _padding = schemas.visualization.Padding(bpad=0.14)
+    _labels = schemas.visualization.Labels(
+        title="Effective Spin PDF",
+        xlabel="Effective Spin $a_{eff}$",
+        ylabel="PDF",
+    )
+    fig, ax = base.initialize_plot(figsize=(10, 8), labels=_labels, padding=_padding, fontsize=15)
+    colors = schemas.visualization.Color.value_iter()
+
+    for idx, df in enumerate(dfs):
+        df["a1z"] = df["a1"].apply(lambda x: x[-1])
+        df["a2z"] = df["a1"].apply(lambda x: x[-1])
+        df["a_eff"] = (df["m1"] * df["a1z"] + df["m2"] * df["a2z"]) / (df["m1"] + df["m2"])
+        _plot_pdf(ax, next(colors), df["a_eff"], labels[idx])
+
+    plt.legend()
+    ax.set(ylabel="", xlabel="")
+    base.savefig_and_close(filename, output_dir, close)
+    return (fig, ax)
+
+
+def precession_spin_estimates(
+    dfs: list[pd.DataFrame],
+    labels: list[str],
+    filename: Optional[str] = None,
+    output_dir: Optional[str] = None,
+    close: bool = True,
+):
+    """
+    Plot the precession spin PDF.
+
+    Args:
+    -----
+        dfs (list[pd.DataFrame]):
+            The posterior dataframes.
+
+        labels (list[str]):
+            Label of each posterior.
+
+        filename (str):
+            Output filename.
+
+        output_dir (Optional[str]):
+            Output directory.
+
+        close (bool):
+            Whether to close the figure.
+
+    Returns:
+    -----
+        fig (plt.Figure):
+            Figure.
+
+        axes (plt.Axes):
+            Axes.
+    """
+
+    _padding = schemas.visualization.Padding(bpad=0.14)
+    _labels = schemas.visualization.Labels(
+        title="Precession Spin PDF",
+        xlabel="Precession Spin $a_p$",
+        ylabel="PDF",
+    )
+    fig, ax = base.initialize_plot(figsize=(10, 8), labels=_labels, padding=_padding, fontsize=15)
+    colors = schemas.visualization.Color.value_iter()
+
+    for idx, df in enumerate(dfs):
+        df["a1h"] = df["a1"].apply(lambda x: np.sqrt(x[0] ** 2 + x[1] ** 2))
+        df["a2h"] = df["a2"].apply(lambda x: np.sqrt(x[0] ** 2 + x[1] ** 2))
+        df["ap"] = np.maximum(df["a1h"], (4 * df["q"] + 3) / (3 * df["q"] + 4) * df["a2h"])
+        _plot_pdf(ax, next(colors), df["ap"], labels[idx])
+
+    plt.legend()
+    ax.set(ylabel="", xlabel="")
+    base.savefig_and_close(filename, output_dir, close)
+    return (fig, ax)
+
+
+def _plot_pdf(
+    ax,
+    color: str,
+    series: pd.Series,
+    name: str,
+    unit: Optional[str] = None,
+):
+    """
+    Plot the PDF of a parameter.
+
+    Args:
+    -----
+        ax (plt.Axes):
+            Axes.
+
+        series (pd.Series):
+            Series.
+
+        label (str):
+            Label.
+
+        color (str):
+            Color.
+
+    Returns:
+    -----
+        None
+    """
+
+    density, bins = np.histogram(a=series, bins=70, density=True)
+    low, mid, high = series.quantile(0.05), series.quantile(0.5), series.quantile(0.95)
+    ax_label = "%s: $%.2f_{-%.2f}^{+%.2f}$" % (name, mid, mid - low, high - mid)
+    if unit:
+        ax_label += f" {unit}"
+    ax.stairs(density, bins, label=ax_label, color=color)

@@ -6,6 +6,7 @@ fits: "NRSur7dq4Remnant"
 
 # The option to simulate only mergers with aligned spin
 is_spin_aligned: false
+only_up_aligned_spin: false
 
 mass:
   # Domain settings (unit in solar mass)

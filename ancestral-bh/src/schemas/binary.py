@@ -1,6 +1,6 @@
 import enum
 from dataclasses import dataclass
-from typing import Optional
+from typing import Iterator, Optional
 
 import schemas.common
 
@@ -70,6 +70,9 @@ class BinarySettings:
     is_spin_aligned (bool):
         Whether the spins are aligned or not
 
+    only_up_aligned_spin (bool):
+        Whether the spins are only in the positive z-direction
+
     spin (schemas.common.Domain):
         Domain of the spin parameter
 
@@ -87,11 +90,18 @@ class BinarySettings:
     """
 
     is_spin_aligned: bool
+    only_up_aligned_spin: bool
     spin: schemas.common.Domain
     phi: schemas.common.Domain
     theta: schemas.common.Domain
     mass_ratio: schemas.common.Domain
     mass: schemas.common.Domain
+
+    def __post_init__(self) -> None:
+        """Post initialization."""
+
+        if self.only_up_aligned_spin and not self.is_spin_aligned:
+            raise ValueError("Only up-aligned spin is only valid when spins are aligned.")
 
 
 class EscapeVelocity(enum.Enum):
@@ -101,3 +111,30 @@ class EscapeVelocity(enum.Enum):
     MILKY_WAY = 600.0
     NUCLEAR_STAR_CLUSTER = 1500.0
     ELLIPTICAL_GALAXY = 2500.0
+
+    @staticmethod
+    def value_iter() -> Iterator[float]:
+        """Get the escape velocity."""
+
+        return iter([v.value for v in EscapeVelocity])
+
+    @staticmethod
+    def label_iter() -> Iterator[str]:
+        """Get the escape velocity label (for visualization)."""
+
+        return EscapeVelocityLabel.value_iter()
+
+
+class EscapeVelocityLabel(enum.Enum):
+    """Escape velocity (Unit in km s^-1)"""
+
+    GLOBULAR_CLUSTER = "$v_{esc}$ Globular Cluster"
+    MILKY_WAY = "$v_{esc}$ Milky Way"
+    NUCLEAR_STAR_CLUSTER = "$v_{esc}$ Nuclear Star Cluster"
+    ELLIPTICAL_GALAXY = "$v_{esc}$ (Elliptical Galaxy)"
+
+    @staticmethod
+    def value_iter() -> Iterator[float]:
+        """Get the escape velocity label (for visualization)."""
+
+        return iter([label.value for label in EscapeVelocityLabel])
