@@ -72,7 +72,7 @@ class BinaryGenerator:
 
         self._spin_generator = core.math.get_generator_from_domain(settings.spin)
         self._phi_generator = core.math.get_generator_from_domain(settings.phi)
-        self._theta_generator = core.math.get_generator_from_domain(settings.theta)
+        self._theta_generator = self._get_theta_generator(settings.theta)
 
         local_logger.info(
             "Constructed a binary generator: mass injected: %s, settings: %s",
@@ -96,6 +96,36 @@ class BinaryGenerator:
         m1, m2 = self._get_masses_from_mass_ratio(mass_ratio)
 
         return schemas.binary.Binary(mass_ratio, chi1, chi2, m1, m2)
+
+    @staticmethod
+    def _get_theta_generator(theta_domain: schemas.common.Domain) -> Callable:
+        """
+        Get theta generator.
+
+        Args:
+        -----
+            theta_domain (schemas.common.Domain):
+                The domain of theta.
+
+        Returns:
+        -----
+            generate_theta (Callable):
+                A function that generates theta.
+        """
+
+        def generate_theta() -> float:
+            """
+            Generate theta.
+
+            Returns:
+            -----
+                theta (float):
+                    The generated theta.
+            """
+
+            return np.arccos(-1 + 2 * np.random.uniform(theta_domain.low / np.pi, theta_domain.high / np.pi))
+
+        return generate_theta
 
     def _get_spin(self) -> tuple[float, float, float]:
         """
