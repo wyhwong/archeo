@@ -139,17 +139,16 @@ class BinaryGenerator:
 
         spin = self._spin_generator()
         if self._is_spin_aligned:
-            phi = 0.0
             if self._only_up_aligned_spin:
-                theta = 0.0
+                return (0.0, 0.0, spin)
             else:
-                theta = np.random.choice([0.0, np.pi])
+                direction = np.random.choice([-1, 1])
+                return (0.0, 0.0, direction * spin)
         else:
             phi = self._phi_generator()
             theta = self._theta_generator()
-
-        univ = core.math.sph2cart(theta, phi)
-        return tuple(np.sqrt(spin) * univ)
+            univ = core.math.sph2cart(theta, phi)
+            return tuple(spin * univ)
 
     def _get_masses_from_mass_ratio(self, mass_ratio: float) -> tuple[Optional[float], Optional[float]]:
         """

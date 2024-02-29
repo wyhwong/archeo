@@ -389,8 +389,8 @@ def precession_spin_estimates(
     colors = schemas.visualization.Color.value_iter()
 
     for idx, df in enumerate(dfs):
-        df["a1h"] = df["a1"].apply(lambda x: x[0] ** 2 + x[1] ** 2)
-        df["a2h"] = df["a2"].apply(lambda x: x[0] ** 2 + x[1] ** 2)
+        df["a1h"] = df["a1"].apply(lambda x: np.sqrt(x[0] ** 2 + x[1] ** 2))
+        df["a2h"] = df["a2"].apply(lambda x: np.sqrt(x[0] ** 2 + x[1] ** 2))
         df["ap"] = np.maximum(df["a1h"], (4 / df["q"] + 3) / (3 / df["q"] + 4) / df["q"] * df["a2h"])
         _plot_pdf(ax, next(colors), df["ap"], labels[idx])
 
