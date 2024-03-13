@@ -92,8 +92,11 @@ class BinaryGenerator:
 
         chi1, chi2 = self._get_spin(), self._get_spin()
 
-        mass_ratio = self._mass_ratio_generator()
-        m1, m2 = self._get_masses_from_mass_ratio(mass_ratio)
+        m1, m2 = self._get_masses()
+        mass_ratio = m1 / m2
+
+        # mass_ratio = self._mass_ratio_generator()
+        # m1, m2 = self._get_masses_from_mass_ratio(mass_ratio)
 
         return schemas.binary.Binary(mass_ratio, chi1, chi2, m1, m2)
 
@@ -149,6 +152,32 @@ class BinaryGenerator:
             theta = self._theta_generator()
             univ = core.math.sph2cart(theta, phi)
             return tuple(spin * univ)
+
+    def _get_masses(self) -> tuple[Optional[float], Optional[float]]:
+        """
+        Get masses.
+
+        Returns:
+        -----
+            m_1 (Optional[float]):
+                Mass of the heavier black hole.
+
+            m_2 (Optional[float]):
+                Mass of the lighter black hole.
+        """
+
+        if not self._is_mass_injected:
+            return (None, None)
+
+        masses = (self._mass_generator(), self._mass_generator())
+        m_1 = max(masses)
+        m_2 = min(masses)
+
+        mass_ratio = m_1 / m_2
+        if not core.math.is_in_bounds(mass_ratio, self._mass_ratio_domain):
+            return self._get_masses()
+
+        return (m_1, m_2)
 
     def _get_masses_from_mass_ratio(self, mass_ratio: float) -> tuple[Optional[float], Optional[float]]:
         """
