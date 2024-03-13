@@ -54,6 +54,7 @@ class BinaryGenerator:
         self._only_up_aligned_spin = settings.only_up_aligned_spin
         self._is_mass_injected = is_mass_injected
         self._mass_domain = settings.mass
+        self._mass_ratio_domain = settings.mass_ratio
 
         if mass_from_pdf and mass_ratio_from_pdf:
             raise ValueError("Both mass_from_pdf and mass_ratio_from_pdf exist.")
