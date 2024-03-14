@@ -171,8 +171,7 @@ class BinaryGenerator:
             return (None, None)
 
         masses = (self._mass_generator(), self._mass_generator())
-        m_1 = max(masses)
-        m_2 = min(masses)
+        m_1, m_2 = max(masses), min(masses)
 
         mass_ratio = m_1 / m_2
         if not core.math.is_in_bounds(mass_ratio, self._mass_ratio_domain):
