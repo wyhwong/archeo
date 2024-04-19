@@ -1,15 +1,15 @@
-# Ancestral BH
+# ARCHEO
 
 ## LIGO JupyterLab Environment
 
 ```bash
 # Clone the repository
-git clone https://github.com/wyhwong/Ancestral-BH.git
-cd ancestral-bh
+git clone https://github.com/wyhwong/ARCHEO.git
+cd ARCHEO/src
 
 # Setup for the environment
-conda create -n ancestral-bh python=3.11
-conda activate ancestral-bh
+conda create -n archeo python=3.11
+conda activate archeo
 pip3 install poetry
 make install
 

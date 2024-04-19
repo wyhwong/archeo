@@ -1,25 +1,24 @@
 from typing import Callable
 
+import archeo.logger
 import numpy as np
 import pandas as pd
-
-import logger
-import schemas.common
+import archeo.schemas.common
 
 
-local_logger = logger.get_logger(__name__)
+local_logger = archeo.logger.get_logger(__name__)
 
 
 NUM_SAMPLES = 500000
 
 
-def get_mass_func_from_mahapatra(mass: schemas.common.Domain, alpha: float = 2.3, dm: float = 4.83) -> Callable:
+def get_mass_func_from_mahapatra(mass: archeo.schemas.common.Domain, alpha: float = 2.3, dm: float = 4.83) -> Callable:
     """
     Get a mass function from Mahapatra's mass distribution.
 
     Args:
     -----
-    mass (schemas.common.Domain):
+    mass (archeo.schemas.common.Domain):
         Mass domain.
 
     alpha (float, optional):

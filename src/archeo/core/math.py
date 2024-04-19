@@ -1,9 +1,8 @@
 from typing import Callable
 
+import logger
 import numpy as np
 import pandas as pd
-
-import logger
 import schemas.common
 
 

@@ -2,10 +2,9 @@ from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor, wait
 from typing import Any, Callable, Optional
 
-from tqdm import tqdm
-
 import env
 import logger
+from tqdm import tqdm
 
 
 local_logger = logger.get_logger(__name__)

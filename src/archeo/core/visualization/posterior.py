@@ -1,14 +1,13 @@
 from typing import Optional
 
+import core.visualization.base as base
 import corner
 import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
-
-import core.visualization.base as base
 import schemas.visualization
+import seaborn as sns
 
 
 def mass_estimates(

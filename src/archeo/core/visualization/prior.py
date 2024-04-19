@@ -1,13 +1,12 @@
 from typing import Optional
 
+import core.visualization.base as base
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import schemas.visualization
 import seaborn as sns
 from matplotlib.colors import LinearSegmentedColormap
-
-import core.visualization.base as base
-import schemas.visualization
 
 
 white_viridis = LinearSegmentedColormap.from_list(

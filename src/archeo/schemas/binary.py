@@ -2,7 +2,7 @@ import enum
 from dataclasses import dataclass
 from typing import Iterator, Optional
 
-import schemas.common
+import archeo.schemas.common
 
 
 SPEED_OF_LIGHT = 299792.458  # km/s
@@ -73,29 +73,29 @@ class BinarySettings:
     only_up_aligned_spin (bool):
         Whether the spins are only in the positive z-direction
 
-    spin (schemas.common.Domain):
+    spin (archeo.schemas.common.Domain):
         Domain of the spin parameter
 
-    phi (schemas.common.Domain):
+    phi (archeo.schemas.common.Domain):
         Domain of the azimuthal angle of the spin
 
-    theta (schemas.common.Domain):
+    theta (archeo.schemas.common.Domain):
         Domain of the polar angle of the spin
 
-    mass_ratio (schemas.common.Domain):
+    mass_ratio (archeo.schemas.common.Domain):
         Domain of the mass ratio
 
-    mass (schemas.common.Domain):
+    mass (archeo.schemas.common.Domain):
         Domain of the mass
     """
 
     is_spin_aligned: bool
     only_up_aligned_spin: bool
-    spin: schemas.common.Domain
-    phi: schemas.common.Domain
-    theta: schemas.common.Domain
-    mass_ratio: schemas.common.Domain
-    mass: schemas.common.Domain
+    spin: archeo.schemas.common.Domain
+    phi: archeo.schemas.common.Domain
+    theta: archeo.schemas.common.Domain
+    mass_ratio: archeo.schemas.common.Domain
+    mass: archeo.schemas.common.Domain
 
     def __post_init__(self) -> None:
         """Post initialization."""

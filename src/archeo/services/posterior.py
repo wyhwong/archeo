@@ -1,10 +1,9 @@
 from typing import Optional
 
-import pandas as pd
-
 import core.executor
 import core.posterior
 import logger
+import pandas as pd
 
 
 local_logger = logger.get_logger(__name__)

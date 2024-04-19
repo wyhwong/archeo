@@ -1,13 +1,12 @@
 from typing import Optional
 
+import archeo.core.utils
+import archeo.logger
 import matplotlib.pyplot as plt
-
-import core.utils
-import logger
-from schemas.visualization import Labels, Padding
+from archeo.schemas.visualization import Labels, Padding
 
 
-local_logger = logger.get_logger(__name__)
+local_logger = archeo.logger.get_logger(__name__)
 
 
 def initialize_plot(
@@ -107,7 +106,7 @@ def savefig_and_close(
     """
 
     if output_dir:
-        core.utils.check_and_create_dir(output_dir)
+        archeo.core.utils.check_and_create_dir(output_dir)
         savepath = f"{output_dir}/{filename}"
         plt.savefig(savepath, facecolor="w")
         local_logger.info("Saved figure to %s.", savepath)

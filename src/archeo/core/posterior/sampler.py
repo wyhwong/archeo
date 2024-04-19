@@ -1,12 +1,11 @@
 from typing import Optional
 
+import archeo.core.utils
+import archeo.logger
 import pandas as pd
 
-import core.utils
-import logger
 
-
-local_logger = logger.get_logger(__name__)
+local_logger = archeo.logger.get_logger(__name__)
 
 
 def get_posterior_from_json(filepath: str) -> dict:
@@ -24,7 +23,7 @@ def get_posterior_from_json(filepath: str) -> dict:
             Content of the posterior.
     """
 
-    return core.utils.load_json(filepath=filepath)["posterior"]["content"]
+    return archeo.core.utils.load_json(filepath=filepath)["posterior"]["content"]
 
 
 def get_posterior_from_h5(filepath: str, fits: str = "NRSur7dq4") -> dict:
@@ -45,7 +44,7 @@ def get_posterior_from_h5(filepath: str, fits: str = "NRSur7dq4") -> dict:
             Content of the posterior.
     """
 
-    return core.utils.load_h5(filepath)[fits]["posterior_samples"]
+    return archeo.core.utils.load_h5(filepath)[fits]["posterior_samples"]
 
 
 class PosteriorSampler:

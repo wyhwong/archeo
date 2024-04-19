@@ -1,15 +1,14 @@
 from typing import Callable, Optional
 
+import archeo.core.math
+import archeo.core.utils
+import archeo.logger
 import numpy as np
-
-import core.math
-import core.utils
-import logger
-import schemas.binary
-import schemas.common
+import archeo.schemas.binary
+import archeo.schemas.common
 
 
-local_logger = logger.get_logger(__name__)
+local_logger = archeo.logger.get_logger(__name__)
 
 
 class BinaryGenerator:
@@ -23,7 +22,7 @@ class BinaryGenerator:
 
     def __init__(
         self,
-        settings: schemas.binary.BinarySettings,
+        settings: archeo.schemas.binary.BinarySettings,
         is_mass_injected: bool,
         mass_ratio_from_pdf: Optional[Callable] = None,
         mass_from_pdf: Optional[Callable] = None,
@@ -33,7 +32,7 @@ class BinaryGenerator:
 
         Args:
         -----
-            settings (schemas.binary.BinarySettings):
+            settings (archeo.schemas.binary.BinarySettings):
                 Binary settings.
 
             is_mass_injected (bool):
@@ -63,16 +62,16 @@ class BinaryGenerator:
             local_logger.info("Using mass_from_pdf.")
             self._mass_generator = mass_from_pdf
         else:
-            self._mass_generator = core.math.get_generator_from_domain(settings.mass)
+            self._mass_generator = archeo.core.math.get_generator_from_domain(settings.mass)
 
         if mass_ratio_from_pdf:
             local_logger.info("Using mass_ratio_from_pdf.")
             self._mass_ratio_generator = mass_ratio_from_pdf
         else:
-            self._mass_ratio_generator = core.math.get_generator_from_domain(settings.mass_ratio)
+            self._mass_ratio_generator = archeo.core.math.get_generator_from_domain(settings.mass_ratio)
 
-        self._spin_generator = core.math.get_generator_from_domain(settings.spin)
-        self._phi_generator = core.math.get_generator_from_domain(settings.phi)
+        self._spin_generator = archeo.core.math.get_generator_from_domain(settings.spin)
+        self._phi_generator = archeo.core.math.get_generator_from_domain(settings.phi)
         self._theta_generator = self._get_theta_generator(settings.theta)
 
         local_logger.info(
@@ -81,13 +80,13 @@ class BinaryGenerator:
             settings,
         )
 
-    def __call__(self) -> schemas.binary.Binary:
+    def __call__(self) -> archeo.schemas.binary.Binary:
         """
         Generate a binary.
 
         Returns:
         -----
-            binary (schemas.binary.Binary):
+            binary (archeo.schemas.binary.Binary):
                 The generated binary.
         """
 
@@ -99,16 +98,16 @@ class BinaryGenerator:
         # mass_ratio = self._mass_ratio_generator()
         # m1, m2 = self._get_masses_from_mass_ratio(mass_ratio)
 
-        return schemas.binary.Binary(mass_ratio, chi1, chi2, m1, m2)
+        return archeo.schemas.binary.Binary(mass_ratio, chi1, chi2, m1, m2)
 
     @staticmethod
-    def _get_theta_generator(theta_domain: schemas.common.Domain) -> Callable:
+    def _get_theta_generator(theta_domain: archeo.schemas.common.Domain) -> Callable:
         """
         Get theta generator.
 
         Args:
         -----
-            theta_domain (schemas.common.Domain):
+            theta_domain (archeo.schemas.common.Domain):
                 The domain of theta.
 
         Returns:
@@ -151,7 +150,7 @@ class BinaryGenerator:
         else:
             phi = self._phi_generator()
             theta = self._theta_generator()
-            univ = core.math.sph2cart(theta, phi)
+            univ = archeo.core.math.sph2cart(theta, phi)
             return tuple(spin * univ)
 
     def _get_masses(self) -> tuple[Optional[float], Optional[float]]:
@@ -174,7 +173,7 @@ class BinaryGenerator:
         m_1, m_2 = max(masses), min(masses)
 
         mass_ratio = m_1 / m_2
-        if not core.math.is_in_bounds(mass_ratio, self._mass_ratio_domain):
+        if not archeo.core.math.is_in_bounds(mass_ratio, self._mass_ratio_domain):
             return self._get_masses()
 
         return (m_1, m_2)
@@ -204,7 +203,7 @@ class BinaryGenerator:
         m_2 = m_1 / mass_ratio
 
         # Recursively generate masses until m_2 is in the domain.
-        if not core.math.is_in_bounds(m_2, self._mass_domain):
+        if not archeo.core.math.is_in_bounds(m_2, self._mass_domain):
             return self._get_masses_from_mass_ratio(mass_ratio)
 
         return (m_1, m_2)

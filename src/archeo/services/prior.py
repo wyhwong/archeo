@@ -1,14 +1,13 @@
 from typing import Callable, Optional
 
-import pandas as pd
-import surfinBH
-from tqdm import tqdm
-
 import core.executor
 import core.prior.binary
 import core.prior.simulation
 import logger
+import pandas as pd
 import schemas.binary
+import surfinBH
+from tqdm import tqdm
 
 
 local_logger = logger.get_logger(__name__)

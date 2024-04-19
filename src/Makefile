@@ -17,7 +17,7 @@ install:
 
 # Run code in poetry environment
 run:
-	poetry run python3 src/main.py
+	poetry run python3 ancestral-bh/main.py
 
 # Upate Python dependencies in poetry environment
 update:
@@ -27,14 +27,14 @@ update:
 analyze:
 	poetry install
 	poetry run pre-commit install -f
-	poetry run black src --check
-	poetry run bandit -r src -c pyproject.toml
-	poetry run pylint src --rcfile ../.pylintrc
-	poetry run isort src --check-only
-	poetry run mypy src --show-error-codes
-	poetry run radon cc src
+	poetry run black archeo --check
+	poetry run bandit -r archeo -c pyproject.toml
+	poetry run pylint archeo --rcfile ../.pylintrc
+	poetry run isort archeo --check-only
+	poetry run mypy archeo --show-error-codes
+	poetry run radon cc archeo
 
-# Format src using black, isort
+# Format archeo using black, isort
 format:
-	poetry run black src
-	poetry run isort src
+	poetry run black archeo
+	poetry run isort archeo

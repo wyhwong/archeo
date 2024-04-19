@@ -2,9 +2,8 @@ import json
 import os
 
 import h5py
-import yaml
-
 import logger
+import yaml
 
 
 local_logger = logger.get_logger(__name__)
