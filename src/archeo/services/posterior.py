@@ -1,16 +1,17 @@
 from typing import Optional
 
-import core.executor
-import core.posterior
-import logger
 import pandas as pd
 
+import archeo.core.executor
+import archeo.core.posterior
+import archeo.logger
 
-local_logger = logger.get_logger(__name__)
+
+local_logger = archeo.logger.get_logger(__name__)
 
 
 def infer_parental_posterior(
-    sampler: core.posterior.sampler.PosteriorSampler,
+    sampler: archeo.core.posterior.sampler.PosteriorSampler,
     label: str,
     spin_posterior: list[float],
     mass_posterior: list[float],
@@ -21,7 +22,7 @@ def infer_parental_posterior(
 
     Args:
     -----
-        sampler (core.posterior.sampler.PosteriorSampler):
+        sampler (archeo.core.posterior.sampler.PosteriorSampler):
             Posterior sampler.
 
         label (str):
@@ -44,7 +45,7 @@ def infer_parental_posterior(
 
     local_logger.info("Running the parental posterior inference... (%s)", label)
 
-    executor = core.executor.MultiThreadExecutor()
+    executor = archeo.core.executor.MultiThreadExecutor()
     input_kwargs = [
         dict(spin_measure=spin_measure, mass_measure=mass_measure)
         for spin_measure, mass_measure in zip(spin_posterior, mass_posterior)

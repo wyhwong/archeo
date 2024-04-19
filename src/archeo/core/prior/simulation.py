@@ -1,7 +1,8 @@
-import archeo.logger
 import numpy as np
-import archeo.schemas.binary
 import surfinBH
+
+import archeo.logger
+import archeo.schemas.binary
 
 
 local_logger = archeo.logger.get_logger(__name__)

@@ -2,11 +2,12 @@ import json
 import os
 
 import h5py
-import logger
 import yaml
 
+import archeo.logger
 
-local_logger = logger.get_logger(__name__)
+
+local_logger = archeo.logger.get_logger(__name__)
 
 
 def check_and_create_dir(dirpath: str) -> None:

@@ -1,9 +1,10 @@
 from typing import Callable, Optional
 
+import numpy as np
+
 import archeo.core.math
 import archeo.core.utils
 import archeo.logger
-import numpy as np
 import archeo.schemas.binary
 import archeo.schemas.common
 

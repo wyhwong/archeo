@@ -1,3 +1,3 @@
-import services.facade
-import services.posterior
-import services.prior
+import archeo.services.facade
+import archeo.services.posterior
+import archeo.services.prior

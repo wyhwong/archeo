@@ -1,20 +1,21 @@
 from typing import Callable, Optional
 
-import core.executor
-import core.prior.binary
-import core.prior.simulation
-import logger
 import pandas as pd
-import schemas.binary
 import surfinBH
 from tqdm import tqdm
 
+import archeo.core.executor
+import archeo.core.prior.binary
+import archeo.core.prior.simulation
+import archeo.logger
+import archeo.schemas.binary
 
-local_logger = logger.get_logger(__name__)
+
+local_logger = archeo.logger.get_logger(__name__)
 
 
 def _get_remnant_params(
-    binary: schemas.binary.Binary,
+    binary: archeo.schemas.binary.Binary,
     fits: surfinBH.surfinBH.SurFinBH,
 ) -> dict[str, float]:
     """
@@ -22,7 +23,7 @@ def _get_remnant_params(
 
     Args:
     -----
-        binary (schemas.binary.Binary):
+        binary (archeo.schemas.binary.Binary):
             The binary to simulate.
 
         fits (surfinBH.surfinBH.SurFinBH):
@@ -34,12 +35,12 @@ def _get_remnant_params(
             The remnant parameters.
     """
 
-    return core.prior.simulation.simulate_remnant(binary, fits)
+    return archeo.core.prior.simulation.simulate_remnant(binary, fits)
 
 
 def run_simulation(
-    fits: schemas.binary.Fits,
-    settings: schemas.binary.BinarySettings,
+    fits: archeo.schemas.binary.Fits,
+    settings: archeo.schemas.binary.BinarySettings,
     is_mass_injected: bool,
     num_binaries: int,
     mass_ratio_from_pdf: Optional[Callable] = None,
@@ -51,13 +52,13 @@ def run_simulation(
 
     Args:
     -----
-        fits (schemas.binary.Fits):
+        fits (archeo.schemas.binary.Fits):
             The fits to load. The available fits are:
             - NRSur3dq8Remnant: non precessing BHs with mass ratio<=8, anti-/aligned spin <= 0.8
             - NRSur7dq4Remnant: precessing BHs with mass ratio<=4, generic spin <= 0.8
             - surfinBH7dq2: precessing BHs with mass ratio <= 2, generic spin <= 0.8
 
-        settings (schemas.binary.BinarySettings):
+        settings (archeo.schemas.binary.BinarySettings):
             The binary settings.
 
         is_mass_injected (bool):
@@ -87,10 +88,10 @@ def run_simulation(
         settings,
     )
 
-    fits = core.prior.simulation.load_fits(fits)
+    fits = archeo.core.prior.simulation.load_fits(fits)
 
     local_logger.info("Generating binaries...")
-    generator = core.prior.binary.BinaryGenerator(
+    generator = archeo.core.prior.binary.BinaryGenerator(
         settings=settings,
         is_mass_injected=is_mass_injected,
         mass_from_pdf=mass_from_pdf,
@@ -99,7 +100,7 @@ def run_simulation(
     input_kwargs = [{"binary": generator(), "fits": fits} for _ in tqdm(range(num_binaries))]
 
     local_logger.info("Running simulation...")
-    executor = core.executor.MultiThreadExecutor()
+    executor = archeo.core.executor.MultiThreadExecutor()
     samples = executor.run(_get_remnant_params, input_kwargs)
     df = pd.DataFrame(samples)
 

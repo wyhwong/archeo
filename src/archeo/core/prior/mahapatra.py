@@ -1,8 +1,9 @@
 from typing import Callable
 
-import archeo.logger
 import numpy as np
 import pandas as pd
+
+import archeo.logger
 import archeo.schemas.common
 
 

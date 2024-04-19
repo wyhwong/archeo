@@ -2,12 +2,13 @@ from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor, wait
 from typing import Any, Callable, Optional
 
-import env
-import logger
 from tqdm import tqdm
 
+import archeo.env
+import archeo.logger
 
-local_logger = logger.get_logger(__name__)
+
+local_logger = archeo.logger.get_logger(__name__)
 
 
 class MultiExecutor(ABC):
@@ -70,7 +71,7 @@ class MultiThreadExecutor(MultiExecutor):
             None
         """
 
-        super().__init__(max_executors if max_executors else env.MAX_MULTITHREAD_WORKER)
+        super().__init__(max_executors if max_executors else archeo.env.MAX_MULTITHREAD_WORKER)
 
         local_logger.info("Initialized MultiThreadExecutor, max_executors: %d.", self.max_executors)
 

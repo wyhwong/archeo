@@ -1,13 +1,14 @@
 from typing import Optional
 
-import core.visualization.base as base
 import corner
 import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import schemas.visualization
 import seaborn as sns
+
+import archeo.core.visualization.base as base
+import archeo.schemas.visualization
 
 
 def mass_estimates(
@@ -43,14 +44,14 @@ def mass_estimates(
             Axes.
     """
 
-    padding = schemas.visualization.Padding(lpad=0.13, bpad=0.14)
-    labels = schemas.visualization.Labels(
+    padding = archeo.schemas.visualization.Padding(lpad=0.13, bpad=0.14)
+    labels = archeo.schemas.visualization.Labels(
         title="Distribution of Estimated Masses",
         xlabel=r"Mass [$M_{\odot}$]",
         ylabel="PDF",
     )
     fig, ax = base.initialize_plot(figsize=(9, 4), labels=labels, padding=padding)
-    colors = schemas.visualization.Color.value_iter()
+    colors = archeo.schemas.visualization.Color.value_iter()
 
     col_to_name = {"mf_": f"{label}: ", "m1": "Heavier Parent: ", "m2": "Ligher Parent: "}
     for col, name in col_to_name.items():
@@ -145,7 +146,7 @@ def corner_estimates(
 
     for corner_type, var_names in corner_type_to_var_names.items():
         fig, _ = base.initialize_plot(ncols=len(var_names), nrows=len(var_names), figsize=(9, 9))
-        colors = schemas.visualization.Color.value_iter()
+        colors = archeo.schemas.visualization.Color.value_iter()
         corner_labels = iter(labels)
         handles = []
 
@@ -221,14 +222,14 @@ def conditional_retention_probability_curve(
             x_max = df["vf"].max()
     x = np.linspace(0.0, x_max, 300)
 
-    _padding = schemas.visualization.Padding(bpad=0.14)
-    _labels = schemas.visualization.Labels(
+    _padding = archeo.schemas.visualization.Padding(bpad=0.14)
+    _labels = archeo.schemas.visualization.Labels(
         title="Conditional Retention Probability Curve",
         xlabel="Escape Velocity $v_{esc}$ [km s$^{-1}$]",
         ylabel="Conditional Retention Probability",
     )
     fig, ax = base.initialize_plot(figsize=(10, 8), labels=_labels, padding=_padding, fontsize=15)
-    colors = schemas.visualization.Color.value_iter()
+    colors = archeo.schemas.visualization.Color.value_iter()
 
     for idx, df in enumerate(dfs):
         # Calculate the CDF
@@ -268,11 +269,11 @@ def _add_escape_velocity(ax, v_max: float) -> None:
         None
     """
 
-    labels = schemas.binary.EscapeVelocity.label_iter()
-    colors = schemas.visualization.Color.value_iter()
+    labels = archeo.schemas.binary.EscapeVelocity.label_iter()
+    colors = archeo.schemas.visualization.Color.value_iter()
 
     # Plot vertical lines and labels (escape velocities)
-    for v_esc in schemas.binary.EscapeVelocity.value_iter():
+    for v_esc in archeo.schemas.binary.EscapeVelocity.value_iter():
         # Skip if out of scope
         if v_esc > v_max:
             return
@@ -321,14 +322,14 @@ def effective_spin_estimates(
             Axes.
     """
 
-    _padding = schemas.visualization.Padding(bpad=0.14)
-    _labels = schemas.visualization.Labels(
+    _padding = archeo.schemas.visualization.Padding(bpad=0.14)
+    _labels = archeo.schemas.visualization.Labels(
         title="Effective Spin PDF",
         xlabel="Effective Spin $a_{eff}$",
         ylabel="PDF",
     )
     fig, ax = base.initialize_plot(figsize=(10, 8), labels=_labels, padding=_padding, fontsize=15)
-    colors = schemas.visualization.Color.value_iter()
+    colors = archeo.schemas.visualization.Color.value_iter()
 
     for idx, df in enumerate(dfs):
         df["a1z"] = df["a1"].apply(lambda x: x[-1])
@@ -378,14 +379,14 @@ def precession_spin_estimates(
             Axes.
     """
 
-    _padding = schemas.visualization.Padding(bpad=0.14)
-    _labels = schemas.visualization.Labels(
+    _padding = archeo.schemas.visualization.Padding(bpad=0.14)
+    _labels = archeo.schemas.visualization.Labels(
         title="Precession Spin PDF",
         xlabel="Precession Spin $a_p$",
         ylabel="PDF",
     )
     fig, ax = base.initialize_plot(figsize=(10, 8), labels=_labels, padding=_padding, fontsize=15)
-    colors = schemas.visualization.Color.value_iter()
+    colors = archeo.schemas.visualization.Color.value_iter()
 
     for idx, df in enumerate(dfs):
         df["a1h"] = df["a1"].apply(lambda x: np.sqrt(x[0] ** 2 + x[1] ** 2))

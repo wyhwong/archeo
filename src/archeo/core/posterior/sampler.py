@@ -1,8 +1,9 @@
 from typing import Optional
 
+import pandas as pd
+
 import archeo.core.utils
 import archeo.logger
-import pandas as pd
 
 
 local_logger = archeo.logger.get_logger(__name__)

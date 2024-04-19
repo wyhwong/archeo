@@ -1,8 +1,9 @@
 from typing import Optional
 
+import matplotlib.pyplot as plt
+
 import archeo.core.utils
 import archeo.logger
-import matplotlib.pyplot as plt
 from archeo.schemas.visualization import Labels, Padding
 
 

@@ -1,14 +1,14 @@
 import logging
 
-import env
+import archeo.env
 
 
 LOGFMT = "%(asctime)s [%(name)s | %(levelname)s]: %(message)s"
 DATEFMT = "%Y-%m-%dT%H:%M:%SZ"
-logging.basicConfig(format=LOGFMT, datefmt=DATEFMT, level=env.LOGLEVEL)
+logging.basicConfig(format=LOGFMT, datefmt=DATEFMT, level=archeo.env.LOGLEVEL)
 
 
-def get_logger(logger_name: str, log_filepath=env.LOGFILE_PATH) -> logging.Logger:
+def get_logger(logger_name: str, log_filepath=archeo.env.LOGFILE_PATH) -> logging.Logger:
     """
     Get logger
 
@@ -27,7 +27,7 @@ def get_logger(logger_name: str, log_filepath=env.LOGFILE_PATH) -> logging.Logge
     """
 
     logger = logging.getLogger(logger_name)
-    logger.setLevel(env.LOGLEVEL)
+    logger.setLevel(archeo.env.LOGLEVEL)
 
     if log_filepath:
         handler = logging.FileHandler(filename=log_filepath)

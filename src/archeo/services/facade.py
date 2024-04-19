@@ -1,18 +1,19 @@
 from glob import glob
 from typing import Any
 
-import core
-import env
-import logger
 import numpy as np
 import pandas as pd
-import schemas
-import services.posterior
-import services.prior
+
+import archeo.core
+import archeo.env
+import archeo.logger
+import archeo.schemas
+import archeo.services.posterior
+import archeo.services.prior
 
 
-np.random.seed(env.RANDOM_SEED)
-local_logger = logger.get_logger(__name__)
+np.random.seed(archeo.env.RANDOM_SEED)
+local_logger = archeo.logger.get_logger(__name__)
 
 
 class SimulationFacade:
@@ -47,56 +48,56 @@ class SimulationFacade:
         2. Save main and prior settings.
         """
 
-        core.utils.check_and_create_dir(env.RESULTS_DIR)
-        num_experiment = len(glob(f"{env.RESULTS_DIR}/*")) + 1
-        self._output_dir = f"{env.RESULTS_DIR}/{num_experiment}"
+        archeo.core.utils.check_and_create_dir(archeo.env.RESULTS_DIR)
+        num_experiment = len(glob(f"{archeo.env.RESULTS_DIR}/*")) + 1
+        self._output_dir = f"{archeo.env.RESULTS_DIR}/{num_experiment}"
         if self._main_settings["run_label"]:
             self._output_dir += "_" + self._main_settings["run_label"]
-        core.utils.check_and_create_dir(self._output_dir)
-        core.utils.save_as_yml(f"{self._output_dir}/main.yml", self._main_settings)
-        core.utils.save_as_yml(f"{self._output_dir}/prior.yml", self._prior_settings)
+        archeo.core.utils.check_and_create_dir(self._output_dir)
+        archeo.core.utils.save_as_yml(f"{self._output_dir}/main.yml", self._main_settings)
+        archeo.core.utils.save_as_yml(f"{self._output_dir}/prior.yml", self._prior_settings)
 
     def _run_prior_simulation(self) -> None:
         """
         Run the prior simulation.
         """
 
-        settings = schemas.binary.BinarySettings(
+        settings = archeo.schemas.binary.BinarySettings(
             is_spin_aligned=self._prior_settings["is_spin_aligned"],
             only_up_aligned_spin=self._prior_settings["only_up_aligned_spin"],
-            spin=schemas.common.Domain(
+            spin=archeo.schemas.common.Domain(
                 low=self._prior_settings["spin"]["low"],
                 high=self._prior_settings["spin"]["high"],
             ),
-            mass=schemas.common.Domain(
+            mass=archeo.schemas.common.Domain(
                 low=self._prior_settings["mass"]["low"],
                 high=self._prior_settings["mass"]["high"],
             ),
-            mass_ratio=schemas.common.Domain(
+            mass_ratio=archeo.schemas.common.Domain(
                 low=self._prior_settings["mass_ratio"]["low"],
                 high=self._prior_settings["mass_ratio"]["high"],
             ),
-            phi=schemas.common.Domain(
+            phi=archeo.schemas.common.Domain(
                 low=self._prior_settings["phi"]["low"] * np.pi,
                 high=self._prior_settings["phi"]["high"] * np.pi,
             ),
-            theta=schemas.common.Domain(
+            theta=archeo.schemas.common.Domain(
                 low=self._prior_settings["theta"]["low"] * np.pi,
                 high=self._prior_settings["theta"]["high"] * np.pi,
             ),
         )
         mass_from_pdf = (
-            core.prior.mahapatra.get_mass_func_from_mahapatra(settings.mass)
+            archeo.core.prior.mahapatra.get_mass_func_from_mahapatra(settings.mass)
             if self._prior_settings["mass"]["mahapatra"]
             else None
         )
         mass_ratio_from_pdf = (
-            core.math.get_generator_from_csv(self._prior_settings["mass_ratio"]["data_path"])
+            archeo.core.math.get_generator_from_csv(self._prior_settings["mass_ratio"]["data_path"])
             if self._prior_settings["mass_ratio"]["csv_path"]
             else None
         )
-        fits = schemas.binary.Fits(self._prior_settings["fits"])
-        services.prior.run_simulation(
+        fits = archeo.schemas.binary.Fits(self._prior_settings["fits"])
+        archeo.services.prior.run_simulation(
             fits=fits,
             settings=settings,
             is_mass_injected=self._main_settings["prior"]["is_mass_injected"],
@@ -114,9 +115,9 @@ class SimulationFacade:
         """
 
         df = pd.read_feather(f"{self._output_dir}/prior.feather")
-        core.visualization.prior.distribution(df, output_dir=self._output_dir)
-        core.visualization.prior.kick_against_spin(df, output_dir=self._output_dir)
-        core.visualization.prior.kick_distribution_on_spin(df, output_dir=self._output_dir)
+        archeo.core.visualization.prior.distribution(df, output_dir=self._output_dir)
+        archeo.core.visualization.prior.kick_against_spin(df, output_dir=self._output_dir)
+        archeo.core.visualization.prior.kick_distribution_on_spin(df, output_dir=self._output_dir)
 
         local_logger.info("Finished visualizing the prior.")
 
@@ -128,14 +129,14 @@ class SimulationFacade:
         posteriors: dict[str, pd.DataFrame] = {}
         if self._main_settings["posterior"]["json_path"]:
             for label, filepath in self._main_settings["posterior"]["json_path"].items():
-                posteriors[label] = core.posterior.sampler.get_posterior_from_json(filepath)
+                posteriors[label] = archeo.core.posterior.sampler.get_posterior_from_json(filepath)
 
         if self._main_settings["posterior"]["h5_path"]:
             for label, filepath in self._main_settings["posterior"]["h5_path"].items():
-                posteriors[label] = core.posterior.sampler.get_posterior_from_h5(filepath)
+                posteriors[label] = archeo.core.posterior.sampler.get_posterior_from_h5(filepath)
 
         df_prior = pd.read_feather(f"{self._output_dir}/prior.feather")
-        sampler = core.posterior.sampler.PosteriorSampler(
+        sampler = archeo.core.posterior.sampler.PosteriorSampler(
             df=df_prior,
             is_mass_injected=self._main_settings["posterior"]["is_mass_injected"],
             n_sample=self._main_settings["posterior"]["n_sample"],
@@ -146,7 +147,7 @@ class SimulationFacade:
         for bh in [1, 2]:
             for label, posterior in posteriors.items():
                 posterior_label = f"{label},BH{bh}"
-                df_posterior = services.posterior.infer_parental_posterior(
+                df_posterior = archeo.services.posterior.infer_parental_posterior(
                     sampler=sampler,
                     label=posterior_label,
                     spin_posterior=posterior[f"a_{bh}"],
@@ -155,7 +156,7 @@ class SimulationFacade:
                 )
 
                 local_logger.info("Visualizing the posterior (%s)...", posterior_label)
-                core.visualization.posterior.mass_estimates(
+                archeo.core.visualization.posterior.mass_estimates(
                     df=df_posterior,
                     label=posterior_label,
                     filename=f"{posterior_label}_mass_estimates.png",
@@ -163,25 +164,25 @@ class SimulationFacade:
                 )
                 # NOTE: Here df_prior is not included because
                 #       the prior may not be a mass-injected prior.
-                core.visualization.posterior.corner_estimates(
+                archeo.core.visualization.posterior.corner_estimates(
                     dfs=[df_posterior],
                     labels=[posterior_label],
                     filename=f"{posterior_label}_corner.png",
                     output_dir=self._output_dir,
                 )
-                core.visualization.posterior.conditional_retention_probability_curve(
+                archeo.core.visualization.posterior.conditional_retention_probability_curve(
                     dfs=[df_posterior],
                     labels=[posterior_label],
                     filename=f"{posterior_label}_kick_curve.png",
                     output_dir=self._output_dir,
                 )
-                core.visualization.posterior.effective_spin_estimates(
+                archeo.core.visualization.posterior.effective_spin_estimates(
                     dfs=[df_prior, df_posterior],
                     labels=["Prior", posterior_label],
                     filename=f"{posterior_label}_effective_spin.png",
                     output_dir=self._output_dir,
                 )
-                core.visualization.posterior.precession_spin_estimates(
+                archeo.core.visualization.posterior.precession_spin_estimates(
                     dfs=[df_prior, df_posterior],
                     labels=["Prior", posterior_label],
                     filename=f"{posterior_label}_precession_spin.png",

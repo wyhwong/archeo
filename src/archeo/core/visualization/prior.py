@@ -1,12 +1,13 @@
 from typing import Optional
 
-import core.visualization.base as base
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import schemas.visualization
 import seaborn as sns
 from matplotlib.colors import LinearSegmentedColormap
+
+import archeo.core.visualization.base as base
+import archeo.schemas.visualization
 
 
 white_viridis = LinearSegmentedColormap.from_list(
@@ -56,7 +57,7 @@ def distribution(
             Axes.
     """
 
-    labels = schemas.visualization.Labels("Distribution of remnant black-hole parameters")
+    labels = archeo.schemas.visualization.Labels("Distribution of remnant black-hole parameters")
     col_to_labels = {
         "q": {"x": "Parent Mass Ratio $q$", "y": "PDF"},
         "mf": {"x": r"Remnant Mass $m_f$ [$M_{\odot}$]", "y": "PDF"},
@@ -160,7 +161,7 @@ def kick_distribution_on_spin(
             Axes.
     """
 
-    labels = schemas.visualization.Labels(
+    labels = archeo.schemas.visualization.Labels(
         title="Remnant Kick Distribution on Different Spin Range",
         xlabel="Remnant Kick $v_f$ [$km/s$]",
         ylabel="PDF",

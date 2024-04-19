@@ -3,13 +3,14 @@ from typing import Callable
 import logger
 import numpy as np
 import pandas as pd
-import schemas.common
+
+import archeo.schemas.common
 
 
 local_logger = logger.get_logger(__name__)
 
 
-def is_in_bounds(value: float, domain: schemas.common.Domain) -> bool:
+def is_in_bounds(value: float, domain: archeo.schemas.common.Domain) -> bool:
     """
     Check if the value is in the domain.
 
@@ -18,7 +19,7 @@ def is_in_bounds(value: float, domain: schemas.common.Domain) -> bool:
         value (float):
             The value to check.
 
-        domain (schemas.common.Domain):
+        domain (archeo.schemas.common.Domain):
             The domain to check the value against.
 
     Returns:
@@ -38,13 +39,13 @@ def is_in_bounds(value: float, domain: schemas.common.Domain) -> bool:
     return in_bound
 
 
-def get_generator_from_domain(domain: schemas.common.Domain) -> Callable:
+def get_generator_from_domain(domain: archeo.schemas.common.Domain) -> Callable:
     """
     Get a generator function from a domain.
 
     Args:
     -----
-        domain (schemas.common.Domain):
+        domain (archeo.schemas.common.Domain):
             The domain to generate value from.
 
     Returns:
@@ -59,7 +60,7 @@ def get_generator_from_domain(domain: schemas.common.Domain) -> Callable:
 
         Args:
         -----
-            domain (schemas.common.Domain):
+            domain (archeo.schemas.common.Domain):
                 The domain to generate value from.
 
         Returns:
