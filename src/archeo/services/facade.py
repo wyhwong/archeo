@@ -19,7 +19,11 @@ local_logger = archeo.logger.get_logger(__name__)
 class SimulationFacade:
     """Facade for the simulation."""
 
-    def __init__(self, main_settings: dict[str, Any], prior_settings: dict[str, Any]) -> None:
+    def __init__(
+        self,
+        main_settings: dict[str, Any],
+        prior_settings: dict[str, Any],
+    ) -> None:
         """
         Args:
         -----

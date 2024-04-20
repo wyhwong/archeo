@@ -13,7 +13,11 @@ local_logger = archeo.logger.get_logger(__name__)
 NUM_SAMPLES = 500000
 
 
-def get_mass_func_from_mahapatra(mass: archeo.schemas.common.Domain, alpha: float = 2.3, dm: float = 4.83) -> Callable:
+def get_mass_func_from_mahapatra(
+    mass: archeo.schemas.common.Domain,
+    alpha: float = 2.3,
+    dm: float = 4.83,
+) -> Callable:
     """
     Get a mass function from Mahapatra's mass distribution.
 

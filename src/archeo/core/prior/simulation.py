@@ -26,13 +26,12 @@ def load_fits(fits: archeo.schemas.binary.Fits) -> surfinBH.surfinBH.SurFinBH:
             The loaded fits.
     """
 
-    fits_name = fits.value
     local_logger.info(
         "Loading surfinBH %s, description: %s.",
-        fits_name,
-        surfinBH.fits_collection[fits_name].desc,
+        fits,
+        surfinBH.fits_collection[fits].desc,
     )
-    return surfinBH.LoadFits(fits_name)
+    return surfinBH.LoadFits(fits)
 
 
 def simulate_remnant(binary: archeo.schemas.binary.Binary, fits: surfinBH.surfinBH.SurFinBH) -> dict[str, float]:

@@ -4,6 +4,7 @@ import numpy as np
 
 import archeo.core.math
 import archeo.core.utils
+import archeo.core.prior.mahapatra
 import archeo.logger
 import archeo.schemas.binary
 import archeo.schemas.common
@@ -25,8 +26,7 @@ class BinaryGenerator:
         self,
         settings: archeo.schemas.binary.BinarySettings,
         is_mass_injected: bool,
-        mass_ratio_from_pdf: Optional[Callable] = None,
-        mass_from_pdf: Optional[Callable] = None,
+        is_mahapatra: bool,
     ) -> None:
         """
         Initialize the binary generator.
@@ -39,11 +39,8 @@ class BinaryGenerator:
             is_mass_injected (bool):
                 Whether to inject mass.
 
-            mass_ratio_from_pdf (Optional[Callable]):
-                A function that returns a mass ratio sampled from a PDF.
-
-            mass_from_pdf (Optional[Callable]):
-                A function that returns a mass sampled from a PDF.
+            is_mahapatra (bool):
+                Whether to use Mahapatra's mass function.
 
         Returns:
         -----
@@ -53,23 +50,14 @@ class BinaryGenerator:
         self._is_spin_aligned = settings.is_spin_aligned
         self._only_up_aligned_spin = settings.only_up_aligned_spin
         self._is_mass_injected = is_mass_injected
+        self._is_mahapatra = is_mahapatra
         self._mass_domain = settings.mass
         self._mass_ratio_domain = settings.mass_ratio
 
-        if mass_from_pdf and mass_ratio_from_pdf:
-            raise ValueError("Both mass_from_pdf and mass_ratio_from_pdf exist.")
-
-        if mass_from_pdf:
-            local_logger.info("Using mass_from_pdf.")
-            self._mass_generator = mass_from_pdf
+        if self._is_mahapatra:
+            self._mass_generator = archeo.core.prior.mahapatra.get_mass_func_from_mahapatra(settings.mass)
         else:
             self._mass_generator = archeo.core.math.get_generator_from_domain(settings.mass)
-
-        if mass_ratio_from_pdf:
-            local_logger.info("Using mass_ratio_from_pdf.")
-            self._mass_ratio_generator = mass_ratio_from_pdf
-        else:
-            self._mass_ratio_generator = archeo.core.math.get_generator_from_domain(settings.mass_ratio)
 
         self._spin_generator = archeo.core.math.get_generator_from_domain(settings.spin)
         self._phi_generator = archeo.core.math.get_generator_from_domain(settings.phi)
@@ -95,9 +83,6 @@ class BinaryGenerator:
 
         m1, m2 = self._get_masses()
         mass_ratio = m1 / m2
-
-        # mass_ratio = self._mass_ratio_generator()
-        # m1, m2 = self._get_masses_from_mass_ratio(mass_ratio)
 
         return archeo.schemas.binary.Binary(mass_ratio, chi1, chi2, m1, m2)
 
@@ -167,44 +152,18 @@ class BinaryGenerator:
                 Mass of the lighter black hole.
         """
 
+        # Case: mass is not injected
         if not self._is_mass_injected:
             return (None, None)
 
+        # Case: mass is injected
         masses = (self._mass_generator(), self._mass_generator())
         m_1, m_2 = max(masses), min(masses)
 
+        # Check whether the mass ratio is in the domain
+        # If not, resample the masses (recursion)
         mass_ratio = m_1 / m_2
         if not archeo.core.math.is_in_bounds(mass_ratio, self._mass_ratio_domain):
             return self._get_masses()
-
-        return (m_1, m_2)
-
-    def _get_masses_from_mass_ratio(self, mass_ratio: float) -> tuple[Optional[float], Optional[float]]:
-        """
-        Get masses from mass ratio.
-
-        Args:
-        -----
-            mass_ratio (float):
-                Mass ratio of the binary.
-
-        Returns:
-        -----
-            m_1 (Optional[float]):
-                Mass of the heavier black hole.
-
-            m_2 (Optional[float]):
-                Mass of the lighter black hole.
-        """
-
-        if not self._is_mass_injected:
-            return (None, None)
-
-        m_1 = self._mass_generator()
-        m_2 = m_1 / mass_ratio
-
-        # Recursively generate masses until m_2 is in the domain.
-        if not archeo.core.math.is_in_bounds(m_2, self._mass_domain):
-            return self._get_masses_from_mass_ratio(mass_ratio)
 
         return (m_1, m_2)

@@ -41,7 +41,7 @@ class Binary:
     m2: Optional[float] = None
 
 
-class Fits(enum.Enum):
+class Fits(enum.StrEnum):
     """
     Surrogate models.
 
@@ -87,6 +87,9 @@ class BinarySettings:
 
     mass (archeo.schemas.common.Domain):
         Domain of the mass
+
+    is_mahapatra (bool):
+        Whether the Mahapatra mass function is used
     """
 
     is_spin_aligned: bool
@@ -96,6 +99,7 @@ class BinarySettings:
     theta: archeo.schemas.common.Domain
     mass_ratio: archeo.schemas.common.Domain
     mass: archeo.schemas.common.Domain
+    is_mahapatra: bool
 
     def __post_init__(self) -> None:
         """Post initialization."""

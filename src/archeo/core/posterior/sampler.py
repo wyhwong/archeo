@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 
 import pandas as pd
 
@@ -9,9 +9,10 @@ import archeo.logger
 local_logger = archeo.logger.get_logger(__name__)
 
 
-def get_posterior_from_json(filepath: str) -> dict:
+def get_posterior_from_json(filepath: str) -> dict[str, Any]:
     """
     Get the posterior from a json file.
+    NOTE: This format reading is specific to the data from Romero-Shaw et. al. (2020)
 
     Args:
     -----
@@ -27,9 +28,10 @@ def get_posterior_from_json(filepath: str) -> dict:
     return archeo.core.utils.load_json(filepath=filepath)["posterior"]["content"]
 
 
-def get_posterior_from_h5(filepath: str, fits: str = "NRSur7dq4") -> dict:
+def get_posterior_from_h5(filepath: str, fits: str = "NRSur7dq4") -> dict[str, Any]:
     """
     Read posterior from h5 file.
+    NOTE: This format reading is specific to the data from LDG.
 
     Args:
     -----
@@ -49,16 +51,14 @@ def get_posterior_from_h5(filepath: str, fits: str = "NRSur7dq4") -> dict:
 
 
 class PosteriorSampler:
-    """
-    Posterior sampler for parameter estimation.
-    """
+    """Posterior sampler for parameter estimation."""
 
     def __init__(
         self,
         df: pd.DataFrame,
         is_mass_injected: bool,
-        n_sample: float = 10,
-        spin_tolerance: float = 0.05,
+        n_sample: int,
+        spin_tolerance: float,
         mass_tolerance: Optional[float] = None,
     ) -> None:
         """
@@ -72,7 +72,7 @@ class PosteriorSampler:
             is_mass_injected (bool):
                 Whether the mass is injected.
 
-            n_sample (float):
+            n_sample (int):
                 The number of samples to be sampled each time.
 
             spin_tolerance (float):
@@ -80,6 +80,7 @@ class PosteriorSampler:
 
             mass_tolerance (Optional[float]):
                 The tolerance of the mass.
+                NOTE: This is only required if mass is injected
 
         Returns:
         -----
@@ -87,26 +88,28 @@ class PosteriorSampler:
         """
 
         self._prior = df
-        self.is_mass_injected = is_mass_injected
-        self.n_sample = n_sample
-        self.spin_tolerance = spin_tolerance
-        self.mass_tolerance = mass_tolerance
+        self._is_mass_injected = is_mass_injected
+        self._n_sample = n_sample
+        self._spin_tolerance = spin_tolerance
+        self._mass_tolerance = mass_tolerance
 
-        if self.is_mass_injected:
+        if self._is_mass_injected:
             if not mass_tolerance:
                 raise ValueError("Mass tolerance must be specified if mass is injected.")
             self._prior["mf_"] = self._prior["mf"] * (self._prior["m1"] + self._prior["m2"])
 
         local_logger.info(
-            "Constructed a posterior sampler: mass injected: %s, spin tol: %.2f, mass tol: %.2f.",
-            self.is_mass_injected,
-            self.spin_tolerance,
-            self.mass_tolerance,
+            "Constructed a posterior sampler [n=%d]: mass injected: %s, spin tol: %.2f, mass tol: %.2f.",
+            self._n_sample,
+            self._is_mass_injected,
+            self._spin_tolerance,
+            self._mass_tolerance,
         )
+        local_logger.info("Prior summary: %s.", self._prior.describe().to_string(index=False))
 
-    def infer_parental_params(self, spin_measure: float, mass_measure: float) -> pd.DataFrame:
+    def sample_from_prior(self, spin_measure: float, mass_measure: float) -> pd.DataFrame:
         """
-        Infer the parental parameters from the posterior.
+        Search for possible samples in the prior.
 
         Args:
         -----
@@ -122,22 +125,35 @@ class PosteriorSampler:
                 The sampled parental parameters.
         """
 
-        if self.is_mass_injected:
-            df = self._prior.loc[
-                ((self._prior["mf_"] - mass_measure).abs() < self.mass_tolerance)
-                & ((self._prior["chif"] - spin_measure).abs() < self.spin_tolerance)
+        if self._is_mass_injected:
+            # Find the possible samples in the prior
+            # Based on:
+            #    1. mass_prior - tol < mass_measure < mass_prior + tol
+            #    2. spin_prior - tol < spin_measure < spin_prior + tol
+            possible_samples = self._prior.loc[
+                ((self._prior["mf_"] - mass_measure).abs() < self._mass_tolerance)
+                & ((self._prior["chif"] - spin_measure).abs() < self._spin_tolerance)
             ]
-            samples = self.sample_from_df(df)
+
+            # Sample n_sample samples from the possible samples
+            samples = self._sample_from_possible_samples(possible_samples)
         else:
-            df = self._prior.loc[((self._prior["chif"] - spin_measure).abs() < self.spin_tolerance)]
-            samples = self.sample_from_df(df)
+            # Find the possible samples in the prior
+            # Based on:
+            #    1. spin_prior - tol < spin_measure < spin_prior + tol
+            possible_samples = self._prior.loc[((self._prior["chif"] - spin_measure).abs() < self._spin_tolerance)]
+
+            # Sample n_sample samples from the possible samples
+            samples = self._sample_from_possible_samples(possible_samples)
+
+            # Calculate the mass parameters (for mass not injected case)
             samples["m1"] = mass_measure / samples["mf"] * samples["q"] / (1 + samples["q"])
             samples["m2"] = mass_measure / samples["mf"] / (1 + samples["q"])
             samples["mf_"] = mass_measure
 
         return samples
 
-    def sample_from_df(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _sample_from_possible_samples(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Sample from a dataframe.
 
@@ -154,8 +170,8 @@ class PosteriorSampler:
 
         if df.empty:
             local_logger.warning("No similar samples in the prior.")
-        elif len(df) < self.n_sample:
+        elif len(df) < self._n_sample:
             local_logger.warning("Not enough similar samples in the prior.")
         else:
-            df = df.sample(self.n_sample)
+            df = df.sample(self._n_sample)
         return df

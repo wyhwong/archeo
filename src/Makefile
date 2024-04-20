@@ -1,8 +1,8 @@
 export DOCKER_BUILDKIT=1
 
 # Environment variables
-export LOGLEVEL?=20
-export LOGFILE_PATH?=./runtime.log
+export LOG_LEVEL?=20
+export LOG_FILEPATH?=./runtime.log
 
 export RESULTS_DIR?=./results
 export MAX_MULTITHREAD_WORKER?=20
