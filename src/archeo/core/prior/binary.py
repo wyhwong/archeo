@@ -3,8 +3,8 @@ from typing import Callable, Optional
 import numpy as np
 
 import archeo.core.math
-import archeo.core.utils
 import archeo.core.prior.mahapatra
+import archeo.core.utils
 import archeo.logger
 import archeo.schemas.binary
 import archeo.schemas.common
@@ -26,7 +26,6 @@ class BinaryGenerator:
         self,
         settings: archeo.schemas.binary.BinarySettings,
         is_mass_injected: bool,
-        is_mahapatra: bool,
     ) -> None:
         """
         Initialize the binary generator.
@@ -39,9 +38,6 @@ class BinaryGenerator:
             is_mass_injected (bool):
                 Whether to inject mass.
 
-            is_mahapatra (bool):
-                Whether to use Mahapatra's mass function.
-
         Returns:
         -----
             None
@@ -50,7 +46,7 @@ class BinaryGenerator:
         self._is_spin_aligned = settings.is_spin_aligned
         self._only_up_aligned_spin = settings.only_up_aligned_spin
         self._is_mass_injected = is_mass_injected
-        self._is_mahapatra = is_mahapatra
+        self._is_mahapatra = settings.is_mahapatra
         self._mass_domain = settings.mass
         self._mass_ratio_domain = settings.mass_ratio
 
@@ -59,6 +55,7 @@ class BinaryGenerator:
         else:
             self._mass_generator = archeo.core.math.get_generator_from_domain(settings.mass)
 
+        self._mass_ratio_generator = archeo.core.math.get_generator_from_domain(settings.mass_ratio)
         self._spin_generator = archeo.core.math.get_generator_from_domain(settings.spin)
         self._phi_generator = archeo.core.math.get_generator_from_domain(settings.phi)
         self._theta_generator = self._get_theta_generator(settings.theta)
@@ -82,7 +79,10 @@ class BinaryGenerator:
         chi1, chi2 = self._get_spin(), self._get_spin()
 
         m1, m2 = self._get_masses()
-        mass_ratio = m1 / m2
+        if m1 and m2:
+            mass_ratio = m1 / m2
+        else:
+            mass_ratio = self._mass_ratio_generator()
 
         return archeo.schemas.binary.Binary(mass_ratio, chi1, chi2, m1, m2)
 

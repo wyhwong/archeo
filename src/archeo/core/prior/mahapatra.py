@@ -23,19 +23,19 @@ def get_mass_func_from_mahapatra(
 
     Args:
     -----
-    mass (archeo.schemas.common.Domain):
-        Mass domain.
+        mass (archeo.schemas.common.Domain):
+            Mass domain.
 
-    alpha (float, optional):
-        Power law index, by default 2.3.
+        alpha (float, optional):
+            Power law index, by default 2.3.
 
-    dm (float, optional):
-        Tapering parameter, by default 4.83.
+        dm (float, optional):
+            Tapering parameter, by default 4.83.
 
     Returns:
     -------
-    mass_from_mahapatra (Callable):
-        Mass function.
+        mass_from_mahapatra (Callable):
+            Mass function.
     """
 
     def _f(ds: pd.Series) -> pd.Series:
@@ -44,13 +44,13 @@ def get_mass_func_from_mahapatra(
 
         Args:
         -----
-        ds : pd.Series
-            mass
+            ds : pd.Series
+                mass
 
         Returns
         -----
-        f : pd.Series
-            Value of the function.
+            f : pd.Series
+                Value of the function.
         """
 
         mp = ds - mass.low
@@ -62,13 +62,13 @@ def get_mass_func_from_mahapatra(
 
         Args:
         -----
-        ds : pd.Series
-            mass
+            ds : pd.Series
+                mass
 
         Returns
         -----
-        probis : pd.Series
-            Probability.
+            probis : pd.Series
+                Probability.
         """
 
         if mass.low is None or mass.high is None:
@@ -95,8 +95,8 @@ def get_mass_func_from_mahapatra(
 
         Returns
         -----
-        mass (float):
-            Value of mass.
+            mass (float):
+                Value of mass.
         """
 
         return np.random.choice(masses, p=probis)

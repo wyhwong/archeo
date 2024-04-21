@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+from typing import Optional
 
 import pandas as pd
 import surfinBH
@@ -43,8 +43,6 @@ def run_simulation(
     settings: archeo.schemas.binary.BinarySettings,
     is_mass_injected: bool,
     num_binaries: int,
-    mass_ratio_from_pdf: Optional[Callable] = None,
-    mass_from_pdf: Optional[Callable] = None,
     output_dir: Optional[str] = None,
 ) -> pd.DataFrame:
     """
@@ -67,12 +65,6 @@ def run_simulation(
         num_binaries (int):
             The number of binaries to simulate.
 
-        mass_ratio_from_pdf (Optional[Callable]):
-            The function to generate mass ratio from pdf.
-
-        mass_from_pdf (Optional[Callable]):
-            The function to generate mass from pdf.
-
         output_dir (Optional[str]):
             The output directory to save the results.
 
@@ -94,8 +86,6 @@ def run_simulation(
     generator = archeo.core.prior.binary.BinaryGenerator(
         settings=settings,
         is_mass_injected=is_mass_injected,
-        mass_from_pdf=mass_from_pdf,
-        mass_ratio_from_pdf=mass_ratio_from_pdf,
     )
     input_kwargs = [{"binary": generator(), "fits": fits} for _ in tqdm(range(num_binaries))]
 

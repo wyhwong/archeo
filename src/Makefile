@@ -17,7 +17,7 @@ install:
 
 # Run code in poetry environment
 run:
-	poetry run python3 ancestral-bh/main.py
+	poetry run python3 archeo/main.py
 
 # Upate Python dependencies in poetry environment
 update:
@@ -31,7 +31,7 @@ analyze:
 	poetry run bandit -r archeo -c pyproject.toml
 	poetry run pylint archeo --rcfile ../.pylintrc
 	poetry run isort archeo --check-only
-	poetry run mypy archeo --show-error-codes
+	poetry run mypy archeo --show-error-codes --no-namespace-packages
 	poetry run radon cc archeo
 
 # Format archeo using black, isort

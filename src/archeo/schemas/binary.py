@@ -120,7 +120,7 @@ class EscapeVelocity(enum.Enum):
     def value_iter() -> Iterator[float]:
         """Get the escape velocity."""
 
-        return iter([v.value for v in EscapeVelocity])
+        return iter([float(v.value) for v in EscapeVelocity])
 
     @staticmethod
     def label_iter() -> Iterator[str]:
@@ -138,7 +138,7 @@ class EscapeVelocityLabel(enum.Enum):
     ELLIPTICAL_GALAXY = "$v_{esc}$ (Elliptical Galaxy)"
 
     @staticmethod
-    def value_iter() -> Iterator[float]:
+    def value_iter() -> Iterator[str]:
         """Get the escape velocity label (for visualization)."""
 
         return iter([label.value for label in EscapeVelocityLabel])

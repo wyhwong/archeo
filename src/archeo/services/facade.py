@@ -67,8 +67,8 @@ class SimulationFacade:
         """
 
         settings = archeo.schemas.binary.BinarySettings(
-            is_spin_aligned=self._prior_settings["is_spin_aligned"],
-            only_up_aligned_spin=self._prior_settings["only_up_aligned_spin"],
+            is_spin_aligned=self._prior_settings["spin"]["is_spin_aligned"],
+            only_up_aligned_spin=self._prior_settings["spin"]["only_up_aligned_spin"],
             spin=archeo.schemas.common.Domain(
                 low=self._prior_settings["spin"]["low"],
                 high=self._prior_settings["spin"]["high"],
@@ -77,6 +77,7 @@ class SimulationFacade:
                 low=self._prior_settings["mass"]["low"],
                 high=self._prior_settings["mass"]["high"],
             ),
+            is_mahapatra=self._prior_settings["mass"]["is_mahapatra"],
             mass_ratio=archeo.schemas.common.Domain(
                 low=self._prior_settings["mass_ratio"]["low"],
                 high=self._prior_settings["mass_ratio"]["high"],
@@ -90,24 +91,12 @@ class SimulationFacade:
                 high=self._prior_settings["theta"]["high"] * np.pi,
             ),
         )
-        mass_from_pdf = (
-            archeo.core.prior.mahapatra.get_mass_func_from_mahapatra(settings.mass)
-            if self._prior_settings["mass"]["mahapatra"]
-            else None
-        )
-        mass_ratio_from_pdf = (
-            archeo.core.math.get_generator_from_csv(self._prior_settings["mass_ratio"]["data_path"])
-            if self._prior_settings["mass_ratio"]["csv_path"]
-            else None
-        )
         fits = archeo.schemas.binary.Fits(self._prior_settings["fits"])
         archeo.services.prior.run_simulation(
             fits=fits,
             settings=settings,
             is_mass_injected=self._main_settings["prior"]["is_mass_injected"],
             num_binaries=self._prior_settings["num_binaries"],
-            mass_ratio_from_pdf=mass_ratio_from_pdf,
-            mass_from_pdf=mass_from_pdf,
             output_dir=self._output_dir,
         )
 

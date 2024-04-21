@@ -50,7 +50,7 @@ def infer_parental_posterior(
         dict(spin_measure=spin_measure, mass_measure=mass_measure)
         for spin_measure, mass_measure in zip(spin_posterior, mass_posterior)
     ]
-    results = executor.run(func=sampler.infer_parental_params, input_kwargs=input_kwargs)
+    results = executor.run(func=sampler.sample_from_prior, input_kwargs=input_kwargs)
     posterior = pd.concat(results)
 
     if output_dir:
