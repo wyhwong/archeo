@@ -1,0 +1,66 @@
+[tool.poetry]
+name = "archeo"
+version = "0.1.0"
+description = ""
+authors = ["wyhwong <wyhwong@link.cuhk.edu.hk>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pandas = "^2.1.4"
+numpy = "^1.26.3"
+matplotlib = "^3.8.2"
+seaborn = "^0.13.1"
+tqdm = "^4.66.1"
+# For surfinbh installation
+gwsurrogate = "0.5.0"
+pyyaml = "^6.0.1"
+surfinbh = "^1.2.3"
+corner = "^2.2.2"
+# for feather format data reading/writing
+pyarrow = "^15.0.0"
+mpl-scatter-density = "^0.7"
+
+[tool.black]
+line-length = 120
+
+[tool.isort]
+line_length = 120
+include_trailing_comma = true
+lines_after_imports = 2
+
+[tool.bandit]
+exclude_dirs = ["tests",]
+
+[tool.mypy]
+exclude = ["tests",]
+
+[[tool.mypy.overrides]]
+module = "*.*"
+ignore_missing_imports = true
+
+# Tutorial:
+# https://radon.readthedocs.io/en/latest/commandline.html#radon-configuration-files
+[tool.radon]
+exclude = "test_*.py"
+cc_min = "A"
+cc_max = "C"
+average = true
+total_average = true
+show_complexity = true
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.4"
+pytest-cov = "^4.1.0"
+black = "^23.12.1"
+pylint = "^3.0.3"
+mypy = "^1.8.0"
+bandit = "^1.7.6"
+radon = "^6.0.1"
+isort = "^5.13.2"
+pre-commit = "^3.6.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

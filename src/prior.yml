@@ -1,0 +1,35 @@
+# Number of black-hole mergers to simulate
+num_binaries: 500000
+
+# Available fits please see schemas/binary.py
+fits: "NRSur7dq4Remnant"
+
+mass:
+  # Domain settings (unit in solar mass)
+  low: 5.
+  high: 65.
+  # The option to use Mahapatra mass distribution or not
+  is_mahapatra: true
+
+mass_ratio:
+  # Domain settings (Dimensionless)
+  low: 1.
+  high: 6.
+
+spin:
+  # Domain settings (Dimensionless)
+  low: 0.0
+  high: 1.0
+  # The option to simulate only mergers with aligned spin
+  is_spin_aligned: false
+  only_up_aligned_spin: false
+
+theta:
+  # Domain settings (unit in pi)
+  low: 0.
+  high: 1.
+
+phi:
+  # Domain settings (unit in pi)
+  low: 0.
+  high: 2.
