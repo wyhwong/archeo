@@ -18,7 +18,7 @@ Please see [README.md](./src/README.md) inside `src` folder.
 
 The methodology is describe in the following paper:
 
-Carlos Araújo Álvarez, Henry W. Y. Wong, Juan Calderón Bustillo, [arxiv:2404.00720](https://arxiv.org/abs/2404.00720)
+[1] Carlos Araújo Álvarez, Henry W. Y. Wong, Juan Calderón Bustillo, [arxiv:2404.00720](https://arxiv.org/abs/2404.00720)
 
 #### Bibtex Citation:
 ```bibtex
