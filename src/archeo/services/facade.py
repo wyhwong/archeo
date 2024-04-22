@@ -137,50 +137,74 @@ class SimulationFacade:
             mass_tolerance=self._main_settings["posterior"]["mass_tolerance"],
         )
 
+        dfs_posterior = []
+        labels_posterior = []
         for bh in [1, 2]:
             for label, posterior in posteriors.items():
-                posterior_label = f"{label},BH{bh}"
+                label_posterior = f"{label},BH{bh}"
                 df_posterior = archeo.services.posterior.infer_parental_posterior(
                     sampler=sampler,
-                    label=posterior_label,
+                    label=label_posterior,
                     spin_posterior=posterior[f"a_{bh}"],
                     mass_posterior=posterior[f"mass_{bh}_source"],
                     output_dir=self._output_dir,
                 )
 
-                local_logger.info("Visualizing the posterior (%s)...", posterior_label)
+                dfs_posterior.append(df_posterior)
+                labels_posterior.append(label_posterior)
+
+                local_logger.info("Visualizing the posterior (%s)...", label_posterior)
                 archeo.core.visualization.posterior.mass_estimates(
                     df=df_posterior,
-                    label=posterior_label,
-                    filename=f"{posterior_label}_mass_estimates.png",
+                    label=label_posterior,
+                    filename=f"{label_posterior}_mass_estimates.png",
                     output_dir=self._output_dir,
                 )
                 # NOTE: Here df_prior is not included because
                 #       the prior may not be a mass-injected prior.
                 archeo.core.visualization.posterior.corner_estimates(
-                    dfs=[df_posterior],
-                    labels=[posterior_label],
-                    filename=f"{posterior_label}_corner.png",
+                    dfs=[df_prior, df_posterior],
+                    labels=["Prior", label_posterior],
+                    filename=f"{label_posterior}_corner.png",
                     output_dir=self._output_dir,
                 )
                 archeo.core.visualization.posterior.second_generation_probability_curve(
                     dfs=[df_posterior],
-                    labels=[posterior_label],
-                    filename=f"{posterior_label}_kick_curve.png",
+                    labels=[label_posterior],
+                    filename=f"{label_posterior}_kick_curve.png",
                     output_dir=self._output_dir,
                 )
                 archeo.core.visualization.posterior.effective_spin_estimates(
                     dfs=[df_prior, df_posterior],
-                    labels=["Prior", posterior_label],
-                    filename=f"{posterior_label}_effective_spin.png",
+                    labels=["Prior", label_posterior],
+                    filename=f"{label_posterior}_effective_spin.png",
                     output_dir=self._output_dir,
                 )
                 archeo.core.visualization.posterior.precession_spin_estimates(
                     dfs=[df_prior, df_posterior],
-                    labels=["Prior", posterior_label],
-                    filename=f"{posterior_label}_precession_spin.png",
+                    labels=["Prior", label_posterior],
+                    filename=f"{label_posterior}_precession_spin.png",
                     output_dir=self._output_dir,
                 )
+
+        archeo.core.visualization.posterior.second_generation_probability_curve(
+            dfs=dfs_posterior,
+            labels=labels_posterior,
+            filename="kick_curves.png",
+            output_dir=self._output_dir,
+        )
+        archeo.core.visualization.posterior.effective_spin_estimates(
+            dfs=[df_prior] + dfs_posterior,
+            labels=["Prior"] + labels_posterior,
+            filename="effective_spins.png",
+            output_dir=self._output_dir,
+        )
+        archeo.core.visualization.posterior.precession_spin_estimates(
+            dfs=[df_prior] + dfs_posterior,
+            labels=["Prior"] + labels_posterior,
+            filename="precession_spins.png",
+            output_dir=self._output_dir,
+        )
 
         local_logger.info("Finished running the posterior estimation.")
 
