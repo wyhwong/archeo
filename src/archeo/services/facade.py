@@ -163,7 +163,7 @@ class SimulationFacade:
                     filename=f"{posterior_label}_corner.png",
                     output_dir=self._output_dir,
                 )
-                archeo.core.visualization.posterior.conditional_retention_probability_curve(
+                archeo.core.visualization.posterior.second_generation_probability_curve(
                     dfs=[df_posterior],
                     labels=[posterior_label],
                     filename=f"{posterior_label}_kick_curve.png",

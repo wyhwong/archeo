@@ -179,7 +179,7 @@ def corner_estimates(
         base.savefig_and_close(f"{corner_type}_{filename}", output_dir, close)
 
 
-def conditional_retention_probability_curve(
+def second_generation_probability_curve(
     dfs: list[pd.DataFrame],
     labels: list[str],
     filename: Optional[str] = None,
@@ -187,7 +187,7 @@ def conditional_retention_probability_curve(
     close: bool = True,
 ):
     """
-    Plot the cumulative kick probability curve.
+    Plot the second generation probability curve.
 
     Args:
     -----
@@ -224,9 +224,9 @@ def conditional_retention_probability_curve(
 
     _padding = archeo.schemas.visualization.Padding(bpad=0.14)
     _labels = archeo.schemas.visualization.Labels(
-        title="Conditional Retention Probability Curve",
+        title="Second Generation Probability Curve",
         xlabel="Escape Velocity $v_{esc}$ [km s$^{-1}$]",
-        ylabel="Conditional Retention Probability",
+        ylabel="Second Generation Probability $p_{2g}$",
     )
     fig, ax = base.initialize_plot(figsize=(10, 8), labels=_labels, padding=_padding, fontsize=15)
     colors = archeo.schemas.visualization.Color.value_iter()
