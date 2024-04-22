@@ -46,6 +46,12 @@ class Color(enum.Enum):
     ORANGE = "orange"
     GREY = "grey"
     GREEN = "green"
+    RED = "red"
+    PINK = "pink"
+    PURPLE = "purple"
+    YELLOW = "yellow"
+    BROWN = "brown"
+    CYAN = "cyan"
 
     @staticmethod
     def value_iter() -> Iterator[str]:
