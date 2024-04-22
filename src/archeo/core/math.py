@@ -1,13 +1,13 @@
 from typing import Callable
 
-import logger
 import numpy as np
 import pandas as pd
 
+import archeo.logger
 import archeo.schemas.common
 
 
-local_logger = logger.get_logger(__name__)
+local_logger = archeo.logger.get_logger(__name__)
 
 
 def is_in_bounds(value: float, domain: archeo.schemas.common.Domain) -> bool:
