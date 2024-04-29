@@ -484,7 +484,7 @@ def table_estimates(
         "m2": "$m_2$",
         "q": "$q$",
         "mf_": "$m_f$",
-        "chif": "$\chi_f$",
+        "chif": "$\\chi_f$",
         "vf": "$v_f$",
         "ap": "$a_{p}$",
         "a_eff": "$a_{eff}$",
