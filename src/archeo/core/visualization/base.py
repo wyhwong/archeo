@@ -109,7 +109,11 @@ def savefig_and_close(
     if output_dir:
         archeo.core.utils.check_and_create_dir(output_dir)
         savepath = f"{output_dir}/{filename}"
-        plt.savefig(savepath, facecolor="w")
+        plt.savefig(
+            savepath,
+            bbox_inches="tight",
+            facecolor="w",
+        )
         local_logger.info("Saved figure to %s.", savepath)
 
     if close:

@@ -29,6 +29,9 @@ def mass_estimates(
         label (str):
             Label of the posterior.
 
+        filename (str):
+            Output filename.
+
         output_dir (Optional[str]):
             Output directory.
 
@@ -332,9 +335,7 @@ def effective_spin_estimates(
     colors = archeo.schemas.visualization.Color.value_iter()
 
     for idx, df in enumerate(dfs):
-        df["a1z"] = df["a1"].apply(lambda x: x[-1])
-        df["a2z"] = df["a1"].apply(lambda x: x[-1])
-        df["a_eff"] = (df["m1"] * df["a1z"] + df["m2"] * df["a2z"]) / (df["m1"] + df["m2"])
+        _get_effective_spin(df)
         _plot_pdf(ax, next(colors), df["a_eff"], labels[idx])
 
     plt.legend()
@@ -389,9 +390,7 @@ def precession_spin_estimates(
     colors = archeo.schemas.visualization.Color.value_iter()
 
     for idx, df in enumerate(dfs):
-        df["a1h"] = df["a1"].apply(lambda x: np.sqrt(x[0] ** 2 + x[1] ** 2))
-        df["a2h"] = df["a2"].apply(lambda x: np.sqrt(x[0] ** 2 + x[1] ** 2))
-        df["ap"] = np.maximum(df["a1h"], (4 / df["q"] + 3) / (3 / df["q"] + 4) / df["q"] * df["a2h"])
+        _get_precession_spin(df)
         _plot_pdf(ax, next(colors), df["ap"], labels[idx])
 
     plt.legend()
@@ -415,14 +414,17 @@ def _plot_pdf(
         ax (plt.Axes):
             Axes.
 
-        series (pd.Series):
-            Series.
-
-        label (str):
-            Label.
-
         color (str):
             Color.
+
+        series (pd.Series):
+            Series (pdf).
+
+        name (str):
+            Name.
+
+        unit (Optional[str]):
+            Unit.
 
     Returns:
     -----
@@ -435,3 +437,119 @@ def _plot_pdf(
     if unit:
         ax_label += f" {unit}"
     ax.stairs(density, bins, label=ax_label, color=color)
+
+
+def table_estimates(
+    dfs: list[pd.DataFrame],
+    labels: list[str],
+    filename: Optional[str] = None,
+    output_dir: Optional[str] = None,
+    close: bool = True,
+):
+    """
+    Plot the posterior mass estimates.
+
+    Args:
+    -----
+        dfs (list[pd.DataFrame]):
+            The posterior dataframes.
+
+        labels (list[str]):
+            Label of each posterior.
+
+        filename (str):
+            Output filename.
+
+        output_dir (Optional[str]):
+            Output directory.
+
+        close (bool):
+            Whether to close the figure.
+
+    Returns:
+    -----
+        fig (plt.Figure):
+            Figure.
+
+        axes (plt.Axes):
+            Axes.
+    """
+
+    for df in dfs:
+        _get_effective_spin(df)
+        _get_precession_spin(df)
+
+    col_to_names = {
+        "m1": "$m_1$",
+        "m2": "$m_2$",
+        "q": "$q$",
+        "mf_": "$m_f$",
+        "chif": "$\chi_f$",
+        "vf": "$v_f$",
+        "ap": "$a_{p}$",
+        "a_eff": "$a_{eff}$",
+    }
+    data = {"": labels}
+
+    for col, name in col_to_names.items():
+        data[name] = []
+        for df in dfs:
+            low, mid, high = (
+                df[col].quantile(0.05),
+                df[col].quantile(0.5),
+                df[col].quantile(0.95),
+            )
+            value = "$%.2f_{-%.2f}^{+%.2f}$" % (mid, mid - low, high - mid)
+            data[name].append(value)
+
+    df_table = pd.DataFrame(data)
+
+    fig, ax = base.initialize_plot(figsize=(15, 4))
+    ax.axis("off")
+    ax.table(
+        cellText=df_table.values,
+        colLabels=df_table.columns,
+        cellLoc="center",
+        loc="center",
+    )
+
+    base.savefig_and_close(filename, output_dir, close)
+    return (fig, ax)
+
+
+def _get_effective_spin(df: pd.DataFrame) -> None:
+    """
+    Get the effective spin.
+
+    Args:
+    -----
+        df (pd.DataFrame):
+            The posterior dataframe.
+
+    Returns:
+    -----
+        None
+    """
+
+    a1z = df["a1"].apply(lambda x: x[-1])
+    a2z = df["a1"].apply(lambda x: x[-1])
+    df["a_eff"] = (df["m1"] * a1z + df["m2"] * a2z) / (df["m1"] + df["m2"])
+
+
+def _get_precession_spin(df: pd.DataFrame) -> None:
+    """
+    Get the precession spin.
+
+    Args:
+    -----
+        df (pd.DataFrame):
+            The posterior dataframe.
+
+    Returns:
+    -----
+        None
+    """
+
+    a1h = df["a1"].apply(lambda x: np.sqrt(x[0] ** 2 + x[1] ** 2))
+    a2h = df["a2"].apply(lambda x: np.sqrt(x[0] ** 2 + x[1] ** 2))
+    df["ap"] = np.maximum(a1h, (4 / df["q"] + 3) / (3 / df["q"] + 4) / df["q"] * a2h)

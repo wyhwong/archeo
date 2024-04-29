@@ -205,6 +205,12 @@ class SimulationFacade:
             filename="precession_spins.png",
             output_dir=self._output_dir,
         )
+        archeo.core.visualization.posterior.table_estimates(
+            dfs=[df_prior] + dfs_posterior,
+            labels=["Prior"] + labels_posterior,
+            filename="table_estimates.png",
+            output_dir=self._output_dir,
+        )
 
         local_logger.info("Finished running the posterior estimation.")
 
