@@ -170,8 +170,6 @@ class PosteriorSampler:
 
         if df.empty:
             local_logger.warning("No similar samples in the prior.")
-        elif len(df) < self._n_sample:
-            local_logger.warning("Not enough similar samples in the prior.")
         else:
-            df = df.sample(self._n_sample)
+            df = df.sample(self._n_sample, replace=True)
         return df
