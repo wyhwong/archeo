@@ -12,7 +12,6 @@ pandas = "^2.1.4"
 numpy = "^1.26.3"
 matplotlib = "^3.8.2"
 seaborn = "^0.13.1"
-tqdm = "^4.66.1"
 # For surfinbh installation
 gwsurrogate = "0.5.0"
 pyyaml = "^6.0.1"
@@ -21,6 +20,7 @@ corner = "^2.2.2"
 # for feather format data reading/writing
 pyarrow = "^15.0.0"
 mpl-scatter-density = "^0.7"
+tqdm = "^4.66.4"
 
 [tool.black]
 line-length = 120

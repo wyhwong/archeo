@@ -139,8 +139,11 @@ class SimulationFacade:
 
         dfs_posterior = []
         labels_posterior = []
+        n_expected_samples_posterior = []
+
         for bh in [1, 2]:
             for label, posterior in posteriors.items():
+                sampler.reset()
                 label_posterior = f"{label},BH{bh}"
                 df_posterior = archeo.services.posterior.infer_parental_posterior(
                     sampler=sampler,
@@ -152,6 +155,7 @@ class SimulationFacade:
 
                 dfs_posterior.append(df_posterior)
                 labels_posterior.append(label_posterior)
+                n_expected_samples_posterior.append(sampler.get_n_expected_sample())
 
                 local_logger.info("Visualizing the posterior (%s)...", label_posterior)
                 archeo.core.visualization.posterior.mass_estimates(
@@ -208,6 +212,7 @@ class SimulationFacade:
         archeo.core.visualization.posterior.table_estimates(
             dfs=[df_prior] + dfs_posterior,
             labels=["Prior"] + labels_posterior,
+            expected_n_smaples=[len(df_prior)] + n_expected_samples_posterior,
             filename="table_estimates.png",
             output_dir=self._output_dir,
         )

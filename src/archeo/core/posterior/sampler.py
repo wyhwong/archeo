@@ -90,6 +90,7 @@ class PosteriorSampler:
         self._prior = df
         self._is_mass_injected = is_mass_injected
         self._n_sample = n_sample
+        self._n_expected_sample = 0
         self._spin_tolerance = spin_tolerance
         self._mass_tolerance = mass_tolerance
 
@@ -106,6 +107,29 @@ class PosteriorSampler:
             self._mass_tolerance,
         )
         local_logger.info("Prior summary: %s.", self._prior.describe().to_string(index=False))
+
+    def get_n_expected_sample(self) -> int:
+        """
+        Get the expected number of samples.
+
+        Returns:
+        -----
+            n_expected_sample (int):
+                The expected number of samples.
+        """
+
+        return self._n_expected_sample
+
+    def reset(self) -> None:
+        """
+        Reset the sampler.
+
+        Returns:
+        -----
+            None
+        """
+
+        self._n_expected_sample = 0
 
     def sample_from_prior(self, spin_measure: float, mass_measure: float) -> pd.DataFrame:
         """
@@ -124,6 +148,8 @@ class PosteriorSampler:
             samples (pd.DataFrame):
                 The sampled parental parameters.
         """
+
+        self._n_expected_sample += self._n_sample
 
         if self._is_mass_injected:
             # Find the possible samples in the prior

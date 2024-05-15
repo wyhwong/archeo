@@ -442,6 +442,7 @@ def _plot_pdf(
 def table_estimates(
     dfs: list[pd.DataFrame],
     labels: list[str],
+    expected_n_smaples: Optional[list[int]] = None,
     filename: Optional[str] = None,
     output_dir: Optional[str] = None,
     close: bool = True,
@@ -456,6 +457,9 @@ def table_estimates(
 
         labels (list[str]):
             Label of each posterior.
+
+        expected_n_smaples (Optional[list[int]]):
+            Expected number of samples.
 
         filename (str):
             Output filename.
@@ -490,6 +494,9 @@ def table_estimates(
         "a_eff": "$a_{eff}$",
     }
     data = {"": labels}
+
+    if expected_n_smaples is not None:
+        data["Recovery Rate"] = [round(len(df) * 100.0 / n, 2) for df, n in zip(dfs, expected_n_smaples)]
 
     for col, name in col_to_names.items():
         data[name] = []
