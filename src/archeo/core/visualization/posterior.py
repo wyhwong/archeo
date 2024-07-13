@@ -8,7 +8,11 @@ import pandas as pd
 import seaborn as sns
 
 import archeo.core.visualization.base as base
+import archeo.logger
 import archeo.schemas.visualization
+
+
+local_logger = archeo.logger.get_logger(__name__)
 
 
 def mass_estimates(
@@ -154,6 +158,11 @@ def corner_estimates(
         handles = []
 
         for df in dfs:
+
+            if len(df) < nbins:
+                local_logger.info("Dataframe does not have enough samples to plot.")
+                continue
+
             color = next(colors)
             corner.corner(
                 data=df[var_names],
