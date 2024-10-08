@@ -160,14 +160,17 @@ class PosteriorSampler:
                 ((self._prior["mf_"] - mass_measure).abs() < self._mass_tolerance)
                 & ((self._prior["chif"] - spin_measure).abs() < self._spin_tolerance)
             ]
+            likelihood = len(possible_samples) / len(self._prior)
 
             # Sample n_sample samples from the possible samples
             samples = self._sample_from_possible_samples(possible_samples)
+            samples["likelihood"] = likelihood
         else:
             # Find the possible samples in the prior
             # Based on:
             #    1. spin_prior - tol < spin_measure < spin_prior + tol
             possible_samples = self._prior.loc[((self._prior["chif"] - spin_measure).abs() < self._spin_tolerance)]
+            likelihood = len(possible_samples) / len(self._prior)
 
             # Sample n_sample samples from the possible samples
             samples = self._sample_from_possible_samples(possible_samples)
@@ -176,6 +179,7 @@ class PosteriorSampler:
             samples["m1"] = mass_measure / samples["mf"] * samples["q"] / (1 + samples["q"])
             samples["m2"] = mass_measure / samples["mf"] / (1 + samples["q"])
             samples["mf_"] = mass_measure
+            samples["likelihood"] = likelihood
 
         return samples
 
