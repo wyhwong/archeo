@@ -244,6 +244,7 @@ def second_generation_probability_curve(
     colors = archeo.schemas.visualization.Color.value_iter()
 
     for idx, df in enumerate(dfs):
+        recovery_rate = df["recovery_rate"].iloc[0]
         # Calculate the CDF
         y = []
         for kick in x:
@@ -251,7 +252,7 @@ def second_generation_probability_curve(
             if df_samples.empty:
                 y.append(0.0)
             else:
-                y.append(len(df_samples) / len(df))
+                y.append(len(df_samples) / len(df) * recovery_rate)
 
         # Plot the CDF
         sns.lineplot(y=y, x=x, ax=ax, color=next(colors), label=labels[idx])
@@ -451,7 +452,6 @@ def _plot_pdf(
 def table_estimates(
     dfs: list[pd.DataFrame],
     labels: list[str],
-    expected_n_smaples: Optional[list[int]] = None,
     filename: Optional[str] = None,
     output_dir: Optional[str] = None,
     close: bool = True,
@@ -466,9 +466,6 @@ def table_estimates(
 
         labels (list[str]):
             Label of each posterior.
-
-        expected_n_smaples (Optional[list[int]]):
-            Expected number of samples.
 
         filename (str):
             Output filename.
@@ -502,10 +499,10 @@ def table_estimates(
         "ap": "$a_{p}$",
         "a_eff": "$a_{eff}$",
     }
-    data = {"": labels}
-
-    if expected_n_smaples is not None:
-        data["Recovery Rate"] = [round(len(df) * 100.0 / n, 2) for df, n in zip(dfs, expected_n_smaples)]
+    data = {
+        "": labels,
+        "Recovery Rate": [df["recovery_rate"].iloc[0] for df in dfs],
+    }
 
     for col, name in col_to_names.items():
         data[name] = []

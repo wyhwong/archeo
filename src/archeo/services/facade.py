@@ -153,9 +153,12 @@ class SimulationFacade:
                     output_dir=self._output_dir,
                 )
 
+                n_expected_samples = sampler.get_n_expected_sample()
+                n_expected_samples_posterior.append(n_expected_samples)
+                df_posterior["recovery_rate"] = len(df_posterior) / n_expected_samples
+
                 dfs_posterior.append(df_posterior)
                 labels_posterior.append(label_posterior)
-                n_expected_samples_posterior.append(sampler.get_n_expected_sample())
 
                 local_logger.info("Visualizing the posterior (%s)...", label_posterior)
                 archeo.core.visualization.posterior.mass_estimates(
