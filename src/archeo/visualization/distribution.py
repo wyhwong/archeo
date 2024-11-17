@@ -6,8 +6,9 @@ import pandas as pd
 import seaborn as sns
 from matplotlib.colors import LinearSegmentedColormap
 
-import archeo.core.visualization.base as base
-import archeo.schemas.visualization
+from archeo.visualization import base
+from archeo.schema import Labels
+from archeo.constants import Columns as C
 
 
 white_viridis = LinearSegmentedColormap.from_list(
@@ -25,7 +26,7 @@ white_viridis = LinearSegmentedColormap.from_list(
 )
 
 
-def distribution(
+def prior_distribution(
     df: pd.DataFrame,
     filename="prior_distribution.png",
     output_dir: Optional[str] = None,
@@ -57,15 +58,16 @@ def distribution(
             Axes.
     """
 
-    labels = archeo.schemas.visualization.Labels("Distribution of remnant black-hole parameters")
+    labels = Labels("Distribution of remnant black-hole parameters")
     col_to_labels = {
-        "q": {"x": "Parent Mass Ratio $q$", "y": "PDF"},
-        "mf": {"x": r"Remnant Mass $m_f$ [$M_{\odot}$]", "y": "PDF"},
-        "vf": {"x": "Recoil Kick $v_f$ [$kms^{-1}$]", "y": "PDF"},
-        "chif": {"x": "Spin $\\chi_f$", "y": "PDF"},
+        C.MASS_RATIO: "Parent Mass Ratio $q$",
+        C.REMNANT_BH_MASS: r"Remnant Mass $m_f$ [$M_{\odot}$]",
+        C.REMNANT_RECOIL: "Recoil Kick $v_f$ [$kms^{-1}$]",
+        C.SPIN_MAGNITUDE: "Spin $\\chi_f$",
     }
+
     fig, axes = base.initialize_plot(nrows=4, ncols=1, figsize=(6, 8), labels=labels)
-    for index, (col, line_labels) in enumerate(col_to_labels.items()):
+    for index, (col, xlabel) in enumerate(col_to_labels.items()):
         sns.histplot(
             df[col],
             ax=axes[index],
@@ -73,7 +75,7 @@ def distribution(
             fill=False,
             stat="density",
         )
-        axes[index].set(xlabel=line_labels["x"], ylabel=line_labels["y"])
+        axes[index].set(xlabel=xlabel, ylabel="PDF")
 
     base.savefig_and_close(filename, output_dir, close)
     return (fig, axes)
@@ -117,8 +119,13 @@ def kick_against_spin(
     import mpl_scatter_density  # type: ignore
 
     fig = plt.figure(figsize=(8, 6))
+
     ax = fig.add_subplot(1, 1, 1, projection="scatter_density")
-    ax.scatter_density(df["chif"], df["vf"], cmap=white_viridis)  # type: ignore
+    ax.scatter_density(  # type: ignore
+        df[C.SPIN_MAGNITUDE],
+        df[C.REMNANT_RECOIL],
+        cmap=white_viridis,
+    )
     ax.set(
         title="Remnant Kick against Remnant Spin",
         xlabel="Remnant Spin $\\chi_f$",
@@ -161,7 +168,7 @@ def kick_distribution_on_spin(
             Axes.
     """
 
-    labels = archeo.schemas.visualization.Labels(
+    labels = Labels(
         title="Remnant Kick Distribution on Different Spin Range",
         xlabel="Remnant Kick $v_f$ [$km/s$]",
         ylabel="PDF",
@@ -170,7 +177,7 @@ def kick_distribution_on_spin(
     bounds = zip(np.linspace(0, 0.9, 10), np.linspace(0.1, 1, 10))
 
     for low_bound, up_bound in bounds:
-        data = df.loc[(low_bound < df["chif"]) & (df["chif"] < up_bound)]["vf"]
+        data = df.loc[(low_bound < df[C.SPIN_MAGNITUDE]) & (df[C.SPIN_MAGNITUDE] < up_bound)][C.REMNANT_RECOIL]
         # To avoid extreme density values
         if len(data.index) > 100:
             density, bins = np.histogram(a=data, bins=70, density=True)

@@ -2,10 +2,9 @@ from typing import Optional
 
 import matplotlib.pyplot as plt
 
-import archeo.core.utils
+from archeo.schema import Labels, Padding
 import archeo.logger
-from archeo.schemas.visualization import Labels, Padding
-
+from archeo.utils import file
 
 local_logger = archeo.logger.get_logger(__name__)
 
@@ -51,7 +50,12 @@ def initialize_plot(
     """
 
     fig, axes = plt.subplots(nrows, ncols, figsize=figsize)
-    local_logger.debug("Initialized plot: nrows=%d, ncols=%d, figsize=%s.", nrows, ncols, figsize)
+    local_logger.debug(
+        "Initialized plot: nrows=%d, ncols=%d, figsize=%s.",
+        nrows,
+        ncols,
+        figsize,
+    )
 
     fig.tight_layout(pad=padding.tpad)
     fig.subplots_adjust(left=padding.lpad, bottom=padding.bpad)
@@ -107,7 +111,7 @@ def savefig_and_close(
     """
 
     if output_dir:
-        archeo.core.utils.check_and_create_dir(output_dir)
+        file.check_and_create_dir(output_dir)
         savepath = f"{output_dir}/{filename}"
         plt.savefig(
             savepath,

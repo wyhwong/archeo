@@ -4,13 +4,13 @@ import numpy as np
 import pandas as pd
 
 import archeo.logger
-import archeo.schemas.common
+from archeo.schema import Domain
 
 
 local_logger = archeo.logger.get_logger(__name__)
 
 
-def is_in_bounds(value: float, domain: archeo.schemas.common.Domain) -> bool:
+def is_in_bounds(value: float, domain: Domain) -> bool:
     """
     Check if the value is in the domain.
 
@@ -19,7 +19,7 @@ def is_in_bounds(value: float, domain: archeo.schemas.common.Domain) -> bool:
         value (float):
             The value to check.
 
-        domain (archeo.schemas.common.Domain):
+        domain (Domain):
             The domain to check the value against.
 
     Returns:
@@ -39,13 +39,13 @@ def is_in_bounds(value: float, domain: archeo.schemas.common.Domain) -> bool:
     return in_bound
 
 
-def get_generator_from_domain(domain: archeo.schemas.common.Domain) -> Callable:
+def get_generator_from_domain(domain: Domain) -> Callable:
     """
     Get a generator function from a domain.
 
     Args:
     -----
-        domain (archeo.schemas.common.Domain):
+        domain (Domain):
             The domain to generate value from.
 
     Returns:
@@ -55,19 +55,7 @@ def get_generator_from_domain(domain: archeo.schemas.common.Domain) -> Callable:
     """
 
     def generate_value_from_domain() -> float:
-        """
-        Generate a value in the domain.
-
-        Args:
-        -----
-            domain (archeo.schemas.common.Domain):
-                The domain to generate value from.
-
-        Returns:
-        -----
-            value (float):
-                The generated value.
-        """
+        """Generate a value in the domain."""
 
         if domain.low is None or domain.high is None:
             local_logger.error("Both low and high must be specified.")

@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 import archeo.logger
-import archeo.schemas.common
+from archeo.schema import Domain
 
 
 local_logger = archeo.logger.get_logger(__name__)
@@ -14,7 +14,7 @@ NUM_SAMPLES = 500000
 
 
 def get_mass_func_from_mahapatra(
-    mass: archeo.schemas.common.Domain,
+    mass: Domain,
     alpha: float = 2.3,
     dm: float = 4.83,
 ) -> Callable:
@@ -23,7 +23,7 @@ def get_mass_func_from_mahapatra(
 
     Args:
     -----
-        mass (archeo.schemas.common.Domain):
+        mass (Domain):
             Mass domain.
 
         alpha (float, optional):
@@ -39,45 +39,17 @@ def get_mass_func_from_mahapatra(
     """
 
     def _f(ds: pd.Series) -> pd.Series:
-        """
-        Calculate the function f.
-
-        Args:
-        -----
-            ds : pd.Series
-                mass
-
-        Returns
-        -----
-            f : pd.Series
-                Value of the function.
-        """
+        """Calculate the function f in Mahapatra's paper"""
 
         mp = ds - mass.low
         return np.exp(dm / mp + dm / (mp - dm))
 
     def smoothing_func(ds: pd.Series) -> pd.Series:
-        """
-        Smoothing function.
-
-        Args:
-        -----
-            ds : pd.Series
-                mass
-
-        Returns
-        -----
-            probis : pd.Series
-                Probability.
-        """
-
-        if mass.low is None or mass.high is None:
-            local_logger.error("Both low and high mass must be specified.")
-            raise ValueError("Both low and high mass must be specified.")
+        """Smoothing function."""
 
         probis = ds.copy()
-        probis[ds < mass.low + dm] = 1 / (_f(ds[ds < mass.low + dm]) + 1)
-        probis[ds > mass.low + dm] = 1
+        probis[ds < mass.low + dm] = 1 / (_f(ds[ds < mass.low + dm]) + 1)  # type: ignore
+        probis[ds > mass.low + dm] = 1  # type: ignore
         probis *= ds ** (-alpha)
         return probis
 
@@ -90,14 +62,7 @@ def get_mass_func_from_mahapatra(
     probis /= probis.sum()
 
     def mass_from_mahapatra() -> float:
-        """
-        Generate a mass from Mahapatra's mass distribution.
-
-        Returns
-        -----
-            mass (float):
-                Value of mass.
-        """
+        """Generate a mass from Mahapatra's mass distribution."""
 
         return np.random.choice(masses, p=probis)
 

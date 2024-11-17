@@ -7,9 +7,10 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-import archeo.core.visualization.base as base
+from archeo.visualization import base
 import archeo.logger
-import archeo.schemas.visualization
+from archeo.constants import EscapeVelocity, Columns as C
+from archeo.schema import Labels, Padding
 
 
 local_logger = archeo.logger.get_logger(__name__)
@@ -51,16 +52,20 @@ def mass_estimates(
             Axes.
     """
 
-    padding = archeo.schemas.visualization.Padding(lpad=0.13, bpad=0.14)
-    labels = archeo.schemas.visualization.Labels(
+    padding = Padding(lpad=0.13, bpad=0.14)
+    labels = Labels(
         title="Distribution of Estimated Masses",
         xlabel=r"Mass [$M_{\odot}$]",
         ylabel="PDF",
     )
     fig, ax = base.initialize_plot(figsize=(9, 4), labels=labels, padding=padding)
-    colors = archeo.schemas.visualization.Color.value_iter()
+    colors = sns.color_palette("tab10")
 
-    col_to_name = {"mf_": f"{label}: ", "m1": "Heavier Parent: ", "m2": "Ligher Parent: "}
+    col_to_name = {
+        C.REMNANT_BH_MASS: label + ": ",
+        C.HEAVIER_BH_MASS: "Heavier Parent: ",
+        C.LIGHTER_BH_MASS: "Ligher Parent: ",
+    }
     for col, name in col_to_name.items():
         _plot_pdf(ax, next(colors), df[col], name, unit=r"[$M_{\odot}$]")
 
@@ -137,8 +142,8 @@ def corner_estimates(
         levels = [0.68, 0.9]
 
     corner_type_to_var_names = {
-        "full": ["m1", "m2", "mf_", "vf", "chif"],
-        "part": ["m1", "m2", "vf"],
+        "full": [C.HEAVIER_BH_MASS, C.LIGHTER_BH_MASS, C.REMNANT_BH_MASS, C.REMNANT_RECOIL, C.SPIN_MAGNITUDE],
+        "part": [C.HEAVIER_BH_MASS, C.LIGHTER_BH_MASS, C.REMNANT_RECOIL],
     }
     corner_type_to_labels = {
         "full": [
@@ -153,7 +158,7 @@ def corner_estimates(
 
     for corner_type, var_names in corner_type_to_var_names.items():
         fig, _ = base.initialize_plot(ncols=len(var_names), nrows=len(var_names), figsize=(9, 9))
-        colors = archeo.schemas.visualization.Color.value_iter()
+        colors = sns.color_palette("tab10")
         corner_labels = iter(labels)
         handles = []
 
@@ -230,25 +235,27 @@ def second_generation_probability_curve(
     # Set up x-axis
     x_max = 0.0
     for df in dfs:
-        if df["vf"].max() > x_max:
-            x_max = df["vf"].max()
+        if df[C.REMNANT_RECOIL].max() > x_max:
+            x_max = df[C.REMNANT_RECOIL].max()
     x = np.linspace(0.0, x_max, 300)
 
-    _padding = archeo.schemas.visualization.Padding(bpad=0.14)
-    _labels = archeo.schemas.visualization.Labels(
+    _padding = Padding(bpad=0.14)
+    _labels = Labels(
         title="Second Generation Probability Curve",
         xlabel="Escape Velocity $v_{esc}$ [km s$^{-1}$]",
         ylabel="Second Generation Probability $p_{2g}$",
     )
     fig, ax = base.initialize_plot(figsize=(10, 8), labels=_labels, padding=_padding, fontsize=15)
-    colors = archeo.schemas.visualization.Color.value_iter()
+    colors = iter(sns.color_palette("tab10"))
 
     for idx, df in enumerate(dfs):
-        recovery_rate = df["recovery_rate"].iloc[0]
+        recovery_rate = df[C.RECOVERYRATE].iloc[0]
         # Calculate the CDF
         y = []
         for kick in x:
-            df_samples = df.loc[(df["vf"] <= kick) & (df["m1"] <= 65) & (df["m2"] <= 65)]
+            df_samples = df.loc[
+                (df[C.REMNANT_RECOIL] <= kick) & (df[C.HEAVIER_BH_MASS] <= 65) & (df[C.LIGHTER_BH_MASS] <= 65)
+            ]
             if df_samples.empty:
                 y.append(0.0)
             else:
@@ -282,18 +289,14 @@ def _add_escape_velocity(ax, v_max: float) -> None:
         None
     """
 
-    labels = archeo.schemas.binary.EscapeVelocity.label_iter()
-    colors = archeo.schemas.visualization.Color.value_iter()
-
+    colors = sns.color_palette("tab10")
     # Plot vertical lines and labels (escape velocities)
-    for v_esc in archeo.schemas.binary.EscapeVelocity.value_iter():
+    for label, v_esc in EscapeVelocity.to_vlines().items():
         # Skip if out of scope
         if v_esc > v_max:
             return
 
-        label = next(labels)
         color = next(colors)
-
         ax.axvline(x=v_esc, color=color, linestyle="--", linewidth=0.5)
         text_shift = 20.0 * v_max / 3000.0
         ax.text(v_esc + text_shift, 0.7, label, color=color, rotation=90, va="center", fontsize=12)
@@ -335,14 +338,14 @@ def effective_spin_estimates(
             Axes.
     """
 
-    _padding = archeo.schemas.visualization.Padding(bpad=0.14)
-    _labels = archeo.schemas.visualization.Labels(
+    _padding = Padding(bpad=0.14)
+    _labels = Labels(
         title="Effective Spin PDF",
         xlabel="Effective Spin $a_{eff}$",
         ylabel="PDF",
     )
     fig, ax = base.initialize_plot(figsize=(10, 8), labels=_labels, padding=_padding, fontsize=15)
-    colors = archeo.schemas.visualization.Color.value_iter()
+    colors = sns.color_palette("tab10")
 
     for idx, df in enumerate(dfs):
         _get_effective_spin(df)
@@ -390,8 +393,8 @@ def precession_spin_estimates(
             Axes.
     """
 
-    _padding = archeo.schemas.visualization.Padding(bpad=0.14)
-    _labels = archeo.schemas.visualization.Labels(
+    _padding = Padding(bpad=0.14)
+    _labels = Labels(
         title="Precession Spin PDF",
         xlabel="Precession Spin $a_p$",
         ylabel="PDF",

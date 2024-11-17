@@ -4,7 +4,7 @@ from typing import Any, Callable, Optional
 
 from tqdm import tqdm
 
-import archeo.env
+from archeo import env
 import archeo.logger
 
 
@@ -71,7 +71,7 @@ class MultiThreadExecutor(MultiExecutor):
             None
         """
 
-        super().__init__(max_executors if max_executors else archeo.env.MAX_MULTITHREAD_WORKER)
+        super().__init__(max_executors if max_executors else env.MAX_MULTITHREAD_WORKER)
 
         local_logger.info("Initialized MultiThreadExecutor, max_executors: %d.", self.max_executors)
 
