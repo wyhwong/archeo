@@ -3,6 +3,7 @@ import pandas as pd
 import archeo.logger
 from archeo.constants import Columns as C
 
+
 local_logger = archeo.logger.get_logger(__name__)
 
 
@@ -94,8 +95,8 @@ class Prior(pd.DataFrame):
             #    1. mass_prior - tol < mass_measure < mass_prior + tol
             #    2. spin_prior - tol < spin_measure < spin_prior + tol
             possible_samples = self._prior.loc[
-                ((self[C.REMNANT_BH_MASS] - mass_measure).abs() < self._mass_tolerance)
-                & ((self[C.SPIN_MAGNITUDE] - spin_measure).abs() < self._spin_tolerance)
+                ((self[C.BH_MASS] - mass_measure).abs() < self._mass_tolerance)
+                & ((self[C.SPIN] - spin_measure).abs() < self._spin_tolerance)
             ]
             likelihood = len(possible_samples) / len(self._prior)
 
@@ -106,7 +107,7 @@ class Prior(pd.DataFrame):
             # Find the possible samples in the prior
             # Based on:
             #    1. spin_prior - tol < spin_measure < spin_prior + tol
-            possible_samples = self.loc[(self[C.SPIN_MAGNITUDE] - spin_measure).abs() < self._spin_tolerance]
+            possible_samples = self.loc[(self[C.SPIN] - spin_measure).abs() < self._spin_tolerance]
             likelihood = len(possible_samples) / len(self._prior)
 
             # Sample n_sample samples from the possible samples
@@ -114,10 +115,10 @@ class Prior(pd.DataFrame):
 
             # Calculate the mass parameters (for mass not injected case)
             samples[C.HEAVIER_BH_MASS] = (
-                mass_measure / samples[C.RETAINED_PORTION] * samples[C.MASS_RATIO] / (1 + samples[C.MASS_RATIO])
+                mass_measure / samples[C.RETAINED_MASS] * samples[C.MASS_RATIO] / (1 + samples[C.MASS_RATIO])
             )
-            samples[C.LIGHTER_BH_MASS] = mass_measure / samples[C.RETAINED_PORTION] / (1 + samples[C.MASS_RATIO])
-            samples[C.REMNANT_BH_MASS] = mass_measure
+            samples[C.LIGHTER_BH_MASS] = mass_measure / samples[C.RETAINED_MASS] / (1 + samples[C.MASS_RATIO])
+            samples[C.BH_MASS] = mass_measure
             samples[C.LIKELIHOOD] = likelihood
 
         return samples

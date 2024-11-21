@@ -1,8 +1,9 @@
 from archeo.constants import Fits
-from archeo.schema import PriorConfig, Domain
+from archeo.schema import Domain, PriorConfig
+
 
 PRECESSING_PRIOR = PriorConfig(
-    num_binaries=2000000,
+    n_samples=2000000,
     fits=Fits.NRSUR7DQ4REMNANT,
     is_spin_aligned=False,
     is_only_up_aligned_spin=False,

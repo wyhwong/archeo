@@ -1,7 +1,8 @@
 import archeo.logger
-from archeo.schema import PriorConfig
 from archeo.preset.aligned_spin import ALIGNED_SPIN_PRIOR
 from archeo.preset.precessing import PRECESSING_PRIOR
+from archeo.schema import PriorConfig
+
 
 local_logger = archeo.logger.get_logger(__name__)
 

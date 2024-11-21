@@ -17,12 +17,9 @@ def get_logger(
 
     Args:
         logger_name (str): Name of the logger object.
-        streaming_log_level (int, optional): Log level for console logging.
-            Defaults to env.STREAMING_LOG_LEVEL.
-        file_log_level (int, optional): Log level for file logging.
-            Defaults to env.FILE_LOG_LEVEL.
-        log_filepath (Optional[str], optional): Path to the log file.
-            Defaults to env.LOG_FILEPATH.
+        streaming_log_level (int): Log level for console logging.
+        file_log_level (int): Log level for file logging.
+        log_filepath (Optional[str]): Path to the log file.
 
     Returns:
         logging.Logger: Logger object with the specified name and log levels.
