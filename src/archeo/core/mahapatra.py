@@ -10,32 +10,18 @@ from archeo.schema import Domain
 local_logger = archeo.logger.get_logger(__name__)
 
 
-NUM_SAMPLES = 500000
-
-
-def get_mass_func_from_mahapatra(
-    mass: Domain,
-    alpha: float = 2.3,
-    dm: float = 4.83,
-) -> Callable:
-    """
-    Get a mass function from Mahapatra's mass distribution.
+def get_mahapatra_mass_fn(mass: Domain, alpha=2.3, dm=4.83, n_samples=500000) -> Callable:
+    """Get a mass function from Mahapatra's mass distribution.
+    NOTE: For details, see https://arxiv.org/abs/2209.05766.
 
     Args:
-    -----
-        mass (Domain):
-            Mass domain.
-
-        alpha (float, optional):
-            Power law index, by default 2.3.
-
-        dm (float, optional):
-            Tapering parameter, by default 4.83.
+        mass (Domain): Mass domain.
+        alpha (float): Power law index.
+        dm (float): Tapering parameter.
+        n_samples (int): Number of samples to generate.
 
     Returns:
-    -------
-        mass_from_mahapatra (Callable):
-            Mass function.
+        mass_fn (Callable): Mass function.
     """
 
     def _f(ds: pd.Series) -> pd.Series:
@@ -53,11 +39,7 @@ def get_mass_func_from_mahapatra(
         probis *= ds ** (-alpha)
         return probis
 
-    if mass.low is None or mass.high is None:
-        local_logger.error("Both low and high mass must be specified.")
-        raise ValueError("Both low and high mass must be specified.")
-
-    masses = pd.Series(np.random.uniform(mass.low, mass.high, NUM_SAMPLES))
+    masses = pd.Series(np.random.uniform(mass.low, mass.high, size=n_samples))
     probis = smoothing_func(masses)
     probis /= probis.sum()
 

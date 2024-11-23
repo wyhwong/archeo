@@ -98,8 +98,8 @@ def corner_estimates(
     """
 
     corner_type_to_var_names = {
-        "part": [C.HEAVIER_BH_MASS, C.LIGHTER_BH_MASS, C.KICK],
-        "full": [C.HEAVIER_BH_MASS, C.LIGHTER_BH_MASS, C.BH_MASS, C.KICK, C.SPIN],
+        "part": [C.HEAVIER_BH_MASS, C.LIGHTER_BH_MASS, C.BH_KICK],
+        "full": [C.HEAVIER_BH_MASS, C.LIGHTER_BH_MASS, C.BH_MASS, C.BH_KICK, C.BH_SPIN],
     }
     corner_type_to_labels = {
         "part": [r"$m_1$ [$M_{\odot}$]", r"$m_2$ [$M_{\odot}$]", r"$v_f$ [km s$^{-1}$]"],
@@ -173,7 +173,7 @@ def second_generation_probability_curve(
     """
 
     # Set up x-axis
-    x_max = max(df[C.KICK].max() for df in dfs.values())
+    x_max = max(df[C.BH_KICK].max() for df in dfs.values())
     x = np.linspace(0.0, x_max, 300)
 
     padding = Padding(bpad=0.14)
@@ -186,11 +186,11 @@ def second_generation_probability_curve(
     colors = iter(sns.color_palette("tab10"))
 
     for label, df in dfs.items():
-        recovery_rate = df[C.RECOVERYRATE].iloc[0]
+        recovery_rate = df[C.RECOVERY_RATE].iloc[0]
         # Calculate the CDF
         y = []
         for kick in x:
-            df_samples = df.loc[(df[C.KICK] <= kick) & (df[C.HEAVIER_BH_MASS] <= 65) & (df[C.LIGHTER_BH_MASS] <= 65)]
+            df_samples = df.loc[(df[C.BH_KICK] <= kick) & (df[C.HEAVIER_BH_MASS] <= 65) & (df[C.LIGHTER_BH_MASS] <= 65)]
             if df_samples.empty:
                 y.append(0.0)
             else:
@@ -258,7 +258,7 @@ def effective_spin_estimates(
 
     for label, df in dfs.items():
         _get_effective_spin(df)
-        _plot_pdf(ax, next(colors), df[C.EFFECTIVE_SPIN], label)
+        _plot_pdf(ax, next(colors), df[C.BH_EFF_SPIN], label)
 
     plt.legend()
     ax.set(ylabel="", xlabel="")
@@ -296,7 +296,7 @@ def precession_spin_estimates(
 
     for label, df in dfs.items():
         _get_precession_spin(df)
-        _plot_pdf(ax, next(colors), df[C.PRECESSION_SPIN], label)
+        _plot_pdf(ax, next(colors), df[C.BH_PREC_SPIN], label)
 
     plt.legend()
     ax.set(ylabel="", xlabel="")
@@ -357,14 +357,14 @@ def table_estimates(
         C.LIGHTER_BH_MASS: "$m_2$",
         C.MASS_RATIO: "$q$",
         C.BH_MASS: "$m_f$",
-        C.SPIN: "$\\chi_f$",
-        C.KICK: "$v_f$",
-        C.PRECESSION_SPIN: "$a_{p}$",
-        C.EFFECTIVE_SPIN: "$a_{eff}$",
+        C.BH_SPIN: "$\\chi_f$",
+        C.BH_KICK: "$v_f$",
+        C.BH_PREC_SPIN: "$a_{p}$",
+        C.BH_EFF_SPIN: "$a_{eff}$",
     }
     data = {
         "": dfs.keys(),
-        "Recovery Rate": [df[C.RECOVERYRATE].iloc[0] for df in dfs],
+        "Recovery Rate": [df[C.RECOVERY_RATE].iloc[0] for df in dfs],
     }
 
     for col, name in col_to_names.items():
@@ -396,7 +396,7 @@ def _get_effective_spin(df: pd.DataFrame) -> None:
 
     a1z = df[C.HEAVIER_BH_SPIN].apply(lambda x: x[-1])
     a2z = df[C.LIGHTER_BH_SPIN].apply(lambda x: x[-1])
-    df[C.EFFECTIVE_SPIN] = (df[C.HEAVIER_BH_MASS] * a1z + df[C.LIGHTER_BH_MASS] * a2z) / (
+    df[C.BH_EFF_SPIN] = (df[C.HEAVIER_BH_MASS] * a1z + df[C.LIGHTER_BH_MASS] * a2z) / (
         df[C.HEAVIER_BH_MASS] + df[C.LIGHTER_BH_MASS]
     )
 
@@ -410,6 +410,6 @@ def _get_precession_spin(df: pd.DataFrame) -> None:
 
     a1h = df[C.HEAVIER_BH_SPIN].apply(lambda x: np.sqrt(x[0] ** 2 + x[1] ** 2))
     a2h = df[C.LIGHTER_BH_SPIN].apply(lambda x: np.sqrt(x[0] ** 2 + x[1] ** 2))
-    df[C.PRECESSION_SPIN] = np.maximum(
+    df[C.BH_PREC_SPIN] = np.maximum(
         a1h, (4 / df[C.MASS_RATIO] + 3) / (3 / df[C.MASS_RATIO] + 4) / df[C.MASS_RATIO] * a2h
     )

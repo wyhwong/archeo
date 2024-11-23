@@ -13,20 +13,19 @@ PRIOR_STORE = {
 }
 
 
-def get_prior(name: str) -> PriorConfig:
-    """
-    Get a prior function.
+def get_prior_config(name: str = "default") -> PriorConfig:
+    """Get a prior configuration.
+    NOTE: By default, it returns the precessing prior.
 
     Args:
-    -----
-        name (str):
-            The name of the prior.
+        name (str): The name of the prior.
 
     Returns:
-    -----
-        prior (Callable):
-            The prior function.
+        prior_config (PriorConfig): The prior configuration.
     """
+
+    if name == "default":
+        return PRIOR_STORE["precessing"]
 
     if name not in PRIOR_STORE:
         msg = f"Prior {name} not found."

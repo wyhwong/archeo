@@ -13,57 +13,36 @@ class Prior(pd.DataFrame):
     def __init__(
         self,
         *args,
-        is_mass_injected: bool = False,
-        n_sample: int = 1,
+        ignore_simulated_mass: bool = False,
+        sample_ratio: int = 1,
         spin_tolerance: float = 0.05,  # unit: dimensionless
         mass_tolerance: float = 1.0,  # unit: solar mass
         **kwargs,
     ) -> None:
-        """Initialize the class.
+        """Construct a prior dataframe.
 
         Args:
-        -----
-            is_mass_injected (bool):
-                Whether the mass is injected
-
-            n_sample (int):
-                The number of samples to be sampled each time
-
-            spin_tolerance (float):
-                The tolerance of the spin
-
-            mass_tolerance (float):
-                The tolerance of the mass
+            ignore_simulated_mass: Whether to ignore the simulated mass
+            sample_ratio (int): The number of samples to be sampled each time
+            spin_tolerance (float): The tolerance of the spin
+            mass_tolerance (float): The tolerance of the mass
         """
 
         super().__init__(*args, **kwargs)
 
-        self._is_mass_injected = is_mass_injected
-        self._n_sample = n_sample
+        self._ignore_simulated_mass = ignore_simulated_mass
+        self._n_sample = sample_ratio
         self._spin_tolerance = spin_tolerance
         self._mass_tolerance = mass_tolerance
 
-        local_logger.info(
-            "Constructed a prior sampler [n=%d]: mass injected: %s, spin tol: %.2f, mass tol: %.2f.",
-            self._n_sample,
-            self._is_mass_injected,
-            self._spin_tolerance,
-            self._mass_tolerance,
-        )
-
     def _sample_from_possible_samples(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Sample from a dataframe.
+        """Sample from a dataframe.
 
         Args:
-        -----
-            df (pd.DataFrame):
-                The dataframe to sample from.
+            df (pd.DataFrame): The dataframe to sample from.
 
         Returns:
-        -----
-            df (pd.DataFrame):
-                The sampled dataframe.
+            df (pd.DataFrame): The sampled dataframe.
         """
 
         if df.empty:
@@ -73,54 +52,48 @@ class Prior(pd.DataFrame):
         return df
 
     def retrieve_samples(self, spin_measure: float, mass_measure: float) -> pd.DataFrame:
-        """Retrieve the samples.
+        """Retrieve the samples from prior.
 
         Args:
-        -----
-            spin_measure (float):
-                The measured spin
-
-            mass_measure (float):
-                The measured mass
+            spin_measure (float): The measured spin
+            mass_measure (float): The measured mass
 
         Returns:
-        -----
-            pd.DataFrame:
-                The sampled dataframe
+            pd.DataFrame: The sampled dataframe
         """
 
-        if self._is_mass_injected:
+        if not self._ignore_simulated_mass:
             # Find the possible samples in the prior
             # Based on:
             #    1. mass_prior - tol < mass_measure < mass_prior + tol
             #    2. spin_prior - tol < spin_measure < spin_prior + tol
             possible_samples = self._prior.loc[
                 ((self[C.BH_MASS] - mass_measure).abs() < self._mass_tolerance)
-                & ((self[C.SPIN] - spin_measure).abs() < self._spin_tolerance)
+                & ((self[C.BH_SPIN] - spin_measure).abs() < self._spin_tolerance)
             ]
             likelihood = len(possible_samples) / len(self._prior)
 
             # Sample n_sample samples from the possible samples
             samples = self._sample_from_possible_samples(possible_samples)
             samples[C.LIKELIHOOD] = likelihood
-        else:
-            # Find the possible samples in the prior
-            # Based on:
-            #    1. spin_prior - tol < spin_measure < spin_prior + tol
-            possible_samples = self.loc[(self[C.SPIN] - spin_measure).abs() < self._spin_tolerance]
-            likelihood = len(possible_samples) / len(self._prior)
+            return samples
 
-            # Sample n_sample samples from the possible samples
-            samples = self._sample_from_possible_samples(possible_samples)
+        # Find the possible samples in the prior
+        # Based on:
+        #    1. spin_prior - tol < spin_measure < spin_prior + tol
+        possible_samples = self.loc[(self[C.BH_SPIN] - spin_measure).abs() < self._spin_tolerance]
+        likelihood = len(possible_samples) / len(self._prior)
 
-            # Calculate the mass parameters (for mass not injected case)
-            samples[C.HEAVIER_BH_MASS] = (
-                mass_measure / samples[C.RETAINED_MASS] * samples[C.MASS_RATIO] / (1 + samples[C.MASS_RATIO])
-            )
-            samples[C.LIGHTER_BH_MASS] = mass_measure / samples[C.RETAINED_MASS] / (1 + samples[C.MASS_RATIO])
-            samples[C.BH_MASS] = mass_measure
-            samples[C.LIKELIHOOD] = likelihood
+        # Sample n_sample samples from the possible samples
+        samples = self._sample_from_possible_samples(possible_samples)
 
+        # Calculate the mass parameters (for mass not injected case)
+        samples[C.HEAVIER_BH_MASS] = (
+            mass_measure / samples[C.RETAINED_MASS] * samples[C.MASS_RATIO] / (1 + samples[C.MASS_RATIO])
+        )
+        samples[C.LIGHTER_BH_MASS] = mass_measure / samples[C.RETAINED_MASS] / (1 + samples[C.MASS_RATIO])
+        samples[C.BH_MASS] = mass_measure
+        samples[C.LIKELIHOOD] = likelihood
         return samples
 
     @property

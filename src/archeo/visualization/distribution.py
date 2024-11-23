@@ -50,8 +50,8 @@ def distribution_summary(
     col_to_labels = {
         C.MASS_RATIO: "Parent Mass Ratio $q$",
         C.BH_MASS: r"Remnant Mass $m_f$ [$M_{\odot}$]",
-        C.KICK: "Recoil Kick $v_f$ [$kms^{-1}$]",
-        C.SPIN: "Spin $\\chi_f$",
+        C.BH_KICK: "Recoil Kick $v_f$ [$kms^{-1}$]",
+        C.BH_SPIN: "Spin $\\chi_f$",
     }
     fig, axes = base.initialize_plot(nrows=4, ncols=1, figsize=(6, 8), labels=labels)
     for idx, (col, xlabel) in enumerate(col_to_labels.items()):
@@ -88,7 +88,7 @@ def kick_against_spin_cmap(
 
     fig = plt.figure(figsize=(8, 6))
     ax = fig.add_subplot(1, 1, 1, projection="scatter_density")
-    ax.scatter_density(df[C.SPIN], df[C.KICK], cmap=WHITE_VIRIDIS)  # type: ignore
+    ax.scatter_density(df[C.BH_SPIN], df[C.BH_KICK], cmap=WHITE_VIRIDIS)  # type: ignore
     ax.set(
         title="Remnant Kick against Remnant Spin",
         xlabel="Remnant Spin $\\chi_f$",
@@ -126,7 +126,7 @@ def kick_distribution_on_spin(
     bounds = zip(np.linspace(0, 0.9, 10), np.linspace(0.1, 1, 10))
 
     for low, high in bounds:
-        data = df.loc[(low < df[C.SPIN]) & (df[C.SPIN] < high)][C.KICK]
+        data = df.loc[(low < df[C.BH_SPIN]) & (df[C.BH_SPIN] < high)][C.BH_KICK]
         # To avoid extreme density values
         if len(data.index) > 100:
             density, bins = np.histogram(a=data, bins=70, density=True)

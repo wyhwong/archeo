@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 import yaml
@@ -41,18 +40,16 @@ class Binary:
         and not injected lead to the same result.
 
     Attributes:
-        mass_ratio (float): Mass ratio of the binary (dimensionless)
+        m1 (float): Mass of the primary black hole (in solar mass)
+        m2 (float): Mass of the secondary black hole (in solar mass)
         chi1 (tuple[float, float, float]): Spin of the primary black hole (dimensionless), [0, 1]
         chi2 (tuple[float, float, float]): Spin of the secondary black hole (dimensionless), [0, 1]
-        m1 (float, optional): Mass of the primary black hole (in solar mass)
-        m2 (float, optional): Mass of the secondary black hole (in solar mass)
     """
 
-    mass_ratio: float
+    m1: float
+    m2: float
     chi1: tuple[float, float, float]
     chi2: tuple[float, float, float]
-    m1: Optional[float] = None
-    m2: Optional[float] = None
 
 
 @dataclass(frozen=True)
