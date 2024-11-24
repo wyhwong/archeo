@@ -24,4 +24,4 @@ archeo.visualize_posterior_estimation({"GW190521": posterior}, output_dir="./")
 
 ## Configure your own prior
 
-Check out the preset priors in [precessing.py](./archeo/preset/precessing.py) and [aligned_spin.py](./archeo/preset/aligned_spin.py). From that, one should be able to create their own prior by following the same structure.
+Check out the preset priors in [precessing.py](https://github.com/wyhwong/archeo/blob/main/src/archeo/preset/precessing.py) and [aligned_spin.py](https://github.com/wyhwong/archeo/blob/main/src/archeo/preset/aligned_spin.py). From that, one should be able to create their own prior by following the same structure.
