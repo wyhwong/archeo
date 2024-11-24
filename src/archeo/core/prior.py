@@ -36,7 +36,7 @@ class Prior(pd.DataFrame):
         super().__init__(*args, **kwargs)
 
         self._ignore_simulated_mass = ignore_simulated_mass
-        self._n_sample = sample_ratio
+        self._sample_ratio = sample_ratio
         self._spin_tolerance = spin_tolerance
         self._mass_tolerance = mass_tolerance
 
@@ -53,7 +53,7 @@ class Prior(pd.DataFrame):
         if df.empty:
             local_logger.warning("No similar samples in the prior.")
         else:
-            df = df.sample(self._n_sample, replace=True)
+            df = df.sample(self._sample_ratio, replace=True)
         return df
 
     def retrieve_samples(self, spin_measure: float, mass_measure: float) -> pd.DataFrame:
@@ -181,6 +181,9 @@ class Prior(pd.DataFrame):
 
         # Extract more information from the samples
 
+        # Define nan recovery rate
+        df[C.RECOVERY_RATE] = float("nan")
+
         # Calculate the mass ratio
         m1, m2 = df[C.HEAVIER_BH_MASS], df[C.LIGHTER_BH_MASS]
         df[C.MASS_RATIO] = q = m1 / m2
@@ -234,10 +237,14 @@ class Prior(pd.DataFrame):
                 for spin_measure, mass_measure in zip(spin_posterior, mass_posterior)
             ]
             samples = exc.run(func=self.retrieve_samples, input_kwargs=input_kwargs)
-            return pd.concat(samples)
 
-        samples = [
-            self.retrieve_samples(spin_measure=spin_measure, mass_measure=mass_measure)
-            for spin_measure, mass_measure in zip(spin_posterior, mass_posterior)
-        ]
-        return pd.concat(samples)
+        else:
+            samples = [
+                self.retrieve_samples(spin_measure=spin_measure, mass_measure=mass_measure)
+                for spin_measure, mass_measure in zip(spin_posterior, mass_posterior)
+            ]
+
+        df_posterior = pd.concat(samples)
+        df_posterior[C.RECOVERY_RATE] = len(df_posterior) / (len(mass_posterior) * self._sample_ratio)
+
+        return df_posterior
