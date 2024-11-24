@@ -1,11 +1,5 @@
 # ARCHEO
-ARCHEO is a repository for inferring the natal kick and parental masses posterior of black holes in Pair-instability Supernova (PISN) gap. We study the parental black holes of GW190521 and investigate the probability that the component black holes in GW190521 are a result of black hole merger.
-
----
-
-## Prerequisites
-- Poetry: [https://python-poetry.org](https://python-poetry.org)
-- GNU make: [https://www.gnu.org/software/make/manual/make.html](https://www.gnu.org/software/make/manual/make.html)
+ARCHEO is a repository for inferring the natal kick and parental masses posterior of black holes in Pair-instability Supernova (PISN) gap. We study the parental black holes of GW190521 and investigate the probability that the component black holes in GW190521 are a result of black hole merger. The methodology is described in [Methodology](#methodology) section, and it can be applied to any other gravitational wave event.
 
 ---
 
@@ -34,7 +28,7 @@ The methodology is describe in the following paper:
 
 # Application - GW190521
 
-We can use the scripts in the repository to estimate the parental mass and kick of component black holes in GW190521. Please find the related data of GW190521 in [LIGO Document P2000158-v4](https://dcc.ligo.org/LIGO-P2000158/public). After downloading the data and modify [main.yml](./src/main.yml) accordingly, we can compute the results. One can also tune the prior settings at [prior.yml](./src/prior.yml) accordingly.
+We can use the scripts in the repository to estimate the parental mass and kick of component black holes in GW190521. Please find the related data of GW190521 in [LIGO Document P2000158-v4](https://dcc.ligo.org/LIGO-P2000158/public).
 
 ---
 
