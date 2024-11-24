@@ -88,3 +88,19 @@ repos:
     args: ["-C", "./src"]
     always_run: true
     verbose: true
+
+- repo: local
+  hooks:
+  - id: pytest
+    name: pytest
+    entry: pytest
+    args: [
+      "--disable-warnings",
+      "--cov=archeo",
+      "--rootdir=./src"
+    ]
+    language: python
+    types: [python]
+    pass_filenames: false
+    always_run: true
+    verbose: true
