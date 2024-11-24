@@ -3,6 +3,13 @@ ARCHEO is a repository for inferring the natal kick and parental masses posterio
 
 ---
 
+## Install as a package
+```bash
+pip3 install archeo
+```
+
+---
+
 ## Usage
 Please see [README.md](./src/README.md) inside `src` folder.
 
