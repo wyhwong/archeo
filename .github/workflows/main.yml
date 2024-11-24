@@ -29,7 +29,7 @@ jobs:
         working-directory: ./src
         run: |
           poetry install --with dev
-      - name: Static code Analysis
+      - name: Run pytest
         working-directory: ./src
         run: |
-          poetry run --disable-warnings --cov=archeo --rootdir=./src
+          poetry run pytest --disable-warnings --cov=archeo --rootdir=./src
