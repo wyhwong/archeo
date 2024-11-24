@@ -48,13 +48,6 @@ class EscapeVelocity(enum.Enum):
     NUCLEAR_STAR_CLUSTER = 1500.0
     ELLIPTICAL_GALAXY = 2500.0
 
-    _LABELS = {
-        "GLOBULAR_CLUSTER": "$v_{esc, GC}$",
-        "MILKY_WAY": "$v_{esc, MW}$",
-        "NUCLEAR_STAR_CLUSTER": "$v_{esc, NSC}$",
-        "ELLIPTICAL_GALAXY": "$v_{esc, EG}$",
-    }
-
     def label(self):
         """Return the escape velocity label"""
 

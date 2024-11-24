@@ -1,3 +1,5 @@
+from typing import Union
+
 import numpy as np
 import pandas as pd
 
@@ -5,6 +7,7 @@ import archeo.logger
 from archeo.constants import SPEED_OF_LIGHT
 from archeo.constants import Columns as C
 from archeo.core.simulator import Simulator
+from archeo.preset import get_prior_config
 from archeo.schema import PriorConfig
 from archeo.utils.executor import MultiThreadExecutor
 
@@ -104,7 +107,8 @@ class Prior(pd.DataFrame):
     @property
     def _constructor(self):
         """Return the constructor of the class."""
-        return Prior
+
+        return pd.DataFrame
 
     @classmethod
     def from_feather(cls, path: str, **kwargs) -> "Prior":
@@ -149,7 +153,7 @@ class Prior(pd.DataFrame):
         return cls(pd.read_parquet(path), **kwargs)
 
     @classmethod
-    def from_prior_config(cls, prior_config: PriorConfig, use_threads=True, **kwargs) -> "Prior":
+    def from_prior_config(cls, prior_config: Union[PriorConfig, str], use_threads=True, **kwargs) -> "Prior":
         """Generate the prior from the prior config.
 
         Args:
@@ -160,6 +164,9 @@ class Prior(pd.DataFrame):
         Returns:
             Prior: The prior distribution.
         """
+
+        if isinstance(prior_config, str):
+            prior_config = get_prior_config(prior_config)
 
         simulator = Simulator(prior_config)
         return cls.from_simulator(simulator, use_threads=use_threads, **kwargs)

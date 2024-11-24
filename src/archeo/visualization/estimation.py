@@ -1,6 +1,7 @@
 from typing import Optional
 
 import corner
+import matplotlib.colors as mcolors
 import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
 import numpy as np
@@ -45,7 +46,7 @@ def mass_estimates(
         ylabel="PDF",
     )
     fig, ax = base.initialize_plot(figsize=(9, 4), labels=labels, padding=padding)
-    colors = sns.color_palette("tab10")
+    colors = iter(mcolors.TABLEAU_COLORS.keys())
 
     col_to_name = {
         C.BH_MASS: label + ": ",
@@ -114,7 +115,7 @@ def corner_estimates(  # pylint: disable=dangerous-default-value
 
     for corner_type, var_names in corner_type_to_var_names.items():
         fig, axes = base.initialize_plot(ncols=len(var_names), nrows=len(var_names), figsize=(9, 9))
-        colors = sns.color_palette("tab10")
+        colors = iter(mcolors.TABLEAU_COLORS.keys())
         handles = []
 
         for label, df in dfs.items():
@@ -183,7 +184,7 @@ def second_generation_probability_curve(
         ylabel="Second Generation Probability $p_{2g}$",
     )
     fig, ax = base.initialize_plot(figsize=(10, 8), labels=labels, padding=padding, fontsize=15)
-    colors = iter(sns.color_palette("tab10"))
+    colors = iter(mcolors.TABLEAU_COLORS.keys())
 
     for label, df in dfs.items():
         recovery_rate = df[C.RECOVERY_RATE].iloc[0]
@@ -215,7 +216,7 @@ def _add_escape_velocity(ax, v_max: float) -> None:
         v_max (float): Maximum escape velocity.
     """
 
-    colors = sns.color_palette("tab10")
+    colors = iter(mcolors.TABLEAU_COLORS.keys())
     # Plot vertical lines and labels (escape velocities)
     for label, v_esc in EscapeVelocity.to_vlines().items():
         # Skip if out of scope
@@ -254,7 +255,7 @@ def effective_spin_estimates(
         ylabel="PDF",
     )
     fig, ax = base.initialize_plot(figsize=(10, 8), labels=labels, padding=padding, fontsize=15)
-    colors = sns.color_palette("tab10")
+    colors = iter(mcolors.TABLEAU_COLORS.keys())
 
     for label, df in dfs.items():
         _plot_pdf(ax, next(colors), df[C.BH_EFF_SPIN], label)
@@ -291,7 +292,7 @@ def precession_spin_estimates(
         ylabel="PDF",
     )
     fig, ax = base.initialize_plot(figsize=(10, 8), labels=labels, padding=padding, fontsize=15)
-    colors = archeo.schemas.visualization.Color.value_iter()
+    colors = iter(mcolors.TABLEAU_COLORS.keys())
 
     for label, df in dfs.items():
         _plot_pdf(ax, next(colors), df[C.BH_PREC_SPIN], label)
@@ -358,12 +359,12 @@ def table_estimates(
     }
     data = {
         "": dfs.keys(),
-        "Recovery Rate": [df[C.RECOVERY_RATE].iloc[0] for df in dfs],
+        "Recovery Rate": [df[C.RECOVERY_RATE].iloc[0] for df in dfs.values()],
     }
 
     for col, name in col_to_names.items():
         data[name] = []
-        for df in dfs:
+        for df in dfs.values():
             low, mid, high = (
                 df[col].quantile(0.05),
                 df[col].quantile(0.5),
