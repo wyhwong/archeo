@@ -1,5 +1,9 @@
 ## ARCHEO - Inferring the natal kick and parental masses posterior of black holes in Pair-instability Supernova (PISN) gap.
 
+[![github](https://img.shields.io/badge/GitHub-archeo-blue.svg)](https://github.com/wyhwong/archeo)
+[![PyPI version](https://badge.fury.io/py/archeo.svg)](https://pypi.org/project/archeo/)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/vijayvarma392/surfinBH/blob/master/LICENSE)
+
 ## Basic Usage
 
 The following example demonstrates how to use the package to visualize the prior and posterior distributions of a single event.
