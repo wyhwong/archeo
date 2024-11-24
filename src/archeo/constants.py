@@ -30,7 +30,7 @@ class Fits(enum.StrEnum):
             fits (surfinBH.surfinBH.SurFinBH): The loaded fits.
         """
 
-        import surfinBH
+        import surfinBH  # pylint: disable=import-outside-toplevel
 
         local_logger.info(
             "Loading surfinBH %s, description: %s.",

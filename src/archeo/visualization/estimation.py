@@ -74,7 +74,7 @@ def _add_pisn_gap(ax, color: str) -> None:
     ax.axvline(130.0, color=color, linewidth=0.9, linestyle="--")
 
 
-def corner_estimates(
+def corner_estimates(  # pylint: disable=dangerous-default-value
     dfs: dict[str, pd.DataFrame],
     levels: list[float] = [0.68, 0.9],
     nbins: int = 70,
