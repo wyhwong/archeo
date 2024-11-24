@@ -257,7 +257,6 @@ def effective_spin_estimates(
     colors = sns.color_palette("tab10")
 
     for label, df in dfs.items():
-        _get_effective_spin(df)
         _plot_pdf(ax, next(colors), df[C.BH_EFF_SPIN], label)
 
     plt.legend()
@@ -295,7 +294,6 @@ def precession_spin_estimates(
     colors = archeo.schemas.visualization.Color.value_iter()
 
     for label, df in dfs.items():
-        _get_precession_spin(df)
         _plot_pdf(ax, next(colors), df[C.BH_PREC_SPIN], label)
 
     plt.legend()
@@ -348,10 +346,6 @@ def table_estimates(
         axes (plt.Axes): Axes.
     """
 
-    for df in dfs.values():
-        _get_effective_spin(df)
-        _get_precession_spin(df)
-
     col_to_names = {
         C.HEAVIER_BH_MASS: "$m_1$",
         C.LIGHTER_BH_MASS: "$m_2$",
@@ -385,31 +379,3 @@ def table_estimates(
     ax.table(cellText=df_table.values, colLabels=df_table.columns, cellLoc="center", loc="center")
     base.savefig_and_close(filename, output_dir, close)
     return (fig, ax)
-
-
-def _get_effective_spin(df: pd.DataFrame) -> None:
-    """Get the effective spin.
-
-    Args:
-        df (pd.DataFrame): The posterior dataframe.
-    """
-
-    a1z = df[C.HEAVIER_BH_SPIN].apply(lambda x: x[-1])
-    a2z = df[C.LIGHTER_BH_SPIN].apply(lambda x: x[-1])
-    df[C.BH_EFF_SPIN] = (df[C.HEAVIER_BH_MASS] * a1z + df[C.LIGHTER_BH_MASS] * a2z) / (
-        df[C.HEAVIER_BH_MASS] + df[C.LIGHTER_BH_MASS]
-    )
-
-
-def _get_precession_spin(df: pd.DataFrame) -> None:
-    """Get the precession spin.
-
-    Args:
-        df (pd.DataFrame): The posterior dataframe.
-    """
-
-    a1h = df[C.HEAVIER_BH_SPIN].apply(lambda x: np.sqrt(x[0] ** 2 + x[1] ** 2))
-    a2h = df[C.LIGHTER_BH_SPIN].apply(lambda x: np.sqrt(x[0] ** 2 + x[1] ** 2))
-    df[C.BH_PREC_SPIN] = np.maximum(
-        a1h, (4 / df[C.MASS_RATIO] + 3) / (3 / df[C.MASS_RATIO] + 4) / df[C.MASS_RATIO] * a2h
-    )

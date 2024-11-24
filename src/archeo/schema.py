@@ -15,10 +15,10 @@ class Domain:
         high (float): Upper bound of the domain
     """
 
-    low = float("-inf")
-    high = float("inf")
+    low: float = float("-inf")
+    high: float = float("inf")
 
-    def check(self, value: float) -> bool:
+    def contain(self, value: float) -> bool:
         """Check if the input value is within the domain."""
 
         return self.low <= value <= self.high
@@ -33,23 +33,30 @@ class Domain:
 class Binary:
     """Binary parameters.
 
-    NOTE:
-    - m1 and m2 are optional,
-        we can rescale them anytime after simulation.
-        Empirically tested, prior with masses injected,
-        and not injected lead to the same result.
-
     Attributes:
-        m1 (float): Mass of the primary black hole (in solar mass)
-        m2 (float): Mass of the secondary black hole (in solar mass)
-        chi1 (tuple[float, float, float]): Spin of the primary black hole (dimensionless), [0, 1]
-        chi2 (tuple[float, float, float]): Spin of the secondary black hole (dimensionless), [0, 1]
+        m_1 (float): Mass of the primary black hole (in solar mass)
+        m_2 (float): Mass of the secondary black hole (in solar mass)
+        chi_1 (tuple[float, float, float]): Spin of the primary black hole (dimensionless), [0, 1]
+        chi_2 (tuple[float, float, float]): Spin of the secondary black hole (dimensionless), [0, 1]
     """
 
-    m1: float
-    m2: float
-    chi1: tuple[float, float, float]
-    chi2: tuple[float, float, float]
+    m_1: float
+    m_2: float
+    chi_1: tuple[float, float, float]
+    chi_2: tuple[float, float, float]
+
+
+@dataclass(frozen=True)
+class Event:
+    """Event (Binary Black Hole Merger) parameters."""
+
+    m_1: float
+    m_2: float
+    m_ret: float
+    v_f: tuple[float, float, float]
+    chi_1: tuple[float, float, float]
+    chi_2: tuple[float, float, float]
+    chi_f: tuple[float, float, float]
 
 
 @dataclass(frozen=True)
@@ -73,11 +80,11 @@ class PriorConfig:
     fits: Fits
     is_spin_aligned: bool
     is_only_up_aligned_spin: bool
-    spin: Domain
-    phi: Domain
-    theta: Domain
-    mass_ratio: Domain
-    mass: Domain
+    spin: Domain  # unit: dimensionless
+    phi: Domain  # unit: pi
+    theta: Domain  # unit: pi
+    mass_ratio: Domain  # unit: dimensionless
+    mass: Domain  # unit: solar mass
     is_mahapatra: bool
 
     def __post_init__(self) -> None:
