@@ -49,18 +49,21 @@ class Simulator:
         b = self._get_binary()
 
         q = b.m_1 / b.m_2
-        v_f, _ = self._fits.vf(q, b.chi_1, b.chi_2)
-        chi_f, _ = self._fits.chif(q, b.chi_1, b.chi_2)
-        m_ret, _ = self._fits.mf(q, b.chi_1, b.chi_2)
+        v_f, v_f_err = self._fits.vf(q, b.chi_1, b.chi_2)
+        chi_f, chi_f_err = self._fits.chif(q, b.chi_1, b.chi_2)
+        m_ret, m_ret_err = self._fits.mf(q, b.chi_1, b.chi_2)
 
         return Event(
             m_1=b.m_1,
             m_2=b.m_2,
             m_ret=m_ret,
+            m_ret_err=m_ret_err,
             v_f=v_f,
+            v_f_err=v_f_err,
             chi_1=b.chi_1,
             chi_2=b.chi_2,
             chi_f=chi_f,
+            chi_f_err=chi_f_err,
         )
 
     def simulate(self, use_threads=True) -> pd.DataFrame:

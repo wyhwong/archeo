@@ -96,3 +96,13 @@ class Columns(str, enum.Enum):
     BH_SPIN = "a_f"
     BH_EFF_SPIN = "a_eff"
     BH_PREC_SPIN = "a_prec"
+
+    def __repr__(self):
+        """Return the string representation of the column"""
+
+        return self.value
+
+    def __str__(self):
+        """Return the string representation of the column"""
+
+        return self.value

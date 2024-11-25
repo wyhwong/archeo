@@ -1,5 +1,9 @@
 # ARCHEO
-ARCHEO is a repository for inferring the natal kick and parental masses posterior of black holes in Pair-instability Supernova (PISN) gap. We study the parental black holes of GW190521 and investigate the probability that the component black holes in GW190521 are a result of black hole merger. The methodology is described in [Methodology](#methodology) section, and it can be applied to any other gravitational wave event.
+[![github](https://img.shields.io/badge/GitHub-archeo-blue.svg)](https://github.com/wyhwong/archeo)
+[![PyPI version](https://badge.fury.io/py/archeo.svg)](https://pypi.org/project/archeo/)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/wyhwong/archeo/blob/main/LICENSE)
+
+Archeo is a package for inferring the natal kick and parental masses posterior of black holes in Pair-instability Supernova (PISN) gap. We study the parental black holes of GW190521 and investigate the probability that the component black holes in GW190521 are a result of black hole merger. The methodology is described in [Methodology](#methodology) section, and it can be applied to any other gravitational wave event.
 
 ---
 

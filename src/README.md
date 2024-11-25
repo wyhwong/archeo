@@ -2,7 +2,7 @@
 
 [![github](https://img.shields.io/badge/GitHub-archeo-blue.svg)](https://github.com/wyhwong/archeo)
 [![PyPI version](https://badge.fury.io/py/archeo.svg)](https://pypi.org/project/archeo/)
-[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/vijayvarma392/surfinBH/blob/master/LICENSE)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/wyhwong/archeo/blob/main/LICENSE)
 
 ## Basic Usage
 
@@ -17,7 +17,7 @@ mass_posterior = [68.0, 71.4, ..., 91.4]
 spin_posterior = [0.31, 0.54, ..., 0.64]
 
 # Create a prior (preset priors are "precessing" and "aligned_spin")
-prior = archeo.Prior.from_prior_config("precessing")
+prior = archeo.Prior.from_config("precessing")
 # Create a posterior from the samples and the prior
 posterior = prior.to_posterior(mass_posterior, spin_posterior)
 

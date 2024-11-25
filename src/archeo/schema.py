@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
 import numpy as np
-import yaml
 
 from archeo.constants import Fits
 
@@ -53,10 +52,13 @@ class Event:
     m_1: float
     m_2: float
     m_ret: float
+    m_ret_err: float
     v_f: tuple[float, float, float]
+    v_f_err: tuple[float, float, float]
     chi_1: tuple[float, float, float]
     chi_2: tuple[float, float, float]
     chi_f: tuple[float, float, float]
+    chi_f_err: tuple[float, float, float]
 
 
 @dataclass(frozen=True)
@@ -95,21 +97,6 @@ class PriorConfig:
 
         if self.is_only_up_aligned_spin and not self.is_spin_aligned:
             raise ValueError("Only up-aligned spin is only valid when spins are aligned.")
-
-    def from_yaml(self, filepath: str) -> "PriorConfig":
-        """Load prior configuration from a yaml file.
-
-        Args:
-            filepath (str): Path to the yaml file.
-
-        Returns:
-            PriorConfig: Prior configuration.
-        """
-
-        with open(filepath, "r", encoding="utf-8") as f:
-            config = yaml.safe_load(f)
-
-        return PriorConfig(**config)
 
 
 @dataclass(frozen=True)

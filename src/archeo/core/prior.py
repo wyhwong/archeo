@@ -139,6 +139,20 @@ class Prior(pd.DataFrame):
         return cls(pd.read_csv(path), **kwargs)
 
     @classmethod
+    def from_json(cls, path: str, **kwargs) -> "Prior":
+        """Read the json file.
+
+        Args:
+            path (str): The path to the json file.
+            **kwargs: The keyword arguments for parental class (pd.DataFrame).
+
+        Returns:
+            Prior: The prior distribution.
+        """
+
+        return cls(pd.read_json(path), **kwargs)
+
+    @classmethod
     def from_parquet(cls, path: str, **kwargs) -> "Prior":
         """Read the parquet file.
 
@@ -153,7 +167,7 @@ class Prior(pd.DataFrame):
         return cls(pd.read_parquet(path), **kwargs)
 
     @classmethod
-    def from_prior_config(cls, prior_config: Union[PriorConfig, str], use_threads=True, **kwargs) -> "Prior":
+    def from_config(cls, prior_config: Union[PriorConfig, str], use_threads=True, **kwargs) -> "Prior":
         """Generate the prior from the prior config.
 
         Args:
