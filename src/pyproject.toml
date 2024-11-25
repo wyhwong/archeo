@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "archeo"
-version = "0.1.2"
+version = "1.0.0"
 description = ""
 authors = ["wyhwong <wyhwong@link.cuhk.edu.hk>"]
 license = "MIT"
@@ -13,16 +13,13 @@ numpy = "^1.26.3"
 matplotlib = "^3.8.2"
 seaborn = "^0.13.1"
 # For surfinbh installation
-gwsurrogate = "0.5.0"
-pyyaml = "^6.0.1"
 surfinbh = "^1.2.3"
 corner = "^2.2.2"
-# for feather format data reading/writing
-pyarrow = "^15.0.0"
 mpl-scatter-density = "^0.7"
 tqdm = "^4.66.4"
 # For pkg_resources, which is used by mpl-scatter-density
 setuptools = "^70.3.0"
+gwsurrogate = "^0.8"
 
 [tool.black]
 line-length = 120
