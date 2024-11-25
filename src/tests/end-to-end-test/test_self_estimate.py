@@ -10,9 +10,9 @@ from archeo.constants import Columns as C
 def default_prior():
     """Load the default prior for testing."""
 
-    filepath = f"{os.path.dirname(os.path.dirname(__file__))}/test_data/prior.feather"
+    filepath = f"{os.path.dirname(os.path.dirname(__file__))}/test_data/prior.json"
 
-    return archeo.Prior.from_feather(filepath)
+    return archeo.Prior.from_json(filepath)
 
 
 def test_self_estimate(prior):

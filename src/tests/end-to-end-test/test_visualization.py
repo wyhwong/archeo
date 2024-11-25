@@ -11,9 +11,9 @@ from archeo.visualization import visualize_posterior_estimation, visualize_prior
 def default_prior():
     """Load the default prior for testing."""
 
-    filepath = f"{os.path.dirname(os.path.dirname(__file__))}/test_data/prior.feather"
+    filepath = f"{os.path.dirname(os.path.dirname(__file__))}/test_data/prior.json"
 
-    return archeo.Prior.from_feather(filepath)
+    return archeo.Prior.from_json(filepath)
 
 
 @pytest.fixture(name="output_dir")
