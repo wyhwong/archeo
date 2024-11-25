@@ -1,10 +1,23 @@
 [tool.poetry]
 name = "archeo"
-version = "1.0.0"
+version = "1.0.1"
 description = ""
 authors = ["wyhwong <wyhwong@link.cuhk.edu.hk>"]
 license = "MIT"
 readme = "README.md"
+homepage = "https://pypi.org/project/archeo/"
+repository = "https://github.com/wyhwong/archeo"
+keywords = ["black-holes", "gravitational-waves", "black-hole-archeology"]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
