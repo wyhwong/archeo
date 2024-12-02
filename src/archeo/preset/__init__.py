@@ -1,5 +1,6 @@
 import archeo.logger
-from archeo.preset.aligned_spin import ALIGNED_SPIN_PRIOR
+from archeo.preset.aligned import ALIGNED_SPIN_PRIOR
+from archeo.preset.positively_aligned import POSITIVELY_ALIGNED_SPIN_PRIOR
 from archeo.preset.precessing import PRECESSING_PRIOR
 from archeo.schema import PriorConfig
 
@@ -8,8 +9,9 @@ local_logger = archeo.logger.get_logger(__name__)
 
 
 PRIOR_STORE = {
-    "aligned_spin": ALIGNED_SPIN_PRIOR,
     "precessing": PRECESSING_PRIOR,
+    "aligned_spin": ALIGNED_SPIN_PRIOR,
+    "positively_aligned_spin": POSITIVELY_ALIGNED_SPIN_PRIOR,
 }
 
 
