@@ -200,7 +200,7 @@ def second_generation_probability_curve(
         # Plot the CDF
         sns.lineplot(y=y, x=x, ax=ax, color=next(colors), label=label)
 
-    _add_escape_velocity(ax, x_max)
+    _add_escape_velocity(ax, x_max, max(y))
     ax.set(ylabel="", xlabel="")
     plt.legend()
 
@@ -208,12 +208,13 @@ def second_generation_probability_curve(
     return (fig, ax)
 
 
-def _add_escape_velocity(ax, v_max: float) -> None:
+def _add_escape_velocity(ax, v_max: float, y_max: float) -> None:
     """Add escape velocity to the plot.
 
     Args:
         ax (plt.Axes): Axes.
         v_max (float): Maximum escape velocity.
+        y_max (float): Maximum y-axis value.
     """
 
     colors = iter(mcolors.TABLEAU_COLORS.keys())
@@ -226,7 +227,7 @@ def _add_escape_velocity(ax, v_max: float) -> None:
         color = next(colors)
         ax.axvline(x=v_esc, color=color, linestyle="--", linewidth=0.5)
         text_shift = 20.0 * v_max / 3000.0
-        ax.text(v_esc + text_shift, 0.7, label, color=color, rotation=90, va="center", fontsize=12)
+        ax.text(v_esc + text_shift, 0.7 * y_max, label, color=color, rotation=90, va="center", fontsize=12)
 
 
 def effective_spin_estimates(
