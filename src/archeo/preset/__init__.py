@@ -9,6 +9,7 @@ local_logger = archeo.logger.get_logger(__name__)
 
 
 PRIOR_STORE = {
+    "default": PRECESSING_PRIOR,
     "precessing": PRECESSING_PRIOR,
     "aligned_spin": ALIGNED_SPIN_PRIOR,
     "positively_aligned_spin": POSITIVELY_ALIGNED_SPIN_PRIOR,
@@ -26,12 +27,10 @@ def get_prior_config(name: str = "default") -> PriorConfig:
         prior_config (PriorConfig): The prior configuration.
     """
 
-    if name == "default":
-        return PRIOR_STORE["precessing"]
-
     if name not in PRIOR_STORE:
-        msg = f"Prior {name} not found."
+        msg = f"Prior {name} not found. "
         local_logger.error(msg)
-        raise ValueError(msg)
+        extra_msg = f"Available priors are: {list(PRIOR_STORE.keys())}"
+        raise ValueError(msg + extra_msg)
 
     return PRIOR_STORE[name]

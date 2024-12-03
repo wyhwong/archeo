@@ -1,8 +1,10 @@
 ## ARCHEO - Inferring the natal kick and parental masses posterior of black holes in Pair-instability Supernova (PISN) gap.
 
-[![github](https://img.shields.io/badge/GitHub-archeo-blue.svg)](https://github.com/wyhwong/archeo)
 [![PyPI version](https://badge.fury.io/py/archeo.svg)](https://pypi.org/project/archeo/)
-[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/wyhwong/archeo/blob/main/LICENSE)
+[![Python version](https://img.shields.io/pypi/pyversions/archeo)](https://pypi.org/project/archeo/)
+[![Downloads](https://img.shields.io/pepy/dt/archeo)](https://github.com/wyhwong/archeo)
+[![license](https://img.shields.io/badge/license-MIT-orange.svg)](https://github.com/wyhwong/archeo/blob/main/LICENSE)
+[![CI](https://github.com/wyhwong/archeo/actions/workflows/main.yml/badge.svg)](https://github.com/wyhwong/archeo/actions/workflows/main.yml/)
 
 ## Basic Usage
 
@@ -16,7 +18,7 @@ import archeo
 mass_posterior = [68.0, 71.4, ..., 91.4]
 spin_posterior = [0.31, 0.54, ..., 0.64]
 
-# Create a prior (preset priors are "precessing" and "aligned_spin")
+# Create a prior (preset priors are "precessing", "aligned_spin", and "positively_aligned_spin")
 prior = archeo.Prior.from_config("precessing")
 # Create a posterior from the samples and the prior
 posterior = prior.to_posterior(mass_posterior, spin_posterior)
