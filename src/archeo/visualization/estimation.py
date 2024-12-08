@@ -376,7 +376,7 @@ def table_estimates(
 
     df_table = pd.DataFrame(data)
 
-    fig, ax = base.initialize_plot(figsize=(15, 4))
+    fig, ax = base.initialize_plot(figsize=(15, 4), dpi=1200)
     ax.axis("off")
     ax.table(cellText=df_table.values, colLabels=df_table.columns, cellLoc="center", loc="center")
     base.savefig_and_close(filename, output_dir, close)

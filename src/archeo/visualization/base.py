@@ -17,6 +17,7 @@ def initialize_plot(
     labels=Labels(),
     padding=Padding(),
     fontsize: int = 12,
+    **kwargs,
 ):
     """Initialize a plot from matplotlib.
 
@@ -27,13 +28,14 @@ def initialize_plot(
         labels (Labels): The labels of the plot.
         padding (Padding): The padding of the plot.
         fontsize (int): The fontsize of the plot.
+        **kwargs: Additional arguments for the plot.
 
     Returns:
         fig (matplotlib.figure.Figure): The figure of the plot.
         axes (numpy.ndarray): The axes of the plot.
     """
 
-    fig, axes = plt.subplots(nrows, ncols, figsize=figsize)
+    fig, axes = plt.subplots(nrows, ncols, figsize=figsize, **kwargs)
 
     fig.tight_layout(pad=padding.tpad)
     fig.subplots_adjust(left=padding.lpad, bottom=padding.bpad)
