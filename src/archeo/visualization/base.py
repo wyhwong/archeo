@@ -49,6 +49,7 @@ def savefig_and_close(
     filename: str,
     output_dir: Optional[str] = None,
     close: bool = True,
+    fmt: str = "png",
 ) -> None:
     """Save the figure and close it.
 
@@ -56,11 +57,12 @@ def savefig_and_close(
         filename (str): The filename of the figure.
         output_dir (Optional[str]): The output directory of the figure.
         close (bool): Whether to close the figure.
+        fmt (str): The format of the figure.
     """
 
     if output_dir:
         file.check_and_create_dir(output_dir)
-        savepath = f"{output_dir}/{filename}"
+        savepath = f"{output_dir}/{filename}.{fmt}"
         plt.savefig(savepath, bbox_inches="tight", facecolor="w")
         local_logger.info("Saved figure to %s.", savepath)
 

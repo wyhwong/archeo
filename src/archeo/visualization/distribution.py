@@ -29,9 +29,10 @@ WHITE_VIRIDIS = LinearSegmentedColormap.from_list(
 
 def distribution_summary(
     df: pd.DataFrame,
-    filename="distribution_summary.png",
+    filename="distribution_summary",
     output_dir: Optional[str] = None,
     close: bool = True,
+    fmt: str = "png",
 ):
     """Plot the distribution of the black hole parameters.
 
@@ -40,6 +41,7 @@ def distribution_summary(
         filename (str): Filename of the figure.
         output_dir (Optional[str]): Output directory.
         close (bool): Whether to close the figure.
+        fmt (str): The format of the visualizations. Defaults to "png".
 
     Returns:
         fig (plt.Figure): Figure.
@@ -58,15 +60,16 @@ def distribution_summary(
         sns.histplot(df[col], ax=axes[idx], element="step", fill=False, stat="density")
         axes[idx].set(xlabel=xlabel, ylabel="PDF")
 
-    base.savefig_and_close(filename, output_dir, close)
+    base.savefig_and_close(filename, output_dir, close, fmt)
     return (fig, axes)
 
 
 def kick_against_spin_cmap(
     df: pd.DataFrame,
-    filename="kick_against_spin_cmap.png",
+    filename="kick_against_spin_cmap",
     output_dir: Optional[str] = None,
     close: bool = True,
+    fmt: str = "png",
 ):
     """Plot the remnant kick against remnant spin in cmap.
 
@@ -75,6 +78,7 @@ def kick_against_spin_cmap(
         filename (str): Filename of the figure.
         output_dir (Optional[str]): Output directory.
         close (bool): Whether to close the figure.
+        fmt (str): The format of the visualizations. Defaults to "png".
 
     Returns:
         fig (plt.Figure): Figure.
@@ -94,15 +98,16 @@ def kick_against_spin_cmap(
         xlabel="Remnant Spin $\\chi_f$",
         ylabel=r"Remnant Kick $v_f$ [$kms^{-1}$]",
     )
-    base.savefig_and_close(filename, output_dir, close)
+    base.savefig_and_close(filename, output_dir, close, fmt)
     return (fig, ax)
 
 
 def kick_distribution_on_spin(
     df: pd.DataFrame,
-    filename="kick_on_spin.png",
+    filename="kick_on_spin",
     output_dir: Optional[str] = None,
     close: bool = True,
+    fmt: str = "png",
 ):
     """Plot the distribution of remnant kick on different spin range.
 
@@ -111,6 +116,7 @@ def kick_distribution_on_spin(
         filename (str): Filename of the figure.
         output_dir (Optional[str]): Output directory.
         close (bool): Whether to close the figure.
+        fmt (str): The format of the visualizations. Defaults to "png".
 
     Returns:
         fig (plt.Figure): Figure.
@@ -135,5 +141,5 @@ def kick_distribution_on_spin(
     ax.set(xlabel="", ylabel="")
     plt.legend()
 
-    base.savefig_and_close(filename, output_dir, close)
+    base.savefig_and_close(filename, output_dir, close, fmt)
     return (fig, ax)

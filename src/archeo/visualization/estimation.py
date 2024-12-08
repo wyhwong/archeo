@@ -21,9 +21,10 @@ local_logger = archeo.logger.get_logger(__name__)
 def mass_estimates(
     df: pd.DataFrame,
     label: str,
-    filename="mass_estimates.png",
+    filename="mass_estimates",
     output_dir: Optional[str] = None,
     close: bool = True,
+    fmt: str = "png",
 ):
     """Plot the posterior mass estimates.
 
@@ -33,6 +34,7 @@ def mass_estimates(
         filename (str): Output filename.
         output_dir (Optional[str]): Output directory.
         close (bool): Whether to close the figure.
+        fmt (str): The format of the visualizations. Defaults to "png".
 
     Returns:
         fig (plt.Figure): Figure.
@@ -59,7 +61,7 @@ def mass_estimates(
 
     ax.set(ylabel="", xlabel="")
     plt.legend()
-    base.savefig_and_close(filename, output_dir, close)
+    base.savefig_and_close(filename, output_dir, close, fmt)
     return (fig, ax)
 
 
@@ -79,9 +81,10 @@ def corner_estimates(  # pylint: disable=dangerous-default-value
     dfs: dict[str, pd.DataFrame],
     levels: list[float] = [0.68, 0.9],
     nbins: int = 70,
-    filename="corner_estimates.png",
+    filename="corner_estimates",
     output_dir: Optional[str] = None,
     close: bool = True,
+    fmt: str = "png",
 ):
     """Plot the posterior corner plot.
 
@@ -92,6 +95,7 @@ def corner_estimates(  # pylint: disable=dangerous-default-value
         filename (str): Output filename.
         output_dir (Optional[str]): Output directory.
         close (bool): Whether to close the figure.
+        fmt (str): The format of the visualizations. Defaults to "png".
 
     Returns:
         fig (plt.Figure): Figure.
@@ -148,16 +152,17 @@ def corner_estimates(  # pylint: disable=dangerous-default-value
             bbox_to_anchor=(1.0, 0.95),
             loc="upper right",
         )
-        base.savefig_and_close(f"{corner_type}_{filename}", output_dir, close)
+        base.savefig_and_close(f"{corner_type}_{filename}", output_dir, close, fmt)
 
     return (fig, axes)
 
 
 def second_generation_probability_curve(
     dfs: dict[str, pd.DataFrame],
-    filename="second_generation_probability_curve.png",
+    filename="second_generation_probability_curve",
     output_dir: Optional[str] = None,
     close: bool = True,
+    fmt: str = "png",
 ):
     """Plot the second generation probability curve.
 
@@ -167,6 +172,7 @@ def second_generation_probability_curve(
         filename (str): Output filename.
         output_dir (Optional[str]): Output directory.
         close (bool): Whether to close the figure.
+        fmt (str): The format of the visualizations. Defaults to "png".
 
     Returns:
         fig (plt.Figure): Figure.
@@ -204,7 +210,7 @@ def second_generation_probability_curve(
     ax.set(ylabel="", xlabel="")
     plt.legend()
 
-    base.savefig_and_close(filename, output_dir, close)
+    base.savefig_and_close(filename, output_dir, close, fmt)
     return (fig, ax)
 
 
@@ -232,9 +238,10 @@ def _add_escape_velocity(ax, v_max: float, y_max: float) -> None:
 
 def effective_spin_estimates(
     dfs: dict[str, pd.DataFrame],
-    filename="effective_spin_estimates.png",
+    filename="effective_spin_estimates",
     output_dir: Optional[str] = None,
     close: bool = True,
+    fmt: str = "png",
 ):
     """Plot the effective spin PDF.
 
@@ -243,6 +250,7 @@ def effective_spin_estimates(
         filename (str): Output filename.
         output_dir (Optional[str]): Output directory.
         close (bool): Whether to close the figure.
+        fmt (str): The format of the visualizations. Defaults to "png".
 
     Returns:
         fig (plt.Figure): Figure.
@@ -263,15 +271,16 @@ def effective_spin_estimates(
 
     plt.legend()
     ax.set(ylabel="", xlabel="")
-    base.savefig_and_close(filename, output_dir, close)
+    base.savefig_and_close(filename, output_dir, close, fmt)
     return (fig, ax)
 
 
 def precession_spin_estimates(
     dfs: dict[str, pd.DataFrame],
-    filename="precession_spin_estimates.png",
+    filename="precession_spin_estimates",
     output_dir: Optional[str] = None,
     close: bool = True,
+    fmt: str = "png",
 ):
     """Plot the precession spin PDF.
 
@@ -280,6 +289,7 @@ def precession_spin_estimates(
         filename (str): Output filename.
         output_dir (Optional[str]): Output directory.
         close (bool): Whether to close the figure.
+        fmt (str): The format of the visualizations. Defaults to "png".
 
     Returns:
         fig (plt.Figure): Figure.
@@ -300,7 +310,7 @@ def precession_spin_estimates(
 
     plt.legend()
     ax.set(ylabel="", xlabel="")
-    base.savefig_and_close(filename, output_dir, close)
+    base.savefig_and_close(filename, output_dir, close, fmt)
     return (fig, ax)
 
 
@@ -331,9 +341,10 @@ def _plot_pdf(
 
 def table_estimates(
     dfs: dict[str, pd.DataFrame],
-    filename="table_estimates.png",
+    filename="table_estimates",
     output_dir: Optional[str] = None,
     close: bool = True,
+    fmt: str = "png",
 ):
     """Plot the posterior mass estimates.
 
@@ -342,6 +353,7 @@ def table_estimates(
         filename (str): Output filename.
         output_dir (Optional[str]): Output directory.
         close (bool): Whether to close the figure.
+        fmt (str): The format of the visualizations. Defaults
 
     Returns:
         fig (plt.Figure): Figure.
@@ -379,5 +391,5 @@ def table_estimates(
     fig, ax = base.initialize_plot(figsize=(15, 4), dpi=1200)
     ax.axis("off")
     ax.table(cellText=df_table.values, colLabels=df_table.columns, cellLoc="center", loc="center")
-    base.savefig_and_close(filename, output_dir, close)
+    base.savefig_and_close(filename, output_dir, close, fmt)
     return (fig, ax)
