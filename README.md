@@ -1,7 +1,8 @@
 # ARCHEO
 [![PyPI version](https://badge.fury.io/py/archeo.svg)](https://pypi.org/project/archeo/)
-[![Python version](https://img.shields.io/pypi/pyversions/archeo)](https://pypi.org/project/archeo/)
+[![DOI](https://zenodo.org/badge/626377469.svg)](https://doi.org/10.5281/zenodo.14306853)
 [![Downloads](https://img.shields.io/pepy/dt/archeo)](https://github.com/wyhwong/archeo)
+[![Python version](https://img.shields.io/pypi/pyversions/archeo)](https://pypi.org/project/archeo/)
 [![license](https://img.shields.io/badge/license-MIT-orange.svg)](https://github.com/wyhwong/archeo/blob/main/LICENSE)
 [![CI](https://github.com/wyhwong/archeo/actions/workflows/main.yml/badge.svg)](https://github.com/wyhwong/archeo/actions/workflows/main.yml/)
 
@@ -10,9 +11,24 @@ Archeo is a package for inferring the natal kick and parental masses posterior o
 
 ---
 
-## Install as a package
+# Installation
+
+The installation can be done via PyPI or from source.
+
+## PyPI
 ```bash
 pip3 install archeo
+```
+
+## From source
+```bash
+git clone https://github.com/wyhwong/archeo.git
+cd archeo/src
+
+# If you use poetry
+poetry install
+# If you do not use poetry
+pip3 install -r requirements.txt .
 ```
 
 ---
@@ -40,11 +56,11 @@ The methodology is describe in the following paper:
 
 ---
 
-# Application - GW190521
+# First Application - GW190521
 
-We can use the scripts in the repository to estimate the parental mass and kick of component black holes in GW190521. Please find the related data of GW190521 in [LIGO Document P2000158-v4](https://dcc.ligo.org/LIGO-P2000158/public).
+We can leverage the pacakge to estimate the parental mass and kick of component black holes in GW190521. Please find the related data of GW190521 in [LIGO Document P2000158-v4](https://dcc.ligo.org/LIGO-P2000158/public).
 
 ---
 
-# Authors
-[@wyhwong](https://github.com/wyhwong), [@juan.calderonbustillo](https://git.ligo.org/juan.calderonbustillo)
+# Credits
+The code is maintained by [Henry Wong](https://github.com/wyhwong) under [Juan Calderon Bustillo](https://git.ligo.org/juan.calderonbustillo)'s supervision. You can find the [list of contributors](https://github.com/wyhwong/archeo/graphs/contributors) here. Please report bugs by raising an issue on our [GitHub](https://github.com/wyhwong/archeo) repository.
