@@ -42,15 +42,19 @@ Please see [README.md](./src/README.md) inside `src` folder.
 
 The methodology is describe in the following paper:
 
-[1] Carlos Araújo Álvarez, Henry W. Y. Wong, Juan Calderón Bustillo, [arxiv:2404.00720](https://arxiv.org/abs/2404.00720)
+[1] Carlos Araújo Álvarez, Henry W. Y. Wong, Juan Calderón Bustillo. ["Kicking Time Back in Black Hole Mergers: Ancestral Masses, Spins, Birth Recoils, and Hierarchical-formation Viability of GW190521." The Astrophysical Journal 977.2 (2024): 220.](https://iopscience.iop.org/article/10.3847/1538-4357/ad90a9)
 
 #### Bibtex Citation:
 ```bibtex
-@article{alvarez2024kicking,
-  title={Kicking time back in black-hole mergers: Ancestral masses, spins, birth recoils and hierarchical-formation viability of GW190521},
-  author={{\'A}lvarez, Carlos Ara{\'u}jo and Wong, Henry WY and Bustillo, Juan Calder{\'o}n},
-  journal={arXiv preprint arXiv:2404.00720},
-  year={2024}
+@article{araujo2024kicking,
+  title={Kicking Time Back in Black Hole Mergers: Ancestral Masses, Spins, Birth Recoils, and Hierarchical-formation Viability of GW190521},
+  author={Ara{\'u}jo-{\'A}lvarez, Carlos and Wong, Henry WY and Liu, Anna and Bustillo, Juan Calder{\'o}n},
+  journal={The Astrophysical Journal},
+  volume={977},
+  number={2},
+  pages={220},
+  year={2024},
+  publisher={IOP Publishing}
 }
 ```
 
