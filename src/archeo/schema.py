@@ -82,21 +82,41 @@ class PriorConfig:
     fits: Fits
     is_spin_aligned: bool
     is_only_up_aligned_spin: bool
-    spin: Domain  # unit: dimensionless
-    phi: Domain  # unit: pi
-    theta: Domain  # unit: pi
+    a_1: Domain  # unit: dimensionless
+    a_2: Domain  # unit: dimensionless
+    phi_1: Domain  # unit: pi
+    phi_2: Domain  # unit: pi
+    theta_1: Domain  # unit: pi
+    theta_2: Domain  # unit: pi
     mass_ratio: Domain  # unit: dimensionless
-    mass: Domain  # unit: solar mass
+    m_1: Domain  # unit: solar mass
+    m_2: Domain  # unit: solar mass
     is_mahapatra: bool
 
     def __post_init__(self) -> None:
         """Post initialization."""
 
+        self._check_fits_is_valid()
+        self._check_is_aligned_spin_if_only_up_aligned_spin()
+        self._check_is_m1_highbound_greater_than_m2_lowbound()
+
+    def _check_fits_is_valid(self) -> None:
+        """Check if the surrogate model is valid."""
+
         if self.fits not in Fits:
             raise ValueError(f"Invalid fits: {self.fits}")
 
+    def _check_is_aligned_spin_if_only_up_aligned_spin(self) -> None:
+        """Check if spins are aligned if only up-aligned spin is set."""
+
         if self.is_only_up_aligned_spin and not self.is_spin_aligned:
             raise ValueError("Only up-aligned spin is only valid when spins are aligned.")
+
+    def _check_is_m1_highbound_greater_than_m2_lowbound(self) -> None:
+        """Check if the high bound of m_1 is greater than the low bound of m_2."""
+
+        if self.m_1.high <= self.m_2.low:
+            raise ValueError("The high bound of m_1 must be greater than the low bound of m_2.")
 
 
 @dataclass(frozen=True)

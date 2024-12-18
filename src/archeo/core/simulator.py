@@ -1,4 +1,5 @@
 from dataclasses import asdict
+from typing import Callable
 
 import numpy as np
 import pandas as pd
@@ -26,13 +27,22 @@ class Simulator:
         self._n_samples = self._prior_config.n_samples
 
         if self._prior_config.is_mahapatra:
-            self._mass_fn = get_mahapatra_mass_fn(mass=self._prior_config.mass)
+            self._m1_fn = get_mahapatra_mass_fn(mass=self._prior_config.m_1)
+            self._m2_fn = get_mahapatra_mass_fn(mass=self._prior_config.m_2)
         else:
-            self._mass_fn = self._prior_config.mass.draw
+            self._m1_fn = self._prior_config.m_1.draw
+            self._m2_fn = self._prior_config.m_2.draw
 
-        self._theta_fn = self._prior_config.theta.draw
-        self._phi_fn = self._prior_config.phi.draw
-        self._spin_fn = self._prior_config.spin.draw
+        self._chi1_fns = {
+            "magnitude": self._prior_config.a_1.draw,
+            "theta": self._prior_config.theta_1.draw,
+            "phi": self._prior_config.phi_1.draw,
+        }
+        self._chi2_fns = {
+            "magnitude": self._prior_config.a_2.draw,
+            "theta": self._prior_config.theta_2.draw,
+            "phi": self._prior_config.phi_2.draw,
+        }
 
         self._q_bounds = self._prior_config.mass_ratio
 
@@ -86,18 +96,21 @@ class Simulator:
         """
 
         m_1, m_2 = self._get_masses()
-        chi_1, chi_2 = self._get_spin(), self._get_spin()
+        chi_1, chi_2 = self._get_spin(self._chi1_fns), self._get_spin(self._chi2_fns)
 
         return Binary(m_1=m_1, m_2=m_2, chi_1=chi_1, chi_2=chi_2)
 
-    def _get_spin(self) -> tuple[float, float, float]:
+    def _get_spin(self, fns: dict[str, Callable]) -> tuple[float, float, float]:
         """Draws the spin of the binary
+
+        Args:
+            fns (dict[str, Callable]): The functions to draw the spin
 
         Returns:
             tuple[float, float, float]: The drawn spin
         """
 
-        spin = self._spin_fn()
+        spin = fns["magnitude"]()
 
         if self._is_spin_aligned:
             if self._only_up_aligned_spin:
@@ -106,8 +119,8 @@ class Simulator:
             direction = np.random.choice([-1, 1])
             return (0, 0, direction * spin)
 
-        theta = np.arccos(-1 + 2 * self._theta_fn())
-        phi = self._phi_fn() * np.pi
+        theta = np.arccos(-1 + 2 * fns["theta"]())
+        phi = fns["phi"] * np.pi
         univ = sph2cart(theta=theta, phi=phi)
         return tuple(spin * univ)
 
@@ -118,8 +131,7 @@ class Simulator:
             tuple[float, float]: The drawn masses
         """
 
-        masses = (self._mass_fn(), self._mass_fn())
-        m_1, m_2 = sorted(masses, reverse=True)
+        m_1, m_2 = (self._m1_fn(), self._m2_fn())
 
         # Check whether the mass ratio is in the domain
         # If not, resample the masses (recursion)

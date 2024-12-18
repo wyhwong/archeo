@@ -15,10 +15,14 @@ def default_prior_config():
         is_mahapatra=False,
         is_spin_aligned=True,
         is_only_up_aligned_spin=False,
-        spin=Domain(low=0.0, high=1.0),
-        phi=Domain(low=0.0, high=2.0),
-        theta=Domain(low=0.0, high=1.0),
-        mass=Domain(low=5.0, high=65.0),
+        a_1=Domain(low=0.0, high=1.0),
+        a_2=Domain(low=0.0, high=1.0),
+        phi_1=Domain(low=0.0, high=2.0),
+        phi_2=Domain(low=0.0, high=2.0),
+        theta_1=Domain(low=0.0, high=1.0),
+        theta_2=Domain(low=0.0, high=1.0),
+        m_1=Domain(low=5.0, high=65.0),
+        m_2=Domain(low=5.0, high=65.0),
         mass_ratio=Domain(low=1.0, high=2.0),
     )
 
