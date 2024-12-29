@@ -120,7 +120,7 @@ class Simulator:
             return (0, 0, direction * spin)
 
         theta = np.arccos(-1 + 2 * fns["theta"]())
-        phi = fns["phi"] * np.pi
+        phi = fns["phi"]() * np.pi
         univ = sph2cart(theta=theta, phi=phi)
         return tuple(spin * univ)
 
