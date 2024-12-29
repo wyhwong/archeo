@@ -91,7 +91,8 @@ class PriorConfig:
     mass_ratio: Domain  # unit: dimensionless
     m_1: Domain  # unit: solar mass
     m_2: Domain  # unit: solar mass
-    is_mahapatra: bool
+    is_mahapatra: bool = False
+    is_uniform_in_mass_ratio: bool = False
 
     def __post_init__(self) -> None:
         """Post initialization."""

@@ -44,10 +44,12 @@ class Simulator:
             "phi": self._prior_config.phi_2.draw,
         }
 
+        self._m2_bounds = self._prior_config.m_2
         self._q_bounds = self._prior_config.mass_ratio
 
         self._is_spin_aligned = self._prior_config.is_spin_aligned
         self._only_up_aligned_spin = self._prior_config.is_only_up_aligned_spin
+        self._is_uniform_in_q = self._prior_config.is_uniform_in_mass_ratio
 
     def __call__(self) -> Event:
         """Simulates a binary black hole merger event
@@ -95,7 +97,11 @@ class Simulator:
             Binary: The drawn binary
         """
 
-        m_1, m_2 = self._get_masses()
+        if self._is_uniform_in_q:
+            m_1, m_2 = self._get_masses_from_q_fn()
+        else:
+            m_1, m_2 = self._get_masses_from_mass_fns()
+
         chi_1, chi_2 = self._get_spin(self._chi1_fns), self._get_spin(self._chi2_fns)
 
         return Binary(m_1=m_1, m_2=m_2, chi_1=chi_1, chi_2=chi_2)
@@ -124,8 +130,8 @@ class Simulator:
         univ = sph2cart(theta=theta, phi=phi)
         return tuple(spin * univ)
 
-    def _get_masses(self) -> tuple[float, float]:
-        """Draws the masses of the binary
+    def _get_masses_from_mass_fns(self) -> tuple[float, float]:
+        """Draws the masses of the binary from the mass functions
 
         Returns:
             tuple[float, float]: The drawn masses
@@ -137,6 +143,24 @@ class Simulator:
         # If not, resample the masses (recursion)
         q = m_1 / m_2
         if not self._q_bounds.contain(q):
-            return self._get_masses()
+            return self._get_masses_from_mass_fns()
+
+        return (m_1, m_2)
+
+    def _get_masses_from_q_fn(self) -> tuple[float, float]:
+        """Draws the masses of the binary from the mass ratio function
+
+        Returns:
+            tuple[float, float]: The drawn masses
+        """
+
+        q = self._q_bounds.draw()
+        m_1 = self._m1_fn()
+        m_2 = m_1 / q
+
+        # Check whether the masses are in the domain
+        # If not, resample the masses (recursion)
+        if not self._m2_bounds.contain(m_2):
+            return self._get_masses_from_q_fn()
 
         return (m_1, m_2)
