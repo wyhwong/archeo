@@ -138,8 +138,8 @@ def kick_distribution_on_spin(
             density, bins = np.histogram(a=data, bins=70, density=True)
             label = rf"$\chi_f$ $\in$ $[{low:.2f}, {high:.2f}]$"
             ax.stairs(density, bins, label=label)
-    ax.set(xlabel="", ylabel="")
-    plt.legend()
 
+    plt.legend()
+    base.clear_default_labels(ax)
     base.savefig_and_close(filename, output_dir, close, fmt)
     return (fig, ax)

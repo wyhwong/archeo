@@ -59,8 +59,8 @@ def mass_estimates(
         _plot_pdf(ax, next(colors), df[col], name, unit=r"[$M_{\odot}$]")
     _add_pisn_gap(ax, next(colors))
 
-    ax.set(ylabel="", xlabel="")
     plt.legend()
+    base.clear_default_labels(ax)
     base.savefig_and_close(filename, output_dir, close, fmt)
     return (fig, ax)
 
@@ -207,9 +207,9 @@ def second_generation_probability_curve(
         sns.lineplot(y=y, x=x, ax=ax, color=next(colors), label=label)
 
     _add_escape_velocity(ax, x_max, max(y))
-    ax.set(ylabel="", xlabel="")
-    plt.legend()
 
+    plt.legend()
+    base.clear_default_labels(ax)
     base.savefig_and_close(filename, output_dir, close, fmt)
     return (fig, ax)
 
@@ -270,7 +270,7 @@ def effective_spin_estimates(
         _plot_pdf(ax, next(colors), df[C.BH_EFF_SPIN], label)
 
     plt.legend()
-    ax.set(ylabel="", xlabel="")
+    base.clear_default_labels(ax)
     base.savefig_and_close(filename, output_dir, close, fmt)
     return (fig, ax)
 
@@ -309,7 +309,7 @@ def precession_spin_estimates(
         _plot_pdf(ax, next(colors), df[C.BH_PREC_SPIN], label)
 
     plt.legend()
-    ax.set(ylabel="", xlabel="")
+    base.clear_default_labels(ax)
     base.savefig_and_close(filename, output_dir, close, fmt)
     return (fig, ax)
 

@@ -42,6 +42,9 @@ def initialize_plot(
     fig.suptitle(labels.title, fontsize=fontsize)
     fig.text(x=0.04, y=0.5, s=labels.ylabel, fontsize=fontsize, rotation="vertical", verticalalignment="center")
     fig.text(x=0.5, y=0.04, s=labels.xlabel, fontsize=fontsize, horizontalalignment="center")
+
+    plt.grid()
+
     return (fig, axes)
 
 
@@ -68,3 +71,15 @@ def savefig_and_close(
 
     if close:
         plt.close()
+
+
+def clear_default_labels(ax) -> None:
+    """Clear the default labels of the axes.
+
+    Args:
+        ax (matplotlib.axes.Axes): The axes of the plot.
+    """
+
+    ax.set_xlabel("")
+    ax.set_ylabel("")
+    ax.set_title("")
