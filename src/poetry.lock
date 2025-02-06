@@ -65,13 +65,13 @@ test-all = ["astropy[test]", "coverage[toml]", "ipython (>=4.2)", "objgraph", "s
 
 [[package]]
 name = "astropy-iers-data"
-version = "0.2025.1.31.12.41.4"
+version = "0.2025.2.3.0.32.42"
 description = "IERS Earth Rotation and Leap Second tables for the astropy core package"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "astropy_iers_data-0.2025.1.31.12.41.4-py3-none-any.whl", hash = "sha256:21d1701c6d30723b16a4b3be47a96b88b5e4b21e9b4b3962b95ef50c5e5f8b22"},
-    {file = "astropy_iers_data-0.2025.1.31.12.41.4.tar.gz", hash = "sha256:847f3e4f7b96818f60e30af2a2c9349ed3dd465f178581860c337a2ca51b9b47"},
+    {file = "astropy_iers_data-0.2025.2.3.0.32.42-py3-none-any.whl", hash = "sha256:a678caee1ee9ccb793fda36a4603170a136dad5a046aa39650e849f0999fd4a4"},
+    {file = "astropy_iers_data-0.2025.2.3.0.32.42.tar.gz", hash = "sha256:58a4e5df793c7ce7e0f956649f26e62a86ca3343428a7951117a30d58207dd11"},
 ]
 
 [package.extras]

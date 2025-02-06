@@ -1,4 +1,4 @@
-astropy-iers-data==0.2025.1.31.12.41.4 ; python_version >= "3.9" and python_version < "4.0"
+astropy-iers-data==0.2025.2.3.0.32.42 ; python_version >= "3.9" and python_version < "4.0"
 astropy==6.0.1 ; python_version >= "3.9" and python_version < "4.0"
 cffi==1.17.1 ; python_version >= "3.9" and python_version < "4.0" and platform_python_implementation != "PyPy"
 colorama==0.4.6 ; python_version >= "3.9" and python_version < "4.0" and platform_system == "Windows"

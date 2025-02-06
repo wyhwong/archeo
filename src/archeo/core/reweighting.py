@@ -57,7 +57,9 @@ class PriorReweighter:
         auc = np.sum(hist) * self._binwidth
 
         if not np.isclose(auc, 1.0, atol=self._atol):
-            raise ValueError(f"Invalid probability distribution (AUC={auc:.2f}).")
+            msg = f"Invalid probability distribution (AUC={auc:.2f})."
+            local_logger.error(msg)
+            raise ValueError(msg)
 
         return hist
 
@@ -78,11 +80,15 @@ class PriorReweighter:
         """
 
         if self._lb or self._ub:
-            raise ValueError("Bounds have already been initialized.")
+            msg = "Bounds have already been initialized."
+            local_logger.error(msg)
+            raise ValueError(msg)
 
         self._lb: Optional[float] = min(prior.min(), posterior.min(), new_prior.min())
         self._ub: Optional[float] = max(prior.max(), posterior.max(), new_prior.max())
         self._binwidth = (self._ub - self._lb) / self._nbins
+
+        local_logger.info("Bounds: [%.2f, %.2f], Binwidth: %.2f", self._lb, self._ub, self._binwidth)
 
     def _reset_bounds(self):
         """Reset the bounds for the histograms computation."""
@@ -90,6 +96,8 @@ class PriorReweighter:
         self._lb: Optional[float] = None
         self._ub: Optional[float] = None
         self._binwidth: Optional[float] = None
+
+        local_logger.info("Bounds have been reset.")
 
     def get_bayes_factor(self, new_prior: pd.Series, prior: pd.Series, posterior: pd.Series) -> float:
         """Compute the Bayes factor between two models
@@ -112,6 +120,8 @@ class PriorReweighter:
         # New implementation: we take log first to avoid numerical precision issues
         # NOTE: We need to remove the 0s from the histograms to avoid log(0) = -inf
         mask = (new_prior_hist != 0) & (prior_hist != 0) & (posterior_hist != 0)
+        local_logger.info("Number of bins with non-zero values: %d / %d.", mask.sum(), len(mask))
+
         bayes_factor = (
             np.sum(np.exp(np.log(new_prior_hist[mask]) + np.log(posterior_hist[mask]) - np.log(prior_hist[mask])))
             * self._binwidth
