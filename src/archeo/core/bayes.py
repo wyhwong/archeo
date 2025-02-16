@@ -1,11 +1,15 @@
-from typing import Callable, Optional
+from typing import Callable, Optional, Union
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from scipy import interpolate
 from scipy.stats import gaussian_kde
+from tqdm import tqdm
 
 import archeo.logger
+from archeo.constants import Columns as C
 from archeo.schema import Labels
 from archeo.visualization.base import clear_default_labels, initialize_plot
 
@@ -97,7 +101,12 @@ class BayesFactorCalculator:
 
         return hist
 
-    def get_bayes_factor(self, candidate_prior: pd.Series, prior: pd.Series, posterior: pd.Series) -> float:
+    def get_bayes_factor(
+        self,
+        candidate_prior_param: pd.Series,
+        prior_param: pd.Series,
+        posterior_param: pd.Series,
+    ) -> float:
         """Compute the Bayes factor between two models
 
         NOTE: In this implementation, the likelihood function remains untouched.
@@ -105,19 +114,19 @@ class BayesFactorCalculator:
         Details please check importance sampling.
 
         Args:
-            candidate_prior (pd.Series): The candidate prior samples of the parameter.
-            prior (pd.Series): The prior samples of the parameter.
-            posterior (pd.Series): The posterior samples of the parameter.
+            candidate_prior_param (pd.Series): The candidate prior samples of the parameter.
+            prior_param (pd.Series): The prior samples of the parameter.
+            posterior_param (pd.Series): The posterior samples of the parameter.
 
         Returns:
             bayes_factor (float): The Bayes factor between the candidate prior and the prior.
         """
 
-        self._setup_bounds(candidate_prior, prior, posterior)
+        self._setup_bounds(candidate_prior_param, prior_param, posterior_param)
 
-        new_prior_hist = self.get_hist(candidate_prior)
-        prior_hist = self.get_hist(prior)
-        posterior_hist = self.get_hist(posterior)
+        new_prior_hist = self.get_hist(candidate_prior_param)
+        prior_hist = self.get_hist(prior_param)
+        posterior_hist = self.get_hist(posterior_param)
 
         # Original implementation: precision not enough
         # bayes_factor = (new_prior_hist * posterior_hist / prior_hist).sum() * dtheta
@@ -204,3 +213,136 @@ class BayesFactorCalculator:
             clear_default_labels(ax)
 
         return weights_func
+
+    @staticmethod
+    def _get_kick_bounds(
+        candidate_prior_bh1: Optional[pd.DataFrame] = None,
+        candidate_prior_bh2: Optional[pd.DataFrame] = None,
+        least_n_samples: int = 20000,
+    ) -> tuple[float, float]:
+        """Get the lower and upper bounds of the BH kick for plotting."""
+
+        if (candidate_prior_bh1 is None) and (candidate_prior_bh2 is None):
+            raise ValueError("Both candidate priors are None.")
+
+        lb_kick_1 = (
+            np.inf
+            if candidate_prior_bh1 is None
+            else candidate_prior_bh1[C.BH_KICK].sort_values(ascending=True).iloc[least_n_samples]
+        )
+        lb_kick_2 = (
+            np.inf
+            if candidate_prior_bh2 is None
+            else candidate_prior_bh2[C.BH_KICK].sort_values(ascending=True).iloc[least_n_samples]
+        )
+        ub_kick_1 = -np.inf if candidate_prior_bh1 is None else candidate_prior_bh1[C.BH_KICK].max()
+        ub_kick_2 = -np.inf if candidate_prior_bh2 is None else candidate_prior_bh2[C.BH_KICK].max()
+
+        ub_kick = max(ub_kick_1, ub_kick_2)
+
+        if lb_kick_1 == np.inf:
+            lb_kick = lb_kick_2
+        elif lb_kick_2 == np.inf:
+            lb_kick = lb_kick_1
+        else:
+            lb_kick = min(lb_kick_1, lb_kick_2)
+
+        return (lb_kick, ub_kick)
+
+    @staticmethod
+    def _plot_bayes_factor_over_kick(
+        kicks: np.ndarray,
+        bfs: np.ndarray,
+        ax: plt.Axes,
+        label: str,
+    ) -> None:
+        """Plot the Bayes factor over the BH kick."""
+
+        f = interpolate.interp1d(kicks, bfs)
+        x = np.linspace(kicks.min(), kicks.max(), 1000)
+        y = f(x)
+
+        sns.lineplot(y=y, x=x, ax=ax, label=label)
+        sns.scatterplot(y=bfs, x=kicks, ax=ax, color="black")
+
+    def plot_bayes_factor_over_kick(
+        self,
+        ax: plt.Axes,
+        label: str,
+        data_bh1: Optional[dict[str, Union[pd.Series, pd.DataFrame]]] = None,
+        data_bh2: Optional[dict[str, Union[pd.Series, pd.DataFrame]]] = None,
+        n_bounds: int = 30,
+        least_n_samples: int = 20000,
+    ) -> None:
+        """Plot the Bayes factor over the BH kick.
+
+        Args:
+            ax (plt.Axes): The matplotlib axes for plotting.
+            label (str): The label of the Bayes factor.
+            data_bh1 (Optional[dict[str, Union[pd.Series, pd.DataFrame]]): The data of the first BH.
+            data_bh2 (Optional[dict[str, Union[pd.Series, pd.DataFrame]]): The data of the second BH.
+            n_bounds (int): The number of bounds for the BH kick.
+            least_n_samples (int): The least number of samples for the BH kick.
+
+        Expected data structure of data_bh1 and data_bh2:
+        data = {
+            "mass_prior": (Optional, pd.Series),
+            "mass_posterior": (Optional, pd.Series),
+            "spin_prior": (Optional, pd.Series),
+            "spin_posterior": (Optional, pd.Series),
+            "candidate_prior": (Optional, pd.DataFrame),
+        }
+        Assumptions:
+        1. The candidate prior must exist if dict is not None.
+        2. Only if mass and spin priors are provided, we replace the prior with the candidate prior.
+        """
+
+        lb_kick, ub_kick = self._get_kick_bounds(
+            candidate_prior_bh1=data_bh1["candidate_prior"] if data_bh1 else None,
+            candidate_prior_bh2=data_bh2["candidate_prior"] if data_bh2 else None,
+            least_n_samples=least_n_samples,
+        )
+
+        kicks = np.logspace(np.log10(lb_kick), np.log10(ub_kick), n_bounds)
+        bfs = []
+
+        for kick in tqdm(kicks):
+            bf = 1.0
+
+            if data_bh1:
+                prior_bh1 = data_bh1["candidate_prior"].loc[data_bh1["candidate_prior"][C.BH_KICK] <= kick]
+
+                if data_bh1.get("mass_prior") is not None:
+                    bf *= self.get_bayes_factor(
+                        candidate_prior_param=prior_bh1[C.BH_MASS],
+                        prior_param=data_bh1["mass_prior"],
+                        posterior_param=data_bh1["mass_posterior"],
+                    )
+
+                if data_bh1.get("spin_prior") is not None:
+                    bf *= self.get_bayes_factor(
+                        candidate_prior_param=prior_bh1[C.BH_SPIN],
+                        prior_param=data_bh1["spin_prior"],
+                        posterior_param=data_bh1["spin_posterior"],
+                    )
+
+            if data_bh2:
+                prior_bh2 = data_bh2["candidate_prior"].loc[data_bh2["candidate_prior"][C.BH_KICK] <= kick]
+
+                if data_bh2.get("mass_prior") is not None:
+                    bf *= self.get_bayes_factor(
+                        candidate_prior_param=prior_bh2[C.BH_MASS],
+                        prior_param=data_bh2["mass_prior"],
+                        posterior_param=data_bh2["mass_posterior"],
+                    )
+
+                if data_bh2.get("spin_prior") is not None:
+                    bf *= self.get_bayes_factor(
+                        candidate_prior_param=prior_bh2[C.BH_SPIN],
+                        prior_param=data_bh2["spin_prior"],
+                        posterior_param=data_bh2["spin_posterior"],
+                    )
+
+            bfs.append(bf)
+
+        return self._plot_bayes_factor_over_kick(kicks, np.array(bfs), ax, label)
