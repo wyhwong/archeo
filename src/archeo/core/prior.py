@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -9,7 +9,7 @@ from archeo.constants import Columns as C
 from archeo.core.simulator import Simulator
 from archeo.preset import get_prior_config
 from archeo.schema import PriorConfig
-from archeo.utils.executor import MultiThreadExecutor
+from archeo.utils.parallel import multithread_run
 
 
 local_logger = archeo.logger.get_logger(__name__)
@@ -239,6 +239,7 @@ class Prior(pd.DataFrame):
         mass_posterior: list[float],
         spin_posterior: list[float],
         use_threads=True,
+        n_threads: Optional[int] = None,
     ) -> pd.DataFrame:
         """Convert the prior to the posterior.
 
@@ -246,18 +247,22 @@ class Prior(pd.DataFrame):
             mass_posterior (list[float]): The posterior mass.
             spin_posterior (list[float]): The posterior spin.
             use_threads (bool): Whether to use threads.
+            n_threads (Optional[int]): The number of threads to be used.
 
         Returns:
             pd.DataFrame: The posterior distribution.
         """
 
         if use_threads:
-            exc = MultiThreadExecutor()
             input_kwargs = [
                 dict(spin_measure=spin_measure, mass_measure=mass_measure)
                 for spin_measure, mass_measure in zip(spin_posterior, mass_posterior)
             ]
-            samples = exc.run(func=self.retrieve_samples, input_kwargs=input_kwargs)
+            samples = multithread_run(
+                func=self.retrieve_samples,
+                input_kwargs=input_kwargs,
+                n_threads=n_threads,
+            )
 
         else:
             samples = [

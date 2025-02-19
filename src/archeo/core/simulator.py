@@ -1,5 +1,5 @@
 from dataclasses import asdict
-from typing import Callable
+from typing import Callable, Optional
 
 import numpy as np
 import pandas as pd
@@ -7,8 +7,8 @@ from tqdm import tqdm
 
 from archeo.core.mahapatra import get_mahapatra_mass_fn
 from archeo.schema import Binary, Event, PriorConfig
-from archeo.utils.executor import MultiThreadExecutor
 from archeo.utils.math import sph2cart
+from archeo.utils.parallel import multithread_run
 
 
 class Simulator:
@@ -78,12 +78,11 @@ class Simulator:
             chi_f_err=chi_f_err,
         )
 
-    def simulate(self, use_threads=True) -> pd.DataFrame:
+    def simulate(self, use_threads=True, n_threads: Optional[int] = None) -> pd.DataFrame:
         """Simulates multiple binary black hole merger events"""
 
         if use_threads:
-            exc = MultiThreadExecutor()
-            events = exc.run(self, [{} for _ in range(self._n_samples)])
+            events = multithread_run(self, [{} for _ in range(self._n_samples)], n_threads)
         else:
             events = [self() for _ in tqdm(range(self._n_samples))]
 

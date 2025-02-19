@@ -9,6 +9,3 @@ LOG_FILEPATH = os.getenv("LOG_FILEPATH", "./runtime.log")
 LOG_FMT = os.getenv("LOG_FMT", "%(asctime)s [%(name)s | %(levelname)s]: %(message)s")
 LOG_DATEFMT = os.getenv("LOG_DATEFMT", "%Y-%m-%dT%H:%M:%SZ")
 TZ = zoneinfo.ZoneInfo(os.getenv("TZ") or "UTC")
-
-# For simulation
-MAX_MULTITHREAD_WORKER = int(os.getenv("MAX_MULTITHREAD_WORKER", "20"))
