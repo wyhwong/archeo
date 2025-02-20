@@ -30,7 +30,11 @@ class Fits(enum.Enum):
             fits (surfinBH.surfinBH.SurFinBH): The loaded fits.
         """
 
+        import numpy as np  # pylint: disable=import-outside-toplevel
         import surfinBH  # pylint: disable=import-outside-toplevel
+
+        # TODO: Remove this when SurfinBH upgraded to numpy 2.0
+        np.string_ = np.bytes_  # Here we fix the numpy incompatibility issue in SurfinBH
 
         local_logger.info(
             "Loading surfinBH %s, description: %s.",
