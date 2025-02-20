@@ -11,7 +11,7 @@ from tqdm import tqdm
 import archeo.logger
 from archeo.constants import Columns as C
 from archeo.schema import Labels
-from archeo.visualization.base import clear_default_labels, initialize_plot
+from archeo.visualization.base import add_escape_velocity, clear_default_labels, initialize_plot
 
 
 local_logger = archeo.logger.get_logger(__name__)
@@ -265,6 +265,32 @@ class BayesFactorCalculator:
         sns.lineplot(y=y, x=x, ax=ax, label=label)
         sns.scatterplot(y=bfs, x=kicks, ax=ax, color="black")
 
+    def _get_bayes_factor_from_data(
+        self,
+        data: dict[str, Union[pd.Series, pd.DataFrame]],
+        kick: float,
+    ) -> float:
+        """Get the Bayes factor from the data. (See plot_bayes_factor_over_kick)"""
+
+        bf = 1.0
+        prior = data["candidate_prior"].loc[data["candidate_prior"][C.BH_KICK] <= kick]
+
+        if data.get("mass_prior") is not None:
+            bf *= self.get_bayes_factor(
+                candidate_prior_param=prior[C.BH_MASS],
+                prior_param=data["mass_prior"],
+                posterior_param=data["mass_posterior"],
+            )
+
+        if data.get("spin_prior") is not None:
+            bf *= self.get_bayes_factor(
+                candidate_prior_param=prior[C.BH_SPIN],
+                prior_param=data["spin_prior"],
+                posterior_param=data["spin_posterior"],
+            )
+
+        return bf
+
     def plot_bayes_factor_over_kick(
         self,
         ax: plt.Axes,
@@ -273,6 +299,7 @@ class BayesFactorCalculator:
         data_bh2: Optional[dict[str, Union[pd.Series, pd.DataFrame]]] = None,
         n_bounds: int = 30,
         least_n_samples: int = 20000,
+        show_escape_velocity: bool = True,
     ) -> None:
         """Plot the Bayes factor over the BH kick.
 
@@ -283,6 +310,7 @@ class BayesFactorCalculator:
             data_bh2 (Optional[dict[str, Union[pd.Series, pd.DataFrame]]): The data of the second BH.
             n_bounds (int): The number of bounds for the BH kick.
             least_n_samples (int): The least number of samples for the BH kick.
+            show_escape_velocity (bool): Whether to show the escape velocity on the plot.
 
         Expected data structure of data_bh1 and data_bh2:
         data = {
@@ -304,45 +332,14 @@ class BayesFactorCalculator:
         )
 
         kicks = np.logspace(np.log10(lb_kick), np.log10(ub_kick), n_bounds)
-        bfs = []
+        bfs: list[float] = []
 
         for kick in tqdm(kicks):
-            bf = 1.0
-
-            if data_bh1:
-                prior_bh1 = data_bh1["candidate_prior"].loc[data_bh1["candidate_prior"][C.BH_KICK] <= kick]
-
-                if data_bh1.get("mass_prior") is not None:
-                    bf *= self.get_bayes_factor(
-                        candidate_prior_param=prior_bh1[C.BH_MASS],
-                        prior_param=data_bh1["mass_prior"],
-                        posterior_param=data_bh1["mass_posterior"],
-                    )
-
-                if data_bh1.get("spin_prior") is not None:
-                    bf *= self.get_bayes_factor(
-                        candidate_prior_param=prior_bh1[C.BH_SPIN],
-                        prior_param=data_bh1["spin_prior"],
-                        posterior_param=data_bh1["spin_posterior"],
-                    )
-
-            if data_bh2:
-                prior_bh2 = data_bh2["candidate_prior"].loc[data_bh2["candidate_prior"][C.BH_KICK] <= kick]
-
-                if data_bh2.get("mass_prior") is not None:
-                    bf *= self.get_bayes_factor(
-                        candidate_prior_param=prior_bh2[C.BH_MASS],
-                        prior_param=data_bh2["mass_prior"],
-                        posterior_param=data_bh2["mass_posterior"],
-                    )
-
-                if data_bh2.get("spin_prior") is not None:
-                    bf *= self.get_bayes_factor(
-                        candidate_prior_param=prior_bh2[C.BH_SPIN],
-                        prior_param=data_bh2["spin_prior"],
-                        posterior_param=data_bh2["spin_posterior"],
-                    )
-
+            bf = self._get_bayes_factor_from_data(data_bh1, kick) if data_bh1 else 1.0
+            bf *= self._get_bayes_factor_from_data(data_bh2, kick) if data_bh2 else 1.0
             bfs.append(bf)
+
+        if show_escape_velocity:
+            add_escape_velocity(ax, ub_kick, max(bfs))
 
         return self._plot_bayes_factor_over_kick(kicks, np.array(bfs), ax, label)
