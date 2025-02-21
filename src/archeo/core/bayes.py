@@ -71,7 +71,7 @@ class BayesFactorCalculator:
 
         local_logger.info("Bounds have been reset.")
 
-    def _get_hist(self, samples: pd.Series) -> np.ndarray:
+    def _get_hist(self, samples: pd.Series, n_samples: int = 100000) -> np.ndarray:
         """Compute the histogram of the samples.
 
         The histogram is used to compute the Bayes factor between two priors.
@@ -83,6 +83,8 @@ class BayesFactorCalculator:
         Returns:
             hist (np.ndarray): The histogram of the samples.
         """
+
+        samples = samples.sample(min(n_samples, len(samples)), replace=True)
 
         if self._use_kde:
             weights_func = gaussian_kde(samples)
@@ -106,7 +108,9 @@ class BayesFactorCalculator:
         candidate_prior_param: pd.Series,
         prior_param: pd.Series,
         posterior_param: pd.Series,
-    ) -> float:
+        n_samples: int = 100000,
+        n_bootstraps: int = 1,
+    ) -> tuple[float, float]:
         """Compute the Bayes factor between two models
 
         NOTE: In this implementation, the likelihood function remains untouched.
@@ -117,41 +121,48 @@ class BayesFactorCalculator:
             candidate_prior_param (pd.Series): The candidate prior samples of the parameter.
             prior_param (pd.Series): The prior samples of the parameter.
             posterior_param (pd.Series): The posterior samples of the parameter.
+            n_samples (int): The number of samples used to construct the KDE or histogram.
+            n_bootstraps (int): The number of bootstraps for the KDE or histogram.
 
         Returns:
-            bayes_factor (float): The Bayes factor between the candidate prior and the prior.
+            bf_mean (float): The mean of the Bayes factor.
+            bf_std (float): The standard deviation of the Bayes factor.
         """
 
         self._setup_bounds(candidate_prior_param, prior_param, posterior_param)
 
-        new_prior_hist = self._get_hist(candidate_prior_param)
-        prior_hist = self._get_hist(prior_param)
-        posterior_hist = self._get_hist(posterior_param)
+        bfs: list[float] = []
 
-        # Original implementation: precision not enough
-        # bayes_factor = (new_prior_hist * posterior_hist / prior_hist).sum() * dtheta
+        for _ in range(n_bootstraps):
+            new_prior_hist = self._get_hist(candidate_prior_param, n_samples)
+            prior_hist = self._get_hist(prior_param, n_samples)
+            posterior_hist = self._get_hist(posterior_param, n_samples)
 
-        # New implementation: we take log first to avoid numerical precision issues
-        # NOTE: We need to remove the 0s from the histograms to avoid log(0) = -inf
-        mask = (new_prior_hist != 0) & (prior_hist != 0) & (posterior_hist != 0)
-        local_logger.info("Number of bins with non-zero values: %d / %d.", mask.sum(), len(mask))
-
-        bayes_factor = (
-            np.sum(np.exp(np.log(new_prior_hist[mask]) + np.log(posterior_hist[mask]) - np.log(prior_hist[mask])))
-            * self._binwidth
-        )
+            # We observed precision issue in original implementation
+            # bayes_factor = (new_prior_hist * posterior_hist / prior_hist).sum() * dtheta
+            # We, therefore, take log first to avoid numerical precision issues
+            # NOTE: We need to remove the 0s from the histograms to avoid log(0) = -inf
+            mask = (new_prior_hist != 0) & (prior_hist != 0) & (posterior_hist != 0)
+            bfs.append(
+                np.sum(np.exp(np.log(new_prior_hist[mask]) + np.log(posterior_hist[mask]) - np.log(prior_hist[mask])))
+                * self._binwidth
+            )
 
         self._reset_bounds()
 
-        return bayes_factor
+        bf_mean = np.mean(bfs)
+        bf_std = np.std(bfs)
+        return (bf_mean, bf_std)
 
-    def get_likelihood_hist(self, prior: pd.Series, posterior: pd.Series) -> tuple[np.ndarray, np.ndarray]:
+    def get_likelihood_hist(
+        self, prior: pd.Series, posterior: pd.Series, n_samples: int = 100000
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Compute the likelihood histogram of the parameter."""
 
         self._setup_bounds(prior, posterior)
 
-        prior_hist = self._get_hist(prior)
-        posterior_hist = self._get_hist(posterior)
+        prior_hist = self._get_hist(prior, n_samples)
+        posterior_hist = self._get_hist(posterior, n_samples)
 
         likelihood_hist = np.exp(np.log(posterior_hist) - np.log(prior_hist))
         # Replace NaNs/infs with zeros
@@ -218,7 +229,7 @@ class BayesFactorCalculator:
     def _get_kick_bounds(
         candidate_prior_bh1: Optional[pd.DataFrame] = None,
         candidate_prior_bh2: Optional[pd.DataFrame] = None,
-        least_n_samples: int = 20000,
+        least_n_samples: int = 100,
     ) -> tuple[float, float]:
         """Get the lower and upper bounds of the BH kick for plotting."""
 
@@ -253,6 +264,7 @@ class BayesFactorCalculator:
     def _plot_bayes_factor_over_kick(
         kicks: np.ndarray,
         bfs: np.ndarray,
+        bfs_std: np.ndarray,
         ax: plt.Axes,
         label: str,
     ) -> None:
@@ -263,33 +275,42 @@ class BayesFactorCalculator:
         y = f(x)
 
         sns.lineplot(y=y, x=x, ax=ax, label=label)
+        ax.fill_between(kicks, bfs - 1.96 * bfs_std, bfs + 1.96 * bfs_std, alpha=0.3)
         sns.scatterplot(y=bfs, x=kicks, ax=ax, color="black")
 
     def _get_bayes_factor_from_data(
         self,
         data: dict[str, Union[pd.Series, pd.DataFrame]],
         kick: float,
-    ) -> float:
+        n_samples: int = 100000,
+        n_bootstraps: int = 1,
+    ) -> tuple[float, float]:
         """Get the Bayes factor from the data. (See plot_bayes_factor_over_kick)"""
 
-        bf = 1.0
+        bf, std = 1.0, 0.0
         prior = data["candidate_prior"].loc[data["candidate_prior"][C.BH_KICK] <= kick]
 
-        if data.get("mass_prior") is not None:
-            bf *= self.get_bayes_factor(
-                candidate_prior_param=prior[C.BH_MASS],
-                prior_param=data["mass_prior"],
-                posterior_param=data["mass_posterior"],
-            )
+        for d_key, p_key in {"mass": C.BH_MASS, "spin": C.BH_SPIN}.items():
+            if data.get(f"{d_key}_prior") is not None:
+                _bf, _std = self.get_bayes_factor(
+                    candidate_prior_param=prior[p_key],
+                    prior_param=data[f"{d_key}_prior"],
+                    posterior_param=data[f"{d_key}_posterior"],
+                    n_samples=n_samples,
+                    n_bootstraps=n_bootstraps,
+                )
+                bf, std = self._product(bf, std, _bf, _std)
 
-        if data.get("spin_prior") is not None:
-            bf *= self.get_bayes_factor(
-                candidate_prior_param=prior[C.BH_SPIN],
-                prior_param=data["spin_prior"],
-                posterior_param=data["spin_posterior"],
-            )
+        return (bf, std)
 
-        return bf
+    @staticmethod
+    def _product(bf_1: float, bf_std_1: float, bf_2: float, bf_std_2: float) -> tuple[float, float]:
+        """Compute the product of two Bayes factors."""
+
+        bf = bf_1 * bf_2
+        std = np.sqrt(bf_std_1**2 * bf_2**2 + bf_std_2**2 * bf_1**2 + bf_std_1**2 * bf_std_2**2)
+
+        return (bf, std)
 
     def plot_bayes_factor_over_kick(
         self,
@@ -298,7 +319,9 @@ class BayesFactorCalculator:
         data_bh1: Optional[dict[str, Union[pd.Series, pd.DataFrame]]] = None,
         data_bh2: Optional[dict[str, Union[pd.Series, pd.DataFrame]]] = None,
         n_bounds: int = 30,
-        least_n_samples: int = 20000,
+        n_samples: int = 100000,
+        n_bootstraps: int = 1,
+        least_n_samples: int = 100,
         show_escape_velocity: bool = True,
     ) -> None:
         """Plot the Bayes factor over the BH kick.
@@ -309,6 +332,8 @@ class BayesFactorCalculator:
             data_bh1 (Optional[dict[str, Union[pd.Series, pd.DataFrame]]): The data of the first BH.
             data_bh2 (Optional[dict[str, Union[pd.Series, pd.DataFrame]]): The data of the second BH.
             n_bounds (int): The number of bounds for the BH kick.
+            n_samples (int): The number of samples used to construct the KDE or histogram.
+            n_bootstraps (int): The number of bootstraps for the KDE or histogram
             least_n_samples (int): The least number of samples for the BH kick.
             show_escape_velocity (bool): Whether to show the escape velocity on the plot.
 
@@ -333,13 +358,20 @@ class BayesFactorCalculator:
 
         kicks = np.logspace(np.log10(lb_kick), np.log10(ub_kick), n_bounds)
         bfs: list[float] = []
+        bfs_std: list[float] = []
 
         for kick in tqdm(kicks):
-            bf = self._get_bayes_factor_from_data(data_bh1, kick) if data_bh1 else 1.0
-            bf *= self._get_bayes_factor_from_data(data_bh2, kick) if data_bh2 else 1.0
+            bf_1, std_1 = (
+                self._get_bayes_factor_from_data(data_bh1, kick, n_samples, n_bootstraps) if data_bh1 else (1.0, 0.0)
+            )
+            bf_2, std_2 = (
+                self._get_bayes_factor_from_data(data_bh2, kick, n_samples, n_bootstraps) if data_bh2 else (1.0, 0.0)
+            )
+            bf, std = self._product(bf_1, std_1, bf_2, std_2)
             bfs.append(bf)
+            bfs_std.append(std)
 
         if show_escape_velocity:
             add_escape_velocity(ax, ub_kick, max(bfs))
 
-        return self._plot_bayes_factor_over_kick(kicks, np.array(bfs), ax, label)
+        return self._plot_bayes_factor_over_kick(kicks, np.array(bfs), np.array(bfs_std), ax, label)
