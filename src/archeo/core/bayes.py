@@ -71,7 +71,7 @@ class BayesFactorCalculator:
 
         local_logger.info("Bounds have been reset.")
 
-    def get_hist(self, samples: pd.Series) -> np.ndarray:
+    def _get_hist(self, samples: pd.Series) -> np.ndarray:
         """Compute the histogram of the samples.
 
         The histogram is used to compute the Bayes factor between two priors.
@@ -124,9 +124,9 @@ class BayesFactorCalculator:
 
         self._setup_bounds(candidate_prior_param, prior_param, posterior_param)
 
-        new_prior_hist = self.get_hist(candidate_prior_param)
-        prior_hist = self.get_hist(prior_param)
-        posterior_hist = self.get_hist(posterior_param)
+        new_prior_hist = self._get_hist(candidate_prior_param)
+        prior_hist = self._get_hist(prior_param)
+        posterior_hist = self._get_hist(posterior_param)
 
         # Original implementation: precision not enough
         # bayes_factor = (new_prior_hist * posterior_hist / prior_hist).sum() * dtheta
@@ -150,10 +150,10 @@ class BayesFactorCalculator:
 
         self._setup_bounds(prior, posterior)
 
-        prior_hist = self.get_hist(prior)
-        posterior_hist = self.get_hist(posterior)
+        prior_hist = self._get_hist(prior)
+        posterior_hist = self._get_hist(posterior)
 
-        likelihood_hist = posterior_hist / prior_hist
+        likelihood_hist = np.exp(np.log(posterior_hist) - np.log(prior_hist))
         # Replace NaNs/infs with zeros
         likelihood_hist = np.nan_to_num(likelihood_hist, posinf=0.0, neginf=0.0)
         # normalize the likelihood
