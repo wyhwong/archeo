@@ -320,9 +320,8 @@ def table_estimates(
     dfs: dict[str, pd.DataFrame],
     filename="table_estimates",
     output_dir: Optional[str] = None,
-    close: bool = True,
-    fmt: str = "png",
-):
+    fmt: str = "md",
+) -> pd.DataFrame:
     """Plot the posterior mass estimates.
 
     Args:
@@ -330,7 +329,7 @@ def table_estimates(
         filename (str): Output filename.
         output_dir (Optional[str]): Output directory.
         close (bool): Whether to close the figure.
-        fmt (str): The format of the visualizations. Defaults
+        fmt (str): The format of the visualizations. Defaults to "md".
 
     Returns:
         fig (plt.Figure): Figure.
@@ -365,8 +364,14 @@ def table_estimates(
 
     df_table = pd.DataFrame(data)
 
-    fig, ax = base.initialize_plot(figsize=(15, 4), dpi=1200)
-    ax.axis("off")
-    ax.table(cellText=df_table.values, colLabels=df_table.columns, cellLoc="center", loc="center")
-    base.savefig_and_close(filename, output_dir, close, fmt)
-    return (fig, ax)
+    if output_dir:
+        if fmt.lower() == "md":
+            df_table.to_markdown(f"{output_dir}/{filename}.{fmt}", index=False)
+
+        if fmt.lower() == "csv":
+            df_table.to_csv(f"{output_dir}/{filename}.{fmt}", index=False)
+
+        else:
+            local_logger.warning("Unsupported format: %s.", fmt)
+
+    return df_table

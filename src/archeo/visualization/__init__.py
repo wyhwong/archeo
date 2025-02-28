@@ -56,4 +56,4 @@ def visualize_posterior_estimation(
     second_generation_probability_curve(dfs, output_dir=output_dir, fmt=fmt)
     effective_spin_estimates(dfs, output_dir=output_dir, fmt=fmt)
     precession_spin_estimates(dfs, output_dir=output_dir, fmt=fmt)
-    table_estimates(dfs, output_dir=output_dir, fmt=fmt)
+    table_estimates(dfs, output_dir=output_dir, fmt="md")
