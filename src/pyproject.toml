@@ -49,6 +49,11 @@ ipykernel = "^6.29.5"
 pytest = "^8.3.3"
 pytest-cov = "^6.0.0"
 
+
+[tool.poetry.group.frontend.dependencies]
+streamlit = "^1.42.2"
+plotly = "^6.0.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
