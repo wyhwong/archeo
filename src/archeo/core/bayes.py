@@ -31,6 +31,8 @@ class BayesFactorCalculator:
             use_kde (bool): Whether to use the KDE method to compute the weights function.
         """
 
+        local_logger.warning("This class is a pre-release feature. The correctness is not guaranteed.")
+
         self._nbins = nbins
         self._atol = atol
         self._use_kde = use_kde
