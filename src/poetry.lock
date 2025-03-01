@@ -731,6 +731,20 @@ numpy = "*"
 test = ["hypothesis[numpy]", "pytest"]
 
 [[package]]
+name = "fastjsonschema"
+version = "2.21.1"
+description = "Fastest Python implementation of JSON schema"
+optional = false
+python-versions = "*"
+files = [
+    {file = "fastjsonschema-2.21.1-py3-none-any.whl", hash = "sha256:c9e5b7e908310918cf494a434eeb31384dd84a98b57a30bcb1f535015b554667"},
+    {file = "fastjsonschema-2.21.1.tar.gz", hash = "sha256:794d4f0a58f848961ba16af7b9c85a3e88cd360df008c59aac6fc5ae9323b5d4"},
+]
+
+[package.extras]
+devel = ["colorama", "json-spec", "jsonschema", "pylint", "pytest", "pytest-benchmark", "pytest-cache", "validictory"]
+
+[[package]]
 name = "filelock"
 version = "3.17.0"
 description = "A platform independent file lock."
@@ -1251,6 +1265,7 @@ optional = false
 python-versions = ">=3.9"
 files = [
     {file = "lalsuite-7.25.1-cp310-cp310-macosx_12_0_arm64.whl", hash = "sha256:fbdf10b1959eac6af1602c8b4ad5c93c30547154635840a1134be0243322b65d"},
+    {file = "lalsuite-7.25.1-cp310-cp310-macosx_13_0_x86_64.whl", hash = "sha256:6aea511727186f0374eb28e20d18ad2f2eaedb3af673355fd3cebeba6ff8357a"},
     {file = "lalsuite-7.25.1-cp310-cp310-manylinux_2_28_aarch64.whl", hash = "sha256:9048aa235c988dbde5ae0f06adf019e7de42534f2f658b67e0492c3b6fd2857a"},
     {file = "lalsuite-7.25.1-cp310-cp310-manylinux_2_28_x86_64.whl", hash = "sha256:25cf56445d0fa481e2a76c294f5affe75985b1ea37ee412c9e48093d38fbf5d1"},
     {file = "lalsuite-7.25.1-cp311-cp311-macosx_12_0_arm64.whl", hash = "sha256:7e5e87d29c6f0b8d779ac18bf06af7b8a31484dcf22e6178278daabc6dab7cfc"},
@@ -1544,6 +1559,27 @@ pyarrow = ["pyarrow (>=11.0.0)"]
 pyspark = ["pyspark (>=3.5.0)"]
 tests = ["covdefaults", "hypothesis", "pytest", "pytest-cov", "pytest-env", "pytest-randomly", "typing-extensions"]
 typing = ["mypy (>=1.15.0,<1.16.0)", "pandas-stubs", "pyright", "typing-extensions"]
+
+[[package]]
+name = "nbformat"
+version = "5.10.4"
+description = "The Jupyter Notebook format"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "nbformat-5.10.4-py3-none-any.whl", hash = "sha256:3b48d6c8fbca4b299bf3982ea7db1af21580e4fec269ad087b9e81588891200b"},
+    {file = "nbformat-5.10.4.tar.gz", hash = "sha256:322168b14f937a5d11362988ecac2a4952d3d8e3a2cbeb2319584631226d5b3a"},
+]
+
+[package.dependencies]
+fastjsonschema = ">=2.15"
+jsonschema = ">=2.6"
+jupyter-core = ">=4.12,<5.0.dev0 || >=5.1.dev0"
+traitlets = ">=5.1"
+
+[package.extras]
+docs = ["myst-parser", "pydata-sphinx-theme", "sphinx", "sphinxcontrib-github-alt", "sphinxcontrib-spelling"]
+test = ["pep440", "pre-commit", "pytest", "testpath"]
 
 [[package]]
 name = "nest-asyncio"
@@ -3061,4 +3097,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "ac42738e3f4d145ec1d3f1241de7a3f2bd60752496c95a5eb3f800de256e0972"
+content-hash = "64f51ae2e94016417750825438bdc54b4ac7ff5ecdecc0f8e7d67a8acc103a84"

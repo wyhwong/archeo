@@ -1,3 +1,4 @@
+import plotly.graph_objects as go
 import streamlit as st
 
 import archeo
@@ -7,13 +8,23 @@ from archeo.frontend import viz
 from archeo.schema import Domain, PriorConfig
 
 
+st.set_page_config(page_title="Exploring Distribution of Remnant Properties", layout="wide")
+
+###############################################
+#                Sidebar Content              #
+###############################################
+
 st.sidebar.markdown("## Configure Your Ancestor Priors")
 
 # Store slider values in session state
+prior_name = st.sidebar.text_input("Name of the prior", "My prior")
 spin_setting = st.sidebar.selectbox("Spin setting", ["Aligned spin", "Positively aligned spin", "Precessing spin"])
-n_samples = st.sidebar.slider("Number of samples", min_value=1000, max_value=100000, value=5000)
+n_samples = st.sidebar.slider("Number of samples", min_value=1000, max_value=10000, value=1000)
 q_range = st.sidebar.slider("Mass ratio $q$", min_value=1.0, max_value=6.0, value=(1.0, 6.0))
 is_uniform_q = st.sidebar.checkbox("Is uniform in mass ratio", value=False)
+st.sidebar.markdown(
+    "If this box is not checked, we sample the masses uniformly in the primary and secondary black hole masses."
+)
 
 st.sidebar.markdown("#### Primary Black Hole Settings")
 m1_range = st.sidebar.slider("Mass $m_1$", min_value=5.0, max_value=200.0, value=(5.0, 200.0))
@@ -35,12 +46,52 @@ if spin_setting == "Precessing spin":
 else:
     phi2_range = theta2_range = (0.0, 0.0)
 
+###############################################
+#                Main Content                 #
+###############################################
 
-# Create the prior config object
-@st.cache_data(max_entries=5)
-def get_prior_config():
+st.markdown(
+    """
+    # Exploring Distribution of Remnant Properties
+
+    ## Introduction
+
+    This application allows users to configure the distributions for properties
+    of black hole binaries and visualize the distribution of their remnant
+    properties. By adjusting mass, spin, and alignment settings, users can generate
+    samples and study the properties of remnant black holes.
+
+    If you found hierarchical formation of black holes interesting and want to learn more,
+    please refer to our paper:
+
+    [1] Carlos Araújo Álvarez, Henry W. Y. Wong, Juan Calderón Bustillo. "Kicking Time
+        Back in Black Hole Mergers: Ancestral Masses, Spins, Birth Recoils, and
+        Hierarchical-formation Viability of GW190521." The Astrophysical Journal
+        977.2 (2024): 220.
+    """
+)
+
+
+if "figs" not in st.session_state:
+    st.session_state["figs"] = {}
+    for col, label in {
+        C.BH_KICK: "Birth Recoil k<sub>f</sub> [km s<sup>-1</sup>]",
+        C.BH_SPIN: "Spin χ<sub>f</sub> [-]",
+        C.BH_MASS: "Mass m<sub>f</sub> [M<sub>Sun</sub>]",
+    }.items():
+        st.session_state.figs[col] = go.Figure()
+        st.session_state.figs[col].update_layout(
+            title="Probability Density Function",
+            xaxis_title=label,
+            yaxis_title="Density",
+            showlegend=True,
+            barmode="overlay",
+        )
+
+if st.sidebar.button("Run"):
+
     fits = Fits.NRSUR7DQ4REMNANT if spin_setting == "Precessing spin" else Fits.NRSUR3DQ8REMNANT
-    return PriorConfig(
+    prior_config = PriorConfig(
         n_samples=n_samples,
         fits=fits,
         is_spin_aligned=spin_setting in ["Aligned spin", "Positively aligned spin"],
@@ -58,15 +109,12 @@ def get_prior_config():
         theta_2=Domain(*theta2_range),
     )
 
-
-if st.sidebar.button("Run"):
-
     with st.spinner("Running simulation... Please wait..."):
-        df = archeo.Prior.from_config(get_prior_config())
+        df = archeo.Prior.from_config(prior_config)
 
         st.write("## Visualization of Remnant Properties")
-        st.plotly_chart(viz.plot_pdf(df, C.BH_KICK, label="Birth Recoil"))
-        st.plotly_chart(viz.plot_pdf(df, C.BH_SPIN, label="Spin"))
-        st.plotly_chart(viz.plot_pdf(df, C.BH_MASS, label="Mass"))
+        for col in [C.BH_KICK, C.BH_SPIN, C.BH_MASS]:
+            viz.add_pdf(st.session_state.figs[col], df[col], prior_name)
+            st.plotly_chart(st.session_state.figs[col])
 
     st.success("Simulation completed!")

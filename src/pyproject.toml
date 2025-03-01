@@ -53,6 +53,7 @@ pytest-cov = "^6.0.0"
 [tool.poetry.group.frontend.dependencies]
 streamlit = "^1.42.2"
 plotly = "^6.0.0"
+nbformat = "^5.10.4"
 
 [build-system]
 requires = ["poetry-core"]
