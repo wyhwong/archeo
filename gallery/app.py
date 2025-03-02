@@ -14,7 +14,7 @@ st.set_page_config(page_title="Exploring Distribution of Remnant Properties", la
 #                Sidebar Content              #
 ###############################################
 
-st.sidebar.markdown("## Configure Your Ancestor Priors")
+st.sidebar.markdown("## Configure Your Ancestral Priors")
 
 # Store slider values in session state
 prior_name = st.sidebar.text_input("Name of the prior", "My prior")
