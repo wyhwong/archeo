@@ -80,8 +80,8 @@ repos:
       "-C", "./src",
       "-f", "requirements.txt",
       "-o", "./src/requirements.txt",
-      "--with", "frontend",
-      "--without-hashes"
+      "--without-hashes",
+      "--all-extras"
     ]
     always_run: true
     verbose: true

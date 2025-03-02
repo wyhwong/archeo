@@ -20,8 +20,8 @@ import archeo
 mass_posterior = [68.0, 71.4, ..., 91.4]
 spin_posterior = [0.31, 0.54, ..., 0.64]
 
-# Create a prior (preset priors are "precessing", "aligned_spin", and "positively_aligned_spin")
-prior = archeo.Prior.from_config("precessing")
+# Create a prior
+prior = archeo.Prior.from_config("precessing_spin")
 # Create a posterior from the samples and the prior
 posterior = prior.to_posterior(mass_posterior, spin_posterior)
 
@@ -30,9 +30,34 @@ archeo.visualize_prior_distribution(prior, output_dir="./")
 archeo.visualize_posterior_estimation({"GW190521": posterior}, output_dir="./")
 ```
 
+## Available Preset Priors
+
+This table provides an overview of the different prior configurations available in archeo.
+
+| Name | Samples  | Fits Model | Spin Aligned | Only Up-Aligned Spin | $\chi_1$ | $\chi_2$ | $\phi_1$ [rad] | $\phi_2$ [rad] | $\theta_1$ [rad] | $\theta_2$ [rad] | $m_1 [M_\odot]$ | $m_2 [M_\odot]$ | $q$ | Uniform in $q$ |
+|------------------------------------|-----------|------------------|----|-----|-------|-------|------------|------------|-----------|-----------|---------|---------|-------|-----|
+| agnostic_precessing_spin (default) | 2,000,000 | NRSur7dq4Remnant | ❌ | ❌ | 0 - 1 | 0 - 1 | 0 - $2\pi$ | 0 - $2\pi$ | 0 - $\pi$ | 0 - $\pi$ | 5 - 200 | 5 - 200 | 1 - 6 | ❌ |
+| agnostic_aligned_spin              | 2,000,000 | NRSur3dq8Remnant | ✅ | ❌ | 0 - 1 | 0 - 1 | 0 - $2\pi$ | 0 - $2\pi$ | 0 - $\pi$ | 0 - $\pi$ | 5 - 200 | 5 - 200 | 1 - 6 | ❌ |
+| precessing_spin                    | 2,000,000 | NRSur7dq4Remnant | ❌ | ❌ | 0 - 1 | 0 - 1 | 0 - $2\pi$ | 0 - $2\pi$ | 0 - $\pi$ | 0 - $\pi$ | 5 - 65  | 5 - 65  | 1 - 6 | ❌ |
+| aligned_spin                       | 2,000,000 | NRSur3dq8Remnant | ✅ | ❌ | 0 - 1 | 0 - 1 | 0 - $2\pi$ | 0 - $2\pi$ | 0 - $\pi$ | 0 - $\pi$ | 5 - 65  | 5 - 65  | 1 - 6 | ❌ |
+| positively_aligned_spin            | 2,000,000 | NRSur3dq8Remnant | ✅ | ✅ | 0 - 1 | 0 - 1 | 0 - $2\pi$ | 0 - $2\pi$ | 0 - $\pi$ | 0 - $\pi$ | 5 - 65  | 5 - 65  | 1 - 6 | ❌ |
+
 ## Configure your own prior
 
-Check out the preset priors in [precessing.py](https://github.com/wyhwong/archeo/blob/main/src/archeo/preset/precessing.py) and [aligned_spin.py](https://github.com/wyhwong/archeo/blob/main/src/archeo/preset/aligned_spin.py). From that, one should be able to create their own prior by following the same structure.
+Check out the preset priors in [precessing.py](./archeo/preset/precessing.py) and [aligned.py](./archeo/preset/aligned.py). From that, one should be able to create their own prior by following the same structure.
+
+## Try our UI
+
+Archeo also provides a simple web-based user interface to visualize the distributions of remnant properties.
+To run the UI locally, simply run the following command:
+
+```bash
+pip3 install archeo[ui]
+python3 -m archeo.ui
+```
+
+Then the UI will be available at [localhost:8501](http://localhost:8501).
 
 # Credits
+
 The code is maintained by [Henry Wong](https://github.com/wyhwong) under [Juan Calderon Bustillo](https://git.ligo.org/juan.calderonbustillo)'s supervision. You can find the [list of contributors](https://github.com/wyhwong/archeo/graphs/contributors) here. Please report bugs by raising an issue on our [GitHub](https://github.com/wyhwong/archeo) repository.
