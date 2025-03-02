@@ -44,7 +44,7 @@ This table provides an overview of the different prior configurations available 
 
 ## Configure your own prior
 
-Check out the preset priors in [precessing.py](./archeo/preset/precessing.py) and [aligned.py](./archeo/preset/aligned.py). From that, one should be able to create their own prior by following the same structure.
+Check out the preset priors in [precessing.py](https://github.com/wyhwong/archeo/blob/main/src/archeo/preset/precessing.py) and [aligned.py](https://github.com/wyhwong/archeo/blob/main/src/archeo/preset/aligned.py). From that, one should be able to create their own prior by following the same structure.
 
 ## Try our UI
 
