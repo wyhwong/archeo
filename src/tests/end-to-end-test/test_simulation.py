@@ -73,13 +73,13 @@ def test_run_simulation_2(uniform_q_aligned_spin_spin_prior_config):
 def test_run_2g_simulation(uniform_mass_aligned_spin_prior_config):
     """Run a simulation with the default prior config."""
 
-    test_prior_path = f"{os.path.dirname(__file__)}/test_prior.ipc"
+    test_prior_path = f"{os.path.dirname(__file__)}/test_prior.csv"
 
     # Check if the test prior path exist
     assert not os.path.exists(test_prior_path)
 
     prior = Prior.from_config(uniform_mass_aligned_spin_prior_config)
-    prior.to_feather(test_prior_path)
+    prior.to_csv(test_prior_path, index=False)
 
     assert os.path.exists(test_prior_path)
 
