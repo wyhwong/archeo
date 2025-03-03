@@ -1,7 +1,10 @@
+import os
+
 import pytest
 
 from archeo.constants import Fits
 from archeo.core.prior import Prior
+from archeo.core.simulator import Simulator
 from archeo.schema import Domain, PriorConfig
 
 
@@ -65,3 +68,27 @@ def test_run_simulation_2(uniform_q_aligned_spin_spin_prior_config):
     prior = Prior.from_config(uniform_q_aligned_spin_spin_prior_config)
 
     assert len(prior) == 1000
+
+
+def test_run_2g_simulation(uniform_mass_aligned_spin_prior_config):
+    """Run a simulation with the default prior config."""
+
+    test_prior_path = f"{os.path.dirname(__file__)}/test_prior.ipc"
+
+    # Check if the test prior path exist
+    assert not os.path.exists(test_prior_path)
+
+    prior = Prior.from_config(uniform_mass_aligned_spin_prior_config)
+    prior.to_feather(test_prior_path)
+
+    assert os.path.exists(test_prior_path)
+
+    simulator = Simulator(uniform_mass_aligned_spin_prior_config)
+    simulator.use_remnant_results(filepath=test_prior_path, bh=1, kick_limit=500)
+
+    prior_2g = Prior.from_simulator(simulator)
+
+    assert len(prior_2g) == 1000
+
+    os.remove(test_prior_path)
+    assert not os.path.exists(test_prior_path)

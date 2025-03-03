@@ -1,12 +1,14 @@
 from dataclasses import asdict
-from typing import Callable, Optional
+from typing import Callable, Literal, Optional
 
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
+from archeo.constants import Columns as C
 from archeo.core.mahapatra import get_mahapatra_mass_fn
 from archeo.schema import Binary, Event, PriorConfig
+from archeo.utils.file import read_data
 from archeo.utils.math import sph2cart
 from archeo.utils.parallel import multithread_run
 
@@ -32,6 +34,12 @@ class Simulator:
         else:
             self._m1_fn = self._prior_config.m_1.draw
             self._m2_fn = self._prior_config.m_2.draw
+
+        # Dummy functions
+        self._is_remnant_1 = False
+        self._r1_fn = lambda: (0, 0)
+        self._is_remnant_2 = False
+        self._r2_fn = lambda: (0, 0)
 
         self._chi1_fns = {
             "magnitude": self._prior_config.a_1.draw,
@@ -97,56 +105,68 @@ class Simulator:
         """
 
         if self._is_uniform_in_q:
-            m_1, m_2 = self._get_masses_from_q_fn()
+            m_1, a_1, m_2, a_2 = self._get_params_unif_q()
         else:
-            m_1, m_2 = self._get_masses_from_mass_fns()
+            m_1, a_1, m_2, a_2 = self._get_params_non_unif_q()
 
-        chi_1, chi_2 = self._get_spin(self._chi1_fns), self._get_spin(self._chi2_fns)
+        chi_uv_1, chi_uv_2 = self._get_spin_uv(self._chi1_fns), self._get_spin_uv(self._chi2_fns)
+        chi_1 = (chi_uv_1[0] * a_1, chi_uv_1[1] * a_1, chi_uv_1[2] * a_1)
+        chi_2 = (chi_uv_2[0] * a_2, chi_uv_2[1] * a_2, chi_uv_2[2] * a_2)
 
         return Binary(m_1=m_1, m_2=m_2, chi_1=chi_1, chi_2=chi_2)
 
-    def _get_spin(self, fns: dict[str, Callable]) -> tuple[float, float, float]:
-        """Draws the spin of the binary
+    def _get_spin_uv(self, fns: dict[str, Callable]) -> tuple[float, float, float]:
+        """Draws the spin of the binary (unit vector)
 
         Args:
             fns (dict[str, Callable]): The functions to draw the spin
 
         Returns:
-            tuple[float, float, float]: The drawn spin
+            tuple[float, float, float]: The drawn spin unit vector
         """
-
-        spin = fns["magnitude"]()
 
         if self._is_spin_aligned:
             if self._only_up_aligned_spin:
-                return (0, 0, spin)
+                return (0, 0, 1)
 
             direction = np.random.choice([-1, 1])
-            return (0, 0, direction * spin)
+            return (0, 0, direction)
 
         theta = np.arccos(-1 + 2 * fns["theta"]())
         phi = fns["phi"]() * np.pi
         univ = sph2cart(theta=theta, phi=phi)
-        return tuple(spin * univ)
+        return tuple(univ)
 
-    def _get_masses_from_mass_fns(self) -> tuple[float, float]:
+    def _get_params_non_unif_q(self) -> tuple[float, float, float, float]:
         """Draws the masses of the binary from the mass functions
 
         Returns:
             tuple[float, float]: The drawn masses
         """
 
-        m_1, m_2 = (self._m1_fn(), self._m2_fn())
+        if not self._is_remnant_1 and not self._is_remnant_2:
+            m_1, m_2 = (self._m1_fn(), self._m2_fn())
+            a_1, a_2 = self._chi1_fns["magnitude"](), self._chi2_fns["magnitude"]()
+        elif self._is_remnant_1 and self._is_remnant_2:
+            m_1, a_1 = self._r1_fn()
+            m_2, a_2 = self._r2_fn()
+        elif self._is_remnant_1:
+            m_1, a_1 = self._r1_fn()
+            m_2, a_2 = self._m2_fn(), self._chi2_fns["magnitude"]()
+        # Only self._is_remnant_2
+        else:
+            m_1, a_1 = self._m1_fn(), self._chi1_fns["magnitude"]()
+            m_2, a_2 = self._r2_fn()
 
         # Check whether the mass ratio is in the domain
         # If not, resample the masses (recursion)
         q = m_1 / m_2
         if not self._q_bounds.contain(q):
-            return self._get_masses_from_mass_fns()
+            return self._get_params_non_unif_q()
 
-        return (m_1, m_2)
+        return (m_1, a_1, m_2, a_2)
 
-    def _get_masses_from_q_fn(self) -> tuple[float, float]:
+    def _get_params_unif_q(self) -> tuple[float, float, float, float]:
         """Draws the masses of the binary from the mass ratio function
 
         Returns:
@@ -160,6 +180,46 @@ class Simulator:
         # Check whether the masses are in the domain
         # If not, resample the masses (recursion)
         if not self._m2_bounds.contain(m_2):
-            return self._get_masses_from_q_fn()
+            return self._get_params_unif_q()
 
-        return (m_1, m_2)
+        a_1 = self._chi1_fns["magnitude"]()
+        a_2 = self._chi2_fns["magnitude"]()
+
+        return (m_1, a_1, m_2, a_2)
+
+    def use_remnant_results(
+        self,
+        filepath: str,
+        bh: Literal[1, 2],
+        kick_limit: Optional[float],
+    ) -> None:
+        """Uses the remnant results from the given file
+
+        Args:
+            filepath (str): The path to the file containing the remnant results
+            bh (Literal[1, 2]): The black hole to use the results for
+            kick_limit (Optional[float]): The kick limit to apply
+        """
+
+        if self._is_uniform_in_q:
+            raise ValueError("Cannot use remnant results with uniform mass ratio prior")
+
+        df = read_data(filepath)
+
+        if kick_limit is not None:
+            df = df[df[C.BH_KICK] <= kick_limit][[C.BH_SPIN, C.BH_MASS]].reset_index(drop=True)
+
+        # Remnant draw
+        def draw() -> tuple[float, float]:
+            """Draws the remnant mass and spin"""
+
+            idx = np.random.random_integers(low=0, high=len(df) - 1)
+            return (df.loc[idx, C.BH_MASS], df.loc[idx, C.BH_SPIN])
+
+        if bh == 1:
+            self._is_remnant_1 = True
+            self._r1_fn = draw
+
+        if bh == 2:
+            self._is_remnant_2 = True
+            self._r2_fn = draw

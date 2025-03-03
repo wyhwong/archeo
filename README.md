@@ -7,7 +7,14 @@
 [![CI](https://github.com/wyhwong/archeo/actions/workflows/main.yml/badge.svg)](https://github.com/wyhwong/archeo/actions/workflows/main.yml/)
 
 
-Archeo is a package for inferring the natal kick and parental masses posterior of black holes in Pair-instability Supernova (PISN) gap. We study the parental black holes of GW190521 and investigate the probability that the component black holes in GW190521 are a result of black hole merger. The methodology is described in [Methodology](#methodology) section, and it can be applied to any other gravitational wave event.
+Archeo is a package for inferring the natal kick and parental masses posterior of black holes in Pair-instability Supernova (PISN) gap.
+We study the parental black holes of GW190521 and investigate the probability that the component black holes in GW190521 are a result of black hole merger.
+The methodology is described in [Methodology](#methodology) section, and it can be applied to any other gravitational wave event.
+
+We also deployed a web-based UI on streamlit for a preview of what do we study.
+Please take a look if you are interested.
+
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://archeo.streamlit.app/)
 
 ---
 
@@ -17,7 +24,10 @@ The installation can be done via PyPI or from source.
 
 ## PyPI
 ```bash
+# Basic installation (without UI)
 pip3 install archeo
+# If you want to use the UI
+pip3 install archeo[ui]
 ```
 
 ## From source
@@ -57,12 +67,6 @@ The methodology is describe in the following paper:
   publisher={IOP Publishing}
 }
 ```
-
----
-
-# First Application - GW190521
-
-We can leverage the pacakge to estimate the parental mass and kick of component black holes in GW190521. Please find the related data of GW190521 in [LIGO Document P2000158-v4](https://dcc.ligo.org/LIGO-P2000158/public).
 
 ---
 
