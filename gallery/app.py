@@ -22,11 +22,18 @@ spin_setting = st.sidebar.selectbox("Spin setting", ["Precessing spin", "Aligned
 q_range = st.sidebar.slider("Mass ratio $q$", min_value=1.0, max_value=6.0, value=(1.0, 6.0))
 
 st.sidebar.markdown("#### Primary Black Hole Settings")
-m1_range = st.sidebar.slider("Mass $m_1$", min_value=5.0, max_value=200.0, value=(5.0, 200.0))
+m1_range = st.sidebar.slider(r"Mass $m_1$ [$M_\odot$]", min_value=5.0, max_value=200.0, value=(5.0, 200.0))
 a1_range = st.sidebar.slider("Spin $\\chi_1$", min_value=0.0, max_value=0.99, value=(0.0, 0.99))
+st.sidebar.markdown(
+    """
+    Spin $\\chi$ describes the rotation of the black hole,
+    ranging from 0 (non-rotating) to 0.99.
+    Spin influences the dynamics of mergers and gravitational wave signals, etc.
+    """
+)
 
 st.sidebar.markdown("#### Secondary Black Hole Settings")
-m2_range = st.sidebar.slider("Mass $m_2$", min_value=5.0, max_value=200.0, value=(5.0, 200.0))
+m2_range = st.sidebar.slider(r"Mass $m_2$ [$M_\odot$]", min_value=5.0, max_value=200.0, value=(5.0, 200.0))
 a2_range = st.sidebar.slider("Spin $\\chi_2$", min_value=0.0, max_value=0.99, value=(0.0, 0.99))
 
 ###############################################
@@ -39,18 +46,12 @@ st.markdown(
 
     ## Introduction
 
-    This application allows users to configure the distributions for properties
-    of black hole binaries and visualize the distribution of their remnant
-    properties. By adjusting mass, spin, and alignment settings, users can generate
-    samples and study the properties of remnant black holes.
-
-    If you found hierarchical formation of black holes interesting and want to learn more,
-    please refer to our paper:
-
-    [1] Carlos Araújo Álvarez, Henry W. Y. Wong, Juan Calderón Bustillo. "Kicking Time
-        Back in Black Hole Mergers: Ancestral Masses, Spins, Birth Recoils, and
-        Hierarchical-formation Viability of GW190521." The Astrophysical Journal
-        977.2 (2024): 220.
+    This application allows users to explore the distributions for properties
+    of binary black hole (BBH) mergers and visualize the characteristics of their remnant
+    BHs. By adjusting parameters such as mass, spin, and alignment, users can generate
+    samples to study how these factors influence the final mass, spin, and recoil velocity
+    of the remnant BH. Understanding these properties is crucial for studying
+    the hierarchical formation of BHs.
     """
 )
 
@@ -70,6 +71,36 @@ if "figs" not in st.session_state:
             showlegend=True,
             barmode="overlay",
         )
+
+
+info: dict[str, str] = {
+    C.BH_KICK: """
+    The Birth Recoil $k_f$ is the velocity of the remnant BH after the merger.
+    This property is crucial as it determines whether the remnant remains gravitationally
+    bound to its environment or is ejected, affecting its potential for future mergers
+    that could be detected on Earth. For instance, the typical escape velocity of a
+    globular cluster is only $50$ $km$ $s^{-1}$ (Baumgardt & Hilker, 2018), meaning that BHs
+    with significantly higher recoil velocities are likely to be ejected from such environments
+    instead of forming hierarchical mergers.
+    """,
+    C.BH_SPIN: r"""
+    The dimensionless spin of the remnant BH after the merger, denoted as $\chi_f$,
+    reflects its rotational properties. Supposed in the visualization, we should see remnant
+    BHs exhibit a preference for high spins (a peak around $0.7$ for precessing case).
+    In contrast, first-generation BHs formed from isolated stellar binaries are expected
+    to have masses $\lesssim 50$ $M_{\odot}$ and exhibit relatively low spins aligned to the orbital
+    (Pierra, Mastrogiovanni & Perrières, 2024).
+    """,
+    C.BH_MASS: r"""
+    The remnant mass $m_f$ of the final BH is determined by the masses of the merging black
+    holes and the energy radiated away. While we mentioned most BHs formed from stellar
+    collapse are expected to have masses below $50$ $M_{\odot}$, BBH mergers can produce significantly
+    more massive remnants. Notably, we should observe samples in the pair-instability supernova (PISN)
+    mass gap $M \in [65, 130]$ $M_{\odot}$, where BHs cannot form directly from stellar evolution.
+    This suggests that second-generation BHs, formed from previous mergers, provide a key pathway
+    for populating this otherwise empty region of the BH mass spectrum.
+    """,
+}
 
 if st.sidebar.button("Run"):
 
@@ -100,15 +131,23 @@ if st.sidebar.button("Run"):
         for col in [C.BH_KICK, C.BH_SPIN, C.BH_MASS]:
             viz.add_pdf(st.session_state.figs[col], _df[col], prior_name)
             st.plotly_chart(st.session_state.figs[col])
-            if col == C.BH_KICK:
-                st.markdown(
-                    """
-                    Birth Recoil $k_f$ is the velocity of the remnant black hole after the merger.
-                    This property is important because it determines whether the remnant black hole
-                    can remain within its environment and eventually undergo a subsequent merger that
-                    may be observed by detectors on Earth. For example, the typical escape velocity of
-                    a globular cluster is only 50 km/s (Baumgardt & Hilker, 2018).
-                    """
-                )
+            if col in info:
+                st.markdown(info[col])
+
+        st.markdown(
+            """
+            ## More Information
+
+            If you found hierarchical formation of BHs interesting and want to learn more,
+            please refer to our paper:
+
+            [1] Carlos Araújo Álvarez, Henry W. Y. Wong, Juan Calderón Bustillo. "Kicking Time
+                Back in Black Hole Mergers: Ancestral Masses, Spins, Birth Recoils, and
+                Hierarchical-formation Viability of GW190521." The Astrophysical Journal
+                977.2 (2024): 220.
+
+            Also, please let us know if you found this application has any wrong information.
+            """
+        )
 
     st.success("Simulation completed!")
