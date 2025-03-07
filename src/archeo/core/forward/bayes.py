@@ -93,12 +93,13 @@ def get_histrogram(samples: pd.Series, bounds: Domain, nbins: int = 70, atol: fl
 
 
 @pre_release
-def get_weights(data: ISData, nbins=70) -> np.ndarray:
+def get_weights(data: ISData, nbins=70, ztol=1e-8) -> np.ndarray:
     """Get the weights for the importance sampling
 
     Args:
         data (ISData): Importance sampling data.
         nbins (int, optional): Number of bins for the histogram. Defaults to 70.
+        ztol (float, optional): Tolerance for the zero division. Defaults to 1e-8.
 
     Returns:
         weights: np.ndarray, the weights for the importance sampling.
@@ -111,7 +112,7 @@ def get_weights(data: ISData, nbins=70) -> np.ndarray:
         candidate_prior_hist = get_histrogram(samples, data.bounds[col], nbins)
 
         # Avoid division by zero
-        ratio = np.where(prior_hist > 1e-8, candidate_prior_hist / prior_hist, 0.0)
+        ratio = np.where(prior_hist > ztol, np.exp(np.log(candidate_prior_hist) - np.log(prior_hist)), 0.0)
         rv = rv_histogram((ratio, np.linspace(data.bounds[col].low, data.bounds[col].high, nbins + 1)))
         weights *= rv.pdf(data.posterior[col])
 
@@ -119,7 +120,7 @@ def get_weights(data: ISData, nbins=70) -> np.ndarray:
 
 
 @pre_release
-def get_bayes_factor(data: ISData, nbins=70, random_state=42) -> float:
+def get_bayes_factor(data: ISData, nbins=70, random_state=42, ztol: float = 1e-8) -> float:
     """Compute the Bayes factor between two models
 
     NOTE: In this implementation, the likelihood function remains untouched.
@@ -130,6 +131,7 @@ def get_bayes_factor(data: ISData, nbins=70, random_state=42) -> float:
         data (ISData): Importance sampling data.
         nbins (int, optional): Number of bins for the histogram. Defaults to 70.
         random_state (int, optional): Random state for resampling the prior. Defaults to 42.
+        ztol (float, optional): Tolerance for the zero division. Defaults to 1e-8.
 
     Returns:
         bf: float, the Bayes factor.
@@ -147,17 +149,15 @@ def get_bayes_factor(data: ISData, nbins=70, random_state=42) -> float:
         candidate_prior_hist = get_histrogram(samples, data.bounds[col], nbins)
         binwidth = (data.bounds[col].high - data.bounds[col].low) / nbins
 
-        # Avoid division by zero
-        ratio = np.where(prior_hist > 1e-8, candidate_prior_hist / prior_hist, 0.0)
+        ratio = np.where(prior_hist > ztol, candidate_prior_hist / prior_hist, 0.0)
         rv = rv_histogram((ratio, np.linspace(data.bounds[col].low, data.bounds[col].high, nbins + 1)))
         weights *= rv.pdf(data.prior[col])
 
         bf *= (
             np.sum(
                 np.where(
-                    # Avoid division by zero
-                    prior_hist > 1e-8,
-                    candidate_prior_hist * posterior_hist / prior_hist,
+                    prior_hist > ztol,
+                    np.exp(np.log(candidate_prior_hist) + np.log(posterior_hist) - np.log(prior_hist)),
                     0.0,
                 )
             )
@@ -173,6 +173,15 @@ def get_bayes_factor(data: ISData, nbins=70, random_state=42) -> float:
         candidate_prior_hist = get_histrogram(correlated_prior[col], data.bounds[col], nbins)
         binwidth = (data.bounds[col].high - data.bounds[col].low) / nbins
 
-        bf *= np.sum(np.where(prior_hist > 1e-10, candidate_prior_hist * posterior_hist / prior_hist, 0.0)) * binwidth
+        bf *= (
+            np.sum(
+                np.where(
+                    prior_hist > ztol,
+                    np.exp(np.log(candidate_prior_hist) + np.log(posterior_hist) - np.log(prior_hist)),
+                    0.0,
+                )
+            )
+            * binwidth
+        )
 
     return bf

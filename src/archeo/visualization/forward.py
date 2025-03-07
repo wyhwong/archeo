@@ -18,7 +18,8 @@ def plot_bayes_factor_over_kick(
     label: str,
     n_bounds: int = 100,
     min_nk: int = 1000,
-    add_vesc: bool = False,
+    show_escape_velocity: bool = False,
+    show_scatter: bool = False,
 ):
     """Plot the Bayes factor over the kick range.
 
@@ -31,7 +32,8 @@ def plot_bayes_factor_over_kick(
         label: The label of the plot.
         n_bounds: The number of bounds to interpolate.
         min_nk: The minimum number of kicks to consider.
-        add_vesc: Whether to add the escape velocity line.
+        show_escape_velocity: Whether to show the escape velocity.
+        show_scatter: Whether to show the scatter plot.
 
     Returns:
         The axis with the plot.
@@ -55,9 +57,10 @@ def plot_bayes_factor_over_kick(
     y = f(x)
 
     sns.lineplot(y=y, x=x, ax=ax, label=label)
-    sns.scatterplot(y=bfs, x=_ks, ax=ax, color="black")
+    if show_scatter:
+        sns.scatterplot(y=bfs, x=_ks, ax=ax, color="black")
 
-    if add_vesc:
+    if show_escape_velocity:
         add_escape_velocity(ax, k_lb, max(bfs))
 
     return ax
