@@ -149,7 +149,7 @@ def get_bayes_factor(data: ISData, nbins=70, random_state=42, ztol: float = 1e-8
         candidate_prior_hist = get_histrogram(samples, data.bounds[col], nbins)
         binwidth = (data.bounds[col].high - data.bounds[col].low) / nbins
 
-        ratio = np.where(prior_hist > ztol, candidate_prior_hist / prior_hist, 0.0)
+        ratio = np.where(prior_hist > ztol, np.exp(np.log(candidate_prior_hist) - np.log(prior_hist)), 0.0)
         rv = rv_histogram((ratio, np.linspace(data.bounds[col].low, data.bounds[col].high, nbins + 1)))
         weights *= rv.pdf(data.prior[col])
 
