@@ -2,90 +2,78 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from archeo.core.bayes import BayesFactorCalculator
+from archeo.core.forward.bayes import ISData, get_bayes_factor
 
 
 np.random.seed(42)
 N_SAMPLES = 100000  # Number of samples, the more the better
 
 
-@pytest.fixture(name="mass_prior")
-def default_mass_prior() -> pd.Series:
+@pytest.fixture(name="prior")
+def default_prior() -> pd.Series:
     """Default mass prior."""
 
-    return pd.Series(np.random.uniform(low=5, high=65, size=N_SAMPLES))
+    return pd.DataFrame(
+        {
+            "mass": np.random.uniform(low=5, high=65, size=N_SAMPLES),
+            "spin": np.random.uniform(low=0, high=1, size=N_SAMPLES),
+        }
+    )
 
 
-@pytest.fixture(name="mass_posterior")
-def default_mass_posterior() -> pd.Series:
+@pytest.fixture(name="posterior")
+def default_posterior() -> pd.Series:
     """Default mass posterior."""
 
-    return pd.Series(np.random.normal(loc=35, scale=5, size=N_SAMPLES)).clip(lower=5, upper=65)
+    df = pd.DataFrame(
+        {
+            "mass": np.random.normal(loc=35, scale=5, size=N_SAMPLES),
+            "spin": np.random.uniform(low=0, high=1, size=N_SAMPLES),
+        }
+    )
+    return df.clip(lower={"mass": 5, "spin": 0}, upper={"mass": 65, "spin": 1})
 
 
-def test_bayes_factor_with_no_prior_change(mass_prior, mass_posterior):
+def test_bayes_factor_with_no_prior_change(prior, posterior):
     """Test the computation of the Bayes factor."""
 
-    for use_kde in [False, True]:
+    candidate_prior = {"mass": np.random.uniform(low=5, high=65, size=N_SAMPLES)}
+    data = ISData(candidate_prior=candidate_prior, posterior=posterior, prior=prior)
+    bayes_factor = get_bayes_factor(data, random_state=42)
 
-        calculator = BayesFactorCalculator(use_kde=use_kde)
-
-        bayes_factor, _ = calculator.get_bayes_factor(
-            candidate_prior_param=mass_prior,
-            posterior_param=mass_posterior,
-            prior_param=mass_prior,
-        )
-        # Here we replace the prior by the original prior
-        # The Bayes factor should be exactly 1
-        assert np.isclose(bayes_factor, 1, atol=0.02)
+    # Here we replace the prior by the original prior
+    # The Bayes factor should be exactly 1
+    assert np.isclose(bayes_factor, 1, atol=0.01)
 
 
-def test_bayes_factor_replace_delta_prior(mass_prior, mass_posterior):
+def test_bayes_factor_replace_delta_prior(prior, posterior):
     """Test the computation of the Bayes factor."""
 
-    candidate_prior = pd.Series(np.random.normal(loc=35, scale=0.01, size=N_SAMPLES))
+    candidate_prior = {"mass": np.random.normal(loc=35, scale=0.01, size=N_SAMPLES)}
+    data = ISData(candidate_prior=candidate_prior, posterior=posterior, prior=prior)
+    bayes_factor = get_bayes_factor(data, random_state=42)
 
-    for use_kde in [False, True]:
-
-        calculator = BayesFactorCalculator(nbins=101, use_kde=use_kde)
-        bayes_factor, _ = calculator.get_bayes_factor(
-            candidate_prior_param=candidate_prior,
-            posterior_param=mass_posterior,
-            prior_param=mass_prior,
-        )
-        # Expected Bayes factor is 4.73944449
-        assert bayes_factor > 4
+    # Expected Bayes factor is 4.73944449
+    assert np.isclose(bayes_factor, 4.73944449, atol=0.5)
 
 
-def test_bayes_factor_replace_flat_normal_prior(mass_prior, mass_posterior):
+def test_bayes_factor_replace_flat_normal_prior(prior, posterior):
     """Test the computation of the Bayes factor."""
 
-    candidate_prior = pd.Series(np.random.normal(loc=35, scale=50, size=N_SAMPLES))
-    candidate_prior = candidate_prior.loc[candidate_prior.between(5, 65)]
+    samples = np.random.normal(loc=35, scale=50, size=N_SAMPLES)
+    samples = samples[(5 <= samples) & (samples <= 65)]
+    candidate_prior = {"mass": samples}
+    data = ISData(candidate_prior=candidate_prior, posterior=posterior, prior=prior)
+    bayes_factor = get_bayes_factor(data, random_state=42)
 
-    for use_kde in [False, True]:
-
-        calculator = BayesFactorCalculator(use_kde=use_kde)
-        bayes_factor, _ = calculator.get_bayes_factor(
-            candidate_prior_param=candidate_prior,
-            posterior_param=mass_posterior,
-            prior_param=mass_prior,
-        )
-        assert 1.0 < bayes_factor < 1.1
+    assert 1.0 <= bayes_factor <= 1.1
 
 
-def test_bayes_factor_replace_flat_beta_prior(mass_prior, mass_posterior):
+def test_bayes_factor_replace_flat_beta_prior(prior, posterior):
     """Test the computation of the Bayes factor."""
 
-    candidate_prior = pd.Series(np.random.beta(a=0.92, b=0.92, size=N_SAMPLES))
-    candidate_prior = candidate_prior * 60 + 5
+    candidate_prior = {"mass": np.random.beta(a=0.92, b=0.92, size=N_SAMPLES) * 60 + 5}
+    data = ISData(candidate_prior=candidate_prior, posterior=posterior, prior=prior)
+    bayes_factor = get_bayes_factor(data, random_state=42)
 
-    for use_kde in [False, True]:
-
-        calculator = BayesFactorCalculator(use_kde=use_kde)
-        bayes_factor, _ = calculator.get_bayes_factor(
-            candidate_prior_param=candidate_prior,
-            posterior_param=mass_posterior,
-            prior_param=mass_prior,
-        )
-        assert 0.9 < bayes_factor < 1.0
+    assert 0.9 <= bayes_factor <= 1.0
