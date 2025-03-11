@@ -9,6 +9,7 @@ from archeo.constants import Columns as C
 from archeo.core.mahapatra import get_mahapatra_mass_fn
 from archeo.schema import Binary, Event, PriorConfig
 from archeo.utils.file import read_data
+from archeo.utils.helper import pre_release
 from archeo.utils.math import sph2cart
 from archeo.utils.parallel import multithread_run
 
@@ -187,11 +188,12 @@ class Simulator:
 
         return (m_1, a_1, m_2, a_2)
 
+    @pre_release
     def use_remnant_results(
         self,
         filepath: str,
         bh: Literal[1, 2],
-        kick_limit: Optional[float],
+        kick_limit: Optional[float] = None,
     ) -> None:
         """Uses the remnant results from the given file
 
