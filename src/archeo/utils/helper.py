@@ -12,7 +12,7 @@ def pre_release(func: Callable) -> Callable:
     def wrapper(*args, **kwargs):
         """Wrapper function to log a warning message before executing the decorated function."""
 
-        local_logger.info(
+        local_logger.warning(
             "%s is a pre-release feature. Correctness is not guaranteed.",
             func.__name__,
         )

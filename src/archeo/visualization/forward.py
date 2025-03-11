@@ -52,7 +52,7 @@ def plot_bayes_factor_over_kick(
         data = ISData(candidate_prior=_candidate_prior, posterior=posterior, prior=prior)
         bfs.append(get_bayes_factor(data))
 
-    f = interpolate.interp1d(_ks, bfs)
+    f = interpolate.interp1d(_ks, bfs, fill_value="extrapolate")
     x = np.linspace(k_lb, k_ub, 1000)
     y = f(x)
 
