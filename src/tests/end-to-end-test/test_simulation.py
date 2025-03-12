@@ -1,11 +1,18 @@
 import os
 
 import pytest
+import surfinBH
 
 from archeo.constants import Fits
 from archeo.core.prior import Prior
 from archeo.core.simulator import Simulator
 from archeo.schema import Domain, PriorConfig
+
+
+# Ensure the model fits is downloaded during tests
+fits_filepath = os.path.dirname(surfinBH.__file__) + "/data/fit_3dq8.h5"
+if os.path.exists(fits_filepath):
+    os.remove(fits_filepath)
 
 
 @pytest.fixture(name="uniform_mass_aligned_spin_prior_config")
