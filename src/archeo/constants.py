@@ -8,7 +8,7 @@ local_logger = archeo.logger.get_logger(__name__)
 SPEED_OF_LIGHT = 299792.458  # km/s
 
 
-class Fits(enum.Enum):
+class Fits(enum.StrEnum):
     """Surrogate models for binary black hole merger simulations.
 
     Attributes:
@@ -80,7 +80,7 @@ class EscapeVelocity(enum.Enum):
         return {esc_vel.label(): esc_vel.value for esc_vel in cls}
 
 
-class Columns(str, enum.Enum):
+class Columns(enum.StrEnum):
     """Columns in the prior dataframe"""
 
     HEAVIER_BH_MASS = "m_1"
@@ -100,13 +100,3 @@ class Columns(str, enum.Enum):
     BH_SPIN = "a_f"
     BH_EFF_SPIN = "a_eff"
     BH_PREC_SPIN = "a_prec"
-
-    def __repr__(self):
-        """Return the string representation of the column"""
-
-        return self.value
-
-    def __str__(self):
-        """Return the string representation of the column"""
-
-        return self.value

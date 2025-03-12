@@ -237,7 +237,7 @@ def effective_spin_estimates(
     padding = Padding(bpad=0.14)
     labels = Labels(
         title="Effective Spin PDF",
-        xlabel="Effective Spin $a_{eff}$",
+        xlabel="Effective Spin $\\chi_{eff}$",
         ylabel="PDF",
     )
     fig, ax = base.initialize_plot(figsize=(10, 8), labels=labels, padding=padding, fontsize=15)
@@ -276,7 +276,7 @@ def precession_spin_estimates(
     padding = Padding(bpad=0.14)
     labels = Labels(
         title="Precession Spin PDF",
-        xlabel="Precession Spin $a_p$",
+        xlabel="Precession Spin $\\chi_p$",
         ylabel="PDF",
     )
     fig, ax = base.initialize_plot(figsize=(10, 8), labels=labels, padding=padding, fontsize=15)
@@ -343,8 +343,8 @@ def table_estimates(
         C.BH_MASS: "$m_f$",
         C.BH_SPIN: "$\\chi_f$",
         C.BH_KICK: "$v_f$",
-        C.BH_PREC_SPIN: "$a_{p}$",
-        C.BH_EFF_SPIN: "$a_{eff}$",
+        C.BH_PREC_SPIN: "$\\chi_{p}$",
+        C.BH_EFF_SPIN: "$\\chi_{eff}$",
     }
     data = {
         "": dfs.keys(),

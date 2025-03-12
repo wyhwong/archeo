@@ -1,6 +1,8 @@
-from dataclasses import dataclass
+import json
+from dataclasses import asdict, dataclass
 
 import numpy as np
+import yaml
 
 from archeo.constants import Fits
 
@@ -118,6 +120,63 @@ class PriorConfig:
 
         if self.m_1.high <= self.m_2.low:
             raise ValueError("The high bound of m_1 must be greater than the low bound of m_2.")
+
+    @staticmethod
+    def from_dict(data: dict) -> "PriorConfig":
+        """Create a PriorConfig object from a dictionary."""
+
+        return PriorConfig(
+            n_samples=data["n_samples"],
+            fits=Fits(data["fits"]),
+            is_spin_aligned=data["is_spin_aligned"],
+            is_only_up_aligned_spin=data["is_only_up_aligned_spin"],
+            a_1=Domain(data["a_1"]["low"], data["a_1"]["high"]),
+            a_2=Domain(data["a_2"]["low"], data["a_2"]["high"]),
+            phi_1=Domain(data["phi_1"]["low"], data["phi_1"]["high"]),
+            phi_2=Domain(data["phi_2"]["low"], data["phi_2"]["high"]),
+            theta_1=Domain(data["theta_1"]["low"], data["theta_1"]["high"]),
+            theta_2=Domain(data["theta_2"]["low"], data["theta_2"]["high"]),
+            mass_ratio=Domain(data["mass_ratio"]["low"], data["mass_ratio"]["high"]),
+            m_1=Domain(data["m_1"]["low"], data["m_1"]["high"]),
+            m_2=Domain(data["m_2"]["low"], data["m_2"]["high"]),
+            is_mahapatra=data["is_mahapatra"],
+            is_uniform_in_mass_ratio=data["is_uniform_in_mass_ratio"],
+        )
+
+    @classmethod
+    def from_json(cls, filepath: str) -> "PriorConfig":
+        """Create a PriorConfig object from a JSON file."""
+
+        with open(filepath, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        return cls.from_dict(data)
+
+    @classmethod
+    def from_yaml(cls, filepath: str) -> "PriorConfig":
+        """Create a PriorConfig object from a YAML file."""
+
+        with open(filepath, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+
+        return cls.from_dict(data)
+
+    def to_dict(self) -> dict:
+        """Convert to a dictionary."""
+
+        return asdict(self)
+
+    def to_json(self, filepath: str) -> None:
+        """Save to a JSON file."""
+
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(self.to_dict(), f, indent=4)
+
+    def to_yaml(self, filepath: str) -> None:
+        """Save to a YAML file."""
+
+        with open(filepath, "w", encoding="utf-8") as f:
+            yaml.dump(self.to_dict(), f)
 
 
 @dataclass(frozen=True)
