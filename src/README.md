@@ -1,5 +1,4 @@
-## ARCHEO - Inferring the natal kick and parental masses posterior of black holes in Pair-instability Supernova (PISN) gap.
-
+# ARCHEO
 [![github](https://img.shields.io/badge/GitHub-archeo-blue.svg)](https://github.com/wyhwong/archeo)
 [![PyPI version](https://badge.fury.io/py/archeo.svg)](https://pypi.org/project/archeo/)
 [![DOI](https://zenodo.org/badge/626377469.svg)](https://doi.org/10.5281/zenodo.14306853)
@@ -8,6 +7,9 @@
 [![license](https://img.shields.io/badge/license-MIT-orange.svg)](https://github.com/wyhwong/archeo/blob/main/LICENSE)
 [![CI](https://github.com/wyhwong/archeo/actions/workflows/main.yml/badge.svg)](https://github.com/wyhwong/archeo/actions/workflows/main.yml/)
 
+Archeo is a Python package designed to infer the natal kick, ancestral masses, and spins of black holes in the Pair-instability Supernova (PISN) gap,
+with a particular focus on hierarchical black hole formation.
+
 ## Basic Usage
 
 The following example demonstrates how to use the package to visualize the prior and posterior distributions of a single event.
@@ -15,7 +17,7 @@ The following example demonstrates how to use the package to visualize the prior
 ```python
 import archeo
 
-# Load the mass/spin samples from a file
+# Load the mass/spin samples from a file (usually PE results from LVK)
 # They are expected to be a list of floats
 mass_posterior = [68.0, 71.4, ..., 91.4]
 spin_posterior = [0.31, 0.54, ..., 0.64]
@@ -58,6 +60,10 @@ python3 -m archeo.ui
 
 Then the UI will be available at [localhost:8501](http://localhost:8501).
 
-# Credits
+## Getting Help
 
 The code is maintained by [Henry Wong](https://github.com/wyhwong) under [Juan Calderon Bustillo](https://git.ligo.org/juan.calderonbustillo)'s supervision. You can find the [list of contributors](https://github.com/wyhwong/archeo/graphs/contributors) here. Please report bugs by raising an issue on our [GitHub](https://github.com/wyhwong/archeo) repository.
+
+## License
+
+Archeo has a MIT License - see the [LICENSE](https://github.com/wyhwong/archeo/blob/main/LICENSE).

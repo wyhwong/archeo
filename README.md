@@ -5,22 +5,21 @@
 [![Python version](https://img.shields.io/pypi/pyversions/archeo)](https://pypi.org/project/archeo/)
 [![license](https://img.shields.io/badge/license-MIT-orange.svg)](https://github.com/wyhwong/archeo/blob/main/LICENSE)
 [![CI](https://github.com/wyhwong/archeo/actions/workflows/main.yml/badge.svg)](https://github.com/wyhwong/archeo/actions/workflows/main.yml/)
-
-
-Archeo is a package for inferring the natal kick and parental masses posterior of black holes in Pair-instability Supernova (PISN) gap.
-We study the parental black holes of GW190521 and investigate the probability that the component black holes in GW190521 are a result of black hole merger.
-The methodology is described in [Methodology](#methodology) section, and it can be applied to any other gravitational wave event.
-
-We also deployed a web-based UI on streamlit for a preview of what do we study.
-Please take a look if you are interested.
-
 [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://archeo.streamlit.app/)
+
+Archeo is a Python package designed to infer the natal kick, ancestral masses, and spins of black holes in the Pair-instability Supernova (PISN) gap,
+with a particular focus on hierarchical black hole formation.
+
+Our method (described in [Methodology](#methodology)) applies to any binary black hole event detected via gravitational waves, enabling researchers to:
+- Infer the parental (ancestral) black holes of observed binaries.
+- Estimate the birth recoil velocities to determine if a black hole remains in its host environment or is ejected.
+- Evaluate hierarchical merger scenarios to assess whether a black hole could be a product of previous mergers.
 
 ---
 
 # Installation
 
-The installation can be done via PyPI or from source.
+Install via PyPI or from source.
 
 ## PyPI
 ```bash
@@ -70,5 +69,6 @@ The methodology is describe in the following paper:
 
 ---
 
-# Credits
+## Getting Help
+
 The code is maintained by [Henry Wong](https://github.com/wyhwong) under [Juan Calderon Bustillo](https://git.ligo.org/juan.calderonbustillo)'s supervision. You can find the [list of contributors](https://github.com/wyhwong/archeo/graphs/contributors) here. Please report bugs by raising an issue on our [GitHub](https://github.com/wyhwong/archeo) repository.
