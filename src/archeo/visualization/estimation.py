@@ -192,7 +192,6 @@ def second_generation_probability_curve(
     colors = iter(mcolors.TABLEAU_COLORS.keys())
 
     for label, df in dfs.items():
-        recovery_rate = df[C.RECOVERY_RATE].iloc[0]
         # Calculate the CDF
         y = []
         for kick in x:
@@ -200,7 +199,7 @@ def second_generation_probability_curve(
             if df_samples.empty:
                 y.append(0.0)
             else:
-                y.append(len(df_samples) / len(df) * recovery_rate)
+                y.append(len(df_samples) / len(df))
 
         # Plot the CDF
         sns.lineplot(y=y, x=x, ax=ax, color=next(colors), label=label)

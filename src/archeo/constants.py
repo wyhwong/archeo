@@ -100,3 +100,14 @@ class Columns(enum.StrEnum):
     BH_SPIN = "a_f"
     BH_EFF_SPIN = "a_eff"
     BH_PREC_SPIN = "a_prec"
+
+
+class Prefixes(enum.StrEnum):
+    """Prefixes for columns"""
+
+    ORIGINAL = "original"
+
+    def __call__(self, column: Columns) -> str:
+        """Return the column name with prefix"""
+
+        return f"{self.value}_{column.value}"

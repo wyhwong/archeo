@@ -6,6 +6,7 @@ import pandas as pd
 import archeo.logger
 from archeo.constants import SPEED_OF_LIGHT
 from archeo.constants import Columns as C
+from archeo.constants import Prefixes as P
 from archeo.core.simulator import Simulator
 from archeo.preset import get_prior_config
 from archeo.schema import PriorConfig
@@ -55,8 +56,11 @@ class Prior(pd.DataFrame):
 
         if df.empty:
             local_logger.warning("No similar samples in the prior.")
+            # Return a number of samples with nan values
+            df = pd.DataFrame(index=range(self._sample_ratio), columns=df.columns)
         else:
             df = df.sample(self._sample_ratio, replace=True)
+
         return df
 
     def retrieve_samples(self, spin_measure: float, mass_measure: float) -> pd.DataFrame:
@@ -83,7 +87,11 @@ class Prior(pd.DataFrame):
 
             # Sample n_sample samples from the possible samples
             samples = self._sample_from_possible_samples(possible_samples)
+
             samples[C.LIKELIHOOD] = likelihood
+            samples[P.ORIGINAL(C.BH_SPIN)] = spin_measure
+            samples[P.ORIGINAL(C.BH_MASS)] = mass_measure
+
             return samples
 
         # Find the possible samples in the prior
@@ -101,7 +109,11 @@ class Prior(pd.DataFrame):
         )
         samples[C.LIGHTER_BH_MASS] = mass_measure / samples[C.RETAINED_MASS] / (1 + samples[C.MASS_RATIO])
         samples[C.BH_MASS] = mass_measure
+
         samples[C.LIKELIHOOD] = likelihood
+        samples[P.ORIGINAL(C.BH_SPIN)] = spin_measure
+        samples[P.ORIGINAL(C.BH_MASS)] = mass_measure
+
         return samples
 
     @property
@@ -271,6 +283,6 @@ class Prior(pd.DataFrame):
             ]
 
         df_posterior = pd.concat(samples)
-        df_posterior[C.RECOVERY_RATE] = len(df_posterior) / (len(mass_posterior) * self._sample_ratio)
+        df_posterior[C.RECOVERY_RATE] = df_posterior[C.BH_KICK].notna().sum() / len(df_posterior)
 
         return df_posterior

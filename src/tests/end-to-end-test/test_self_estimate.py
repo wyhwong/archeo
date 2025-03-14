@@ -20,10 +20,15 @@ def test_self_estimate(prior):
     where we let prior=posterior. Suppose we should get 100% recovery rate.
     """
 
-    mass_posterior = prior[C.BH_MASS]
-    spin_posterior = prior[C.BH_SPIN]
+    mass_posterior = prior[C.BH_MASS].copy()
+    spin_posterior = prior[C.BH_SPIN].copy()
 
-    # Run the estimation
+    # Run the estimation on itself
     posterior = prior.to_posterior(mass_posterior, spin_posterior)
-
     assert posterior[C.RECOVERY_RATE].iloc[0] == 1.0
+
+    # Rescale the masses to have m_min' > m_max + mass tolerance
+    # And rerun the estimation, suppose recovery rate is 0
+    mass_posterior += mass_posterior.max() + prior._mass_tolerance  # pylint: disable=protected-access
+    posterior = prior.to_posterior(mass_posterior, spin_posterior)
+    assert posterior[C.RECOVERY_RATE].iloc[0] == 0.0
