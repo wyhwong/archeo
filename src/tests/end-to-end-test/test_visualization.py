@@ -1,6 +1,7 @@
 import os
 from shutil import rmtree
 
+import pandas as pd
 import pytest
 
 import archeo
@@ -16,6 +17,20 @@ def default_prior():
     return archeo.Prior.from_json(filepath)
 
 
+@pytest.fixture(name="posterior")
+def default_posterior():
+    """Load the default posterior for testing."""
+
+    filepath = f"{os.path.dirname(os.path.dirname(__file__))}/test_data/prior.json"
+    prior = archeo.Prior.from_json(filepath)
+
+    # Here we inject some NaN samples to test the handling for visualization
+    nan_samples = pd.DataFrame(index=range(10), columns=prior.columns)
+    posterior = pd.concat([prior, nan_samples], ignore_index=True)
+
+    return posterior
+
+
 @pytest.fixture(name="output_dir")
 def default_output_dir():
     """Get the default output directory for testing."""
@@ -23,7 +38,7 @@ def default_output_dir():
     return f"{os.path.dirname(os.path.dirname(__file__))}/test_data/visualization"
 
 
-def test_visualizing_posterior_estimation(prior, output_dir):
+def test_visualizing_posterior_estimation(posterior, output_dir):
     """Test the visualization of the posterior estimation.
 
     NOTE:
@@ -34,7 +49,7 @@ def test_visualizing_posterior_estimation(prior, output_dir):
 
     assert not os.path.exists(output_dir)
 
-    visualize_posterior_estimation(dfs={"test": prior}, output_dir=output_dir)
+    visualize_posterior_estimation(dfs={"test": posterior}, output_dir=output_dir)
 
     assert os.path.exists(output_dir)
 

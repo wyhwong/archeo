@@ -17,6 +17,19 @@ from archeo.visualization import base
 local_logger = archeo.logger.get_logger(__name__)
 
 
+def filter_unmapped_samples(df: pd.DataFrame) -> pd.DataFrame:
+    """Filter out the samples that are not mapped to the posterior.
+
+    Args:
+        df (pd.DataFrame): The prior dataframe.
+
+    Returns:
+        df (pd.DataFrame): The filtered prior dataframe.
+    """
+
+    return df.dropna(subset=[C.BH_KICK])
+
+
 def mass_estimates(
     df: pd.DataFrame,
     label: str,
@@ -39,6 +52,8 @@ def mass_estimates(
         fig (plt.Figure): Figure.
         axes (plt.Axes): Axes.
     """
+
+    df = filter_unmapped_samples(df)
 
     padding = Padding(lpad=0.13, bpad=0.14)
     labels = Labels(
@@ -122,6 +137,8 @@ def corner_estimates(  # pylint: disable=dangerous-default-value
         handles = []
 
         for label, df in dfs.items():
+            df = filter_unmapped_samples(df)
+
             if len(df) < nbins:
                 local_logger.info("Dataframe does not have enough samples to plot.")
                 continue
@@ -192,6 +209,8 @@ def second_generation_probability_curve(
     colors = iter(mcolors.TABLEAU_COLORS.keys())
 
     for label, df in dfs.items():
+        df = filter_unmapped_samples(df)
+
         # Calculate the CDF
         y = []
         for kick in x:
@@ -354,6 +373,7 @@ def table_estimates(
     for col, name in col_to_names.items():
         data[name] = []
         for df in dfs.values():
+            df = filter_unmapped_samples(df)
             low, mid, high = (
                 df[col].quantile(0.05),
                 df[col].quantile(0.5),
