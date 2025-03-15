@@ -307,8 +307,9 @@ def _plot_pdf(
         unit (Optional[str]): Unit.
     """
 
-    density, bins = np.histogram(a=series, bins=70, density=True)
-    low, mid, high = series.quantile(0.05), series.quantile(0.5), series.quantile(0.95)
+    _series = series.dropna()
+    density, bins = np.histogram(a=_series, bins=70, density=True)
+    low, mid, high = _series.quantile(0.05), _series.quantile(0.5), _series.quantile(0.95)
     label = "%s: $%.2f_{-%.2f}^{+%.2f}$" % (name, mid, mid - low, high - mid)
     if unit:
         label += f" {unit}"
