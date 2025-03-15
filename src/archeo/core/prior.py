@@ -22,7 +22,7 @@ class Prior(pd.DataFrame):
     def __init__(
         self,
         *args,
-        is_mass_marginalized: bool = False,
+        rescale_mass: bool = False,
         sample_ratio: int = 1,
         spin_tolerance: float = 0.05,  # unit: dimensionless
         mass_tolerance: float = 1.0,  # unit: solar mass
@@ -31,7 +31,7 @@ class Prior(pd.DataFrame):
         """Construct a prior dataframe.
 
         Args:
-            is_mass_marginalized (bool): Whether to enable mass marginalization
+            rescale_mass (bool): Whether to enable mass marginalization
             sample_ratio (int): The number of samples to be sampled each time
             spin_tolerance (float): The tolerance of the spin
             mass_tolerance (float): The tolerance of the mass
@@ -39,7 +39,7 @@ class Prior(pd.DataFrame):
 
         super().__init__(*args, **kwargs)
 
-        self._is_mass_marginalized = is_mass_marginalized
+        self._rescale_mass = rescale_mass
         self._sample_ratio = sample_ratio
         self._spin_tolerance = spin_tolerance
         self._mass_tolerance = mass_tolerance
@@ -74,7 +74,7 @@ class Prior(pd.DataFrame):
             pd.DataFrame: The sampled dataframe
         """
 
-        if not self._is_mass_marginalized:
+        if not self._rescale_mass:
             # Find the possible samples in the prior
             # Based on:
             #    1. mass_prior - tol < mass_measure < mass_prior + tol
