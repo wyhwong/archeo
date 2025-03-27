@@ -2991,4 +2991,4 @@ ui = ["nbformat", "plotly", "streamlit"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "2bc8422d979ba6c7cf5d99f6a8bbaf0c2575b61d85bfa5623001a20b0deb068e"
+content-hash = "0dbce8f9389ec5aca64277995eb817f3099980a77f88c736bff7640cc651d62d"
