@@ -1,4 +1,5 @@
 import enum
+import os
 
 import archeo.logger
 
@@ -41,7 +42,37 @@ class Fits(enum.StrEnum):
             self.value,
             surfinBH.fits_collection[self.value].desc,
         )
-        return surfinBH.LoadFits(self.value)
+
+        try:
+            return surfinBH.LoadFits(self.value)
+        except (OSError, KeyError) as e:
+            local_logger.error("Failed to load surfinBH %s: %s", self.value, str(e))
+            self.clean_up_surfinbh_data()
+            return self.load()
+
+    @staticmethod
+    def clean_up_surfinbh_data():
+        """Clean up the surfinBH data directory.
+
+        We clean up in two situations:
+        1. KeyError: this seems to be a bug in surfinBH,
+           when installing the latest version (1.2.6).
+        2. OSError: this happens when we interrupt the download
+           of the surfinBH data files.
+        """
+
+        import surfinBH  # pylint: disable=import-outside-toplevel
+
+        # Remove all files in the data directory
+        data_dir = f"{os.path.dirname(surfinBH.__file__)}/data"
+
+        if os.path.exists(data_dir):
+            for file in os.listdir(data_dir):
+                local_logger.warning(
+                    "Cleaning up surfinBH data directory: removing %s due to error.",
+                    f"{data_dir}/{file}",
+                )
+                os.remove(f"{data_dir}/{file}")
 
 
 class EscapeVelocity(enum.Enum):
