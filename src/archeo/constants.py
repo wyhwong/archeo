@@ -98,8 +98,8 @@ class Columns(enum.StrEnum):
     BH_VEL = "v_f"
     BH_CHI = "chi_f"
     BH_SPIN = "a_f"
-    BH_EFF_SPIN = "a_eff"
-    BH_PREC_SPIN = "a_prec"
+    BH_EFF_SPIN = "chi_eff"
+    BH_PREC_SPIN = "chi_p"
 
 
 class Prefixes(enum.StrEnum):
