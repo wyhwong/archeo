@@ -10,6 +10,7 @@ import seaborn as sns
 
 import archeo.logger
 from archeo.constants import Columns as C
+from archeo.constants import EscapeVelocity
 from archeo.schema import Labels, Padding
 from archeo.visualization import base
 
@@ -368,6 +369,7 @@ def table_estimates(
     data = {
         "": dfs.keys(),
         "Recovery Rate": [df[C.RECOVERY_RATE].iloc[0] for df in dfs.values()],
+        **{f"p2g_{v_esc.short()}": [v_esc.compute_p2g(df) for df in dfs.values()] for v_esc in EscapeVelocity},
     }
 
     for col, name in col_to_names.items():
@@ -388,7 +390,7 @@ def table_estimates(
         if fmt.lower() == "md":
             df_table.to_markdown(f"{output_dir}/{filename}.{fmt}", index=False)
 
-        if fmt.lower() == "csv":
+        elif fmt.lower() == "csv":
             df_table.to_csv(f"{output_dir}/{filename}.{fmt}", index=False)
 
         else:

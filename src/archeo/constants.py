@@ -1,6 +1,8 @@
 import enum
 import os
 
+import pandas as pd
+
 import archeo.logger
 
 
@@ -83,7 +85,7 @@ class EscapeVelocity(enum.Enum):
     NUCLEAR_STAR_CLUSTER = 1500.0
     ELLIPTICAL_GALAXY = 2500.0
 
-    def label(self):
+    def label(self) -> str:
         """Return the escape velocity label"""
 
         if self is EscapeVelocity.GLOBULAR_CLUSTER:
@@ -99,6 +101,38 @@ class EscapeVelocity(enum.Enum):
             return "$v_{esc, EG}$"
 
         raise ValueError(f"Unknown escape velocity {self}")
+
+    def short(self) -> str:
+        """Return the short name of the escape velocity"""
+
+        if self is EscapeVelocity.GLOBULAR_CLUSTER:
+            return "GC"
+
+        if self is EscapeVelocity.MILKY_WAY:
+            return "MW"
+
+        if self is EscapeVelocity.NUCLEAR_STAR_CLUSTER:
+            return "NSC"
+
+        if self is EscapeVelocity.ELLIPTICAL_GALAXY:
+            return "EG"
+
+        raise ValueError(f"Unknown escape velocity {self}")
+
+    def compute_p2g(self, df: pd.DataFrame) -> float:
+        """Return the probability of
+        the black hole being a 2nd generation black hole
+        under different escape velocity conditions."""
+
+        if df.empty:
+            return 0.0
+
+        mask = (
+            (df[Columns.BH_KICK] <= self.value)
+            & (df[Columns.HEAVIER_BH_MASS] <= 65)
+            & (df[Columns.LIGHTER_BH_MASS] <= 65)
+        )
+        return mask.sum() / len(df) * 100.0
 
     @classmethod
     def to_vlines(cls) -> dict[str, float]:
