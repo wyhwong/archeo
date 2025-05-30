@@ -6,6 +6,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from archeo.constants import Columns as C
+from archeo.constants import Suffixes as S
 from archeo.core.mahapatra import get_mahapatra_mass_fn
 from archeo.schema import Binary, Event, PriorConfig
 from archeo.utils.file import read_data
@@ -209,14 +210,14 @@ class Simulator:
         df = read_data(filepath)
 
         if kick_limit is not None:
-            df = df[df[C.BH_KICK] <= kick_limit][[C.BH_SPIN, C.BH_MASS]].reset_index(drop=True)
+            df = df[df[C.KICK] <= kick_limit][[S.FINAL(C.SPIN_MAG), S.FINAL(C.MASS)]].reset_index(drop=True)
 
         # Remnant draw
         def draw() -> tuple[float, float]:
             """Draws the remnant mass and spin"""
 
             idx = np.random.random_integers(low=0, high=len(df) - 1)
-            return (df.loc[idx, C.BH_MASS], df.loc[idx, C.BH_SPIN])
+            return (df.loc[idx, S.FINAL(C.MASS)], df.loc[idx, S.FINAL(C.SPIN_MAG)])
 
         if bh == 1:
             self._is_remnant_1 = True

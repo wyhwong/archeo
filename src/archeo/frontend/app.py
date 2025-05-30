@@ -4,6 +4,7 @@ import streamlit as st
 import archeo
 from archeo.constants import Columns as C
 from archeo.constants import Fits
+from archeo.constants import Suffixes as S
 from archeo.frontend import viz
 from archeo.schema import Domain, PriorConfig
 
@@ -75,9 +76,9 @@ st.markdown(
 if "figs" not in st.session_state:
     st.session_state["figs"] = {}
     for col, label in {
-        C.BH_KICK: "Birth Recoil k<sub>f</sub> [km s<sup>-1</sup>]",
-        C.BH_SPIN: "Spin χ<sub>f</sub> [-]",
-        C.BH_MASS: "Mass m<sub>f</sub> [M<sub>Sun</sub>]",
+        C.KICK: "Birth Recoil k<sub>f</sub> [km s<sup>-1</sup>]",
+        S.FINAL(C.SPIN_MAG): "Spin χ<sub>f</sub> [-]",
+        S.FINAL(C.MASS): "Mass m<sub>f</sub> [M<sub>Sun</sub>]",
     }.items():
         st.session_state.figs[col] = go.Figure()
         st.session_state.figs[col].update_layout(
@@ -113,7 +114,7 @@ if st.sidebar.button("Run"):
         df = archeo.Prior.from_config(prior_config)
 
         st.write("## Visualization of Remnant Properties")
-        for col in [C.BH_KICK, C.BH_SPIN, C.BH_MASS]:
+        for col in [C.KICK, S.FINAL(C.SPIN_MAG), S.FINAL(C.MASS)]:
             viz.add_pdf(st.session_state.figs[col], df[col], prior_name)
             st.plotly_chart(st.session_state.figs[col])
 

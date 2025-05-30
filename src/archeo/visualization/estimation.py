@@ -11,6 +11,7 @@ import seaborn as sns
 import archeo.logger
 from archeo.constants import Columns as C
 from archeo.constants import EscapeVelocity
+from archeo.constants import Suffixes as S
 from archeo.schema import Labels, Padding
 from archeo.visualization import base
 
@@ -28,7 +29,7 @@ def filter_unmapped_samples(df: pd.DataFrame) -> pd.DataFrame:
         df (pd.DataFrame): The filtered prior dataframe.
     """
 
-    return df.dropna(subset=[C.BH_KICK])
+    return df.dropna(subset=[C.KICK])
 
 
 def mass_estimates(
@@ -66,9 +67,9 @@ def mass_estimates(
     colors = iter(mcolors.TABLEAU_COLORS.keys())
 
     col_to_name = {
-        C.BH_MASS: label + ": ",
-        C.HEAVIER_BH_MASS: "Heavier Parent: ",
-        C.LIGHTER_BH_MASS: "Ligher Parent: ",
+        S.FINAL(C.MASS): label + ": ",
+        S.PRIMARY(C.MASS): "Heavier Parent: ",
+        S.SECONDARY(C.MASS): "Ligher Parent: ",
     }
     for col, name in col_to_name.items():
         _plot_pdf(ax, next(colors), df[col], name, unit=r"[$M_{\odot}$]")
@@ -118,8 +119,8 @@ def corner_estimates(  # pylint: disable=dangerous-default-value
     """
 
     corner_type_to_var_names = {
-        "part": [C.HEAVIER_BH_MASS, C.LIGHTER_BH_MASS, C.BH_KICK],
-        "full": [C.HEAVIER_BH_MASS, C.LIGHTER_BH_MASS, C.BH_MASS, C.BH_KICK, C.BH_SPIN],
+        "part": [S.PRIMARY(C.MASS), S.SECONDARY(C.MASS), C.KICK],
+        "full": [S.PRIMARY(C.MASS), S.SECONDARY(C.MASS), S.FINAL(C.MASS), C.KICK, S.FINAL(C.SPIN_MAG)],
     }
     corner_type_to_labels = {
         "part": [r"$m_1$ [$M_{\odot}$]", r"$m_2$ [$M_{\odot}$]", r"$v_f$ [km s$^{-1}$]"],
@@ -197,7 +198,7 @@ def second_generation_probability_curve(
     """
 
     # Set up x-axis
-    x_max = max(df[C.BH_KICK].max() for df in dfs.values())
+    x_max = max(df[C.KICK].max() for df in dfs.values())
     x = np.linspace(0.0, x_max, 300)
 
     padding = Padding(bpad=0.14)
@@ -215,7 +216,7 @@ def second_generation_probability_curve(
         # Calculate the CDF
         y = []
         for kick in x:
-            df_samples = df.loc[(df[C.BH_KICK] <= kick) & (df[C.HEAVIER_BH_MASS] <= 65) & (df[C.LIGHTER_BH_MASS] <= 65)]
+            df_samples = df.loc[(df[C.KICK] <= kick) & (df[S.PRIMARY(C.MASS)] <= 65) & (df[S.SECONDARY(C.MASS)] <= 65)]
             if df_samples.empty:
                 y.append(0.0)
             else:
@@ -263,7 +264,7 @@ def effective_spin_estimates(
     colors = iter(mcolors.TABLEAU_COLORS.keys())
 
     for label, df in dfs.items():
-        _plot_pdf(ax, next(colors), df[C.BH_EFF_SPIN], label)
+        _plot_pdf(ax, next(colors), df[S.EFF(C.SPIN)], label)
 
     plt.legend()
     base.clear_default_labels(ax)
@@ -302,7 +303,7 @@ def precession_spin_estimates(
     colors = iter(mcolors.TABLEAU_COLORS.keys())
 
     for label, df in dfs.items():
-        _plot_pdf(ax, next(colors), df[C.BH_PREC_SPIN], label)
+        _plot_pdf(ax, next(colors), df[S.PREC(C.SPIN)], label)
 
     plt.legend()
     base.clear_default_labels(ax)
@@ -357,14 +358,14 @@ def table_estimates(
     """
 
     col_to_names = {
-        C.HEAVIER_BH_MASS: "$m_1$",
-        C.LIGHTER_BH_MASS: "$m_2$",
+        S.PRIMARY(C.MASS): "$m_1$",
+        S.SECONDARY(C.MASS): "$m_2$",
         C.MASS_RATIO: "$q$",
-        C.BH_MASS: "$m_f$",
-        C.BH_SPIN: "$\\chi_f$",
-        C.BH_KICK: "$v_f$",
-        C.BH_PREC_SPIN: "$\\chi_{p}$",
-        C.BH_EFF_SPIN: "$\\chi_{eff}$",
+        S.FINAL(C.MASS): "$m_f$",
+        S.FINAL(C.SPIN_MAG): "$\\chi_f$",
+        C.KICK: "$v_f$",
+        S.PREC(C.SPIN): "$\\chi_{p}$",
+        S.EFF(C.SPIN): "$\\chi_{eff}$",
     }
     data = {
         "": dfs.keys(),

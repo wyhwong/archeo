@@ -8,6 +8,7 @@ import archeo.logger
 from archeo.constants import SPEED_OF_LIGHT
 from archeo.constants import Columns as C
 from archeo.constants import Prefixes as P
+from archeo.constants import Suffixes as S
 from archeo.core.simulator import Simulator
 from archeo.preset import get_prior_config
 from archeo.schema import PriorConfig
@@ -81,8 +82,8 @@ class Prior(pd.DataFrame):
             #    1. mass_prior - tol < mass_measure < mass_prior + tol
             #    2. spin_prior - tol < spin_measure < spin_prior + tol
             possible_samples = self.loc[
-                ((self[C.BH_MASS] - mass_measure).abs() < self._mass_tolerance)
-                & ((self[C.BH_SPIN] - spin_measure).abs() < self._spin_tolerance)
+                ((self[S.FINAL(C.MASS)] - mass_measure).abs() < self._mass_tolerance)
+                & ((self[S.FINAL(C.SPIN_MAG)] - spin_measure).abs() < self._spin_tolerance)
             ]
             likelihood = len(possible_samples) / len(self)
 
@@ -90,30 +91,30 @@ class Prior(pd.DataFrame):
             samples = self._sample_from_possible_samples(possible_samples)
 
             samples[C.LIKELIHOOD] = likelihood
-            samples[P.ORIGINAL(C.BH_SPIN)] = spin_measure
-            samples[P.ORIGINAL(C.BH_MASS)] = mass_measure
+            samples[P.ORIGINAL(S.FINAL(C.SPIN_MAG))] = spin_measure
+            samples[P.ORIGINAL(S.FINAL(C.MASS))] = mass_measure
 
             return samples
 
         # Find the possible samples in the prior
         # Based on:
         #    1. spin_prior - tol < spin_measure < spin_prior + tol
-        possible_samples = self.loc[(self[C.BH_SPIN] - spin_measure).abs() < self._spin_tolerance]
+        possible_samples = self.loc[(self[S.FINAL(C.SPIN_MAG)] - spin_measure).abs() < self._spin_tolerance]
         likelihood = len(possible_samples) / len(self)
 
         # Sample n_sample samples from the possible samples
         samples = self._sample_from_possible_samples(possible_samples)
 
         # Calculate the mass parameters (for mass not injected case)
-        samples[C.HEAVIER_BH_MASS] = (
-            mass_measure / samples[C.RETAINED_MASS] * samples[C.MASS_RATIO] / (1 + samples[C.MASS_RATIO])
+        samples[S.PRIMARY(C.MASS)] = (
+            mass_measure / samples[S.RETAINED(C.MASS)] * samples[C.MASS_RATIO] / (1 + samples[C.MASS_RATIO])
         )
-        samples[C.LIGHTER_BH_MASS] = mass_measure / samples[C.RETAINED_MASS] / (1 + samples[C.MASS_RATIO])
-        samples[C.BH_MASS] = mass_measure
+        samples[S.SECONDARY(C.MASS)] = mass_measure / samples[S.RETAINED(C.MASS)] / (1 + samples[C.MASS_RATIO])
+        samples[S.FINAL(C.MASS)] = mass_measure
 
         samples[C.LIKELIHOOD] = likelihood
-        samples[P.ORIGINAL(C.BH_SPIN)] = spin_measure
-        samples[P.ORIGINAL(C.BH_MASS)] = mass_measure
+        samples[P.ORIGINAL(S.FINAL(C.SPIN_MAG))] = spin_measure
+        samples[P.ORIGINAL(S.FINAL(C.MASS))] = mass_measure
 
         return samples
 
@@ -224,31 +225,31 @@ class Prior(pd.DataFrame):
         df[C.SAMPLE_ID] = float("nan")
 
         # Calculate the mass ratio
-        m1, m2 = df[C.HEAVIER_BH_MASS], df[C.LIGHTER_BH_MASS]
+        m1, m2 = df[S.PRIMARY(C.MASS)], df[S.SECONDARY(C.MASS)]
         df[C.MASS_RATIO] = q = m1 / m2
 
         # Calculate the remnant mass
-        df[C.BH_MASS] = df[C.RETAINED_MASS] * (m1 + m2)
+        df[S.FINAL(C.MASS)] = df[S.RETAINED(C.MASS)] * (m1 + m2)
 
         # Calculate the BH kick velocity
-        df[C.BH_KICK] = df[C.BH_VEL].apply(lambda vf: np.sqrt(np.dot(vf, vf)) * SPEED_OF_LIGHT)
+        df[C.KICK] = df[S.FINAL(C.VELOCITY)].apply(lambda vf: np.sqrt(np.dot(vf, vf)) * SPEED_OF_LIGHT)
 
         # Calculate the BH spin
-        df[C.BH_SPIN] = df[C.BH_CHI].apply(lambda vf: np.sqrt(np.dot(vf, vf)))
+        df[S.FINAL(C.SPIN_MAG)] = df[S.FINAL(C.SPIN)].apply(lambda vf: np.sqrt(np.dot(vf, vf)))
 
         # Calculate the parental spins
-        df[C.HEAVIER_BH_SPIN] = df[C.HEAVIER_BH_CHI].apply(lambda chi: np.sqrt(np.dot(chi, chi)))
-        df[C.LIGHTER_BH_SPIN] = df[C.LIGHTER_BH_CHI].apply(lambda chi: np.sqrt(np.dot(chi, chi)))
+        df[S.PRIMARY(C.SPIN_MAG)] = df[S.PRIMARY(C.SPIN)].apply(lambda chi: np.sqrt(np.dot(chi, chi)))
+        df[S.SECONDARY(C.SPIN_MAG)] = df[S.SECONDARY(C.SPIN)].apply(lambda chi: np.sqrt(np.dot(chi, chi)))
 
         # Calculate the effective spin
-        a1z = df[C.HEAVIER_BH_CHI].apply(lambda chi: chi[-1])
-        a2z = df[C.LIGHTER_BH_CHI].apply(lambda chi: chi[-1])
-        df[C.BH_EFF_SPIN] = (m1 * a1z + m2 * a2z) / (m1 + m2)
+        a1z = df[S.PRIMARY(C.SPIN)].apply(lambda chi: chi[-1])
+        a2z = df[S.SECONDARY(C.SPIN)].apply(lambda chi: chi[-1])
+        df[S.EFF(C.SPIN)] = (m1 * a1z + m2 * a2z) / (m1 + m2)
 
         # Calculate the precession spin
-        a1h = df[C.HEAVIER_BH_CHI].apply(lambda chi: np.sqrt(chi[0] ** 2 + chi[1] ** 2))
-        a2h = df[C.LIGHTER_BH_CHI].apply(lambda chi: np.sqrt(chi[0] ** 2 + chi[1] ** 2))
-        df[C.BH_PREC_SPIN] = np.maximum(a1h, (4 / q + 3) / (3 / q + 4) / q * a2h)
+        a1h = df[S.PRIMARY(C.SPIN)].apply(lambda chi: np.sqrt(chi[0] ** 2 + chi[1] ** 2))
+        a2h = df[S.SECONDARY(C.SPIN)].apply(lambda chi: np.sqrt(chi[0] ** 2 + chi[1] ** 2))
+        df[S.PREC(C.SPIN)] = np.maximum(a1h, (4 / q + 3) / (3 / q + 4) / q * a2h)
 
         return df
 
@@ -290,17 +291,17 @@ class Prior(pd.DataFrame):
 
         df_posterior = pd.concat(samples)
 
-        df_posterior[C.RECOVERY_RATE] = df_posterior[C.BH_KICK].notna().sum() / len(df_posterior)
+        df_posterior[C.RECOVERY_RATE] = df_posterior[C.KICK].notna().sum() / len(df_posterior)
 
-        ks, p_value = ks_2samp(df_posterior[P.ORIGINAL(C.BH_SPIN)], df_posterior[C.BH_SPIN])
+        ks, p_value = ks_2samp(df_posterior[P.ORIGINAL(S.FINAL(C.SPIN_MAG))], df_posterior[S.FINAL(C.SPIN_MAG)])
         df_posterior[C.KS_TEST_FOR_SPIN] = ks
         df_posterior[C.KS_PV_FOR_SPIN] = p_value
 
-        ks, p_value = ks_2samp(df_posterior[P.ORIGINAL(C.BH_MASS)], df_posterior[C.BH_MASS])
+        ks, p_value = ks_2samp(df_posterior[P.ORIGINAL(S.FINAL(C.MASS))], df_posterior[S.FINAL(C.MASS)])
         df_posterior[C.KS_TEST_FOR_MASS] = ks
         df_posterior[C.KS_PV_FOR_MASS] = p_value
 
-        df_posterior[C.SAMPLE_ID] = df_posterior.apply(lambda x: x.name if pd.notna(x[C.BH_KICK]) else None, axis=1)
+        df_posterior[C.SAMPLE_ID] = df_posterior.apply(lambda x: x.name if pd.notna(x[C.KICK]) else None, axis=1)
         df_posterior = df_posterior.reset_index(drop=True)
 
         return df_posterior

@@ -1,5 +1,6 @@
 import enum
 import os
+from typing import Union
 
 import pandas as pd
 
@@ -128,9 +129,9 @@ class EscapeVelocity(enum.Enum):
             return 0.0
 
         mask = (
-            (df[Columns.BH_KICK] <= self.value)
-            & (df[Columns.HEAVIER_BH_MASS] <= 65)
-            & (df[Columns.LIGHTER_BH_MASS] <= 65)
+            (df[Columns.KICK] <= self.value)
+            & (df[Suffixes.PRIMARY(Columns.MASS)] <= 65)
+            & (df[Suffixes.SECONDARY(Columns.MASS)] <= 65)
         )
         return mask.sum() / len(df) * 100.0
 
@@ -148,14 +149,10 @@ class EscapeVelocity(enum.Enum):
 class Columns(enum.StrEnum):
     """Columns in the prior dataframe"""
 
-    HEAVIER_BH_MASS = "m_1"
-    HEAVIER_BH_SPIN = "a_1"
-    HEAVIER_BH_CHI = "chi_1"
-    LIGHTER_BH_MASS = "m_2"
-    LIGHTER_BH_SPIN = "a_2"
-    LIGHTER_BH_CHI = "chi_2"
+    MASS = "m"
+    SPIN = "chi"
+    SPIN_MAG = "a"
     MASS_RATIO = "q"
-    RETAINED_MASS = "m_ret"
     LIKELIHOOD = "l"
     RECOVERY_RATE = "r_rec"
     KS_TEST_FOR_MASS = "ks_test_mf"
@@ -163,13 +160,8 @@ class Columns(enum.StrEnum):
     KS_TEST_FOR_SPIN = "ks_test_af"
     KS_PV_FOR_SPIN = "ks_p-value_af"
     SAMPLE_ID = "sample_id"
-    BH_MASS = "m_f"
-    BH_KICK = "k_f"
-    BH_VEL = "v_f"
-    BH_CHI = "chi_f"
-    BH_SPIN = "a_f"
-    BH_EFF_SPIN = "chi_eff"
-    BH_PREC_SPIN = "chi_p"
+    KICK = "k_f"
+    VELOCITY = "v"
 
 
 class Prefixes(enum.StrEnum):
@@ -177,7 +169,29 @@ class Prefixes(enum.StrEnum):
 
     ORIGINAL = "original"
 
-    def __call__(self, column: Columns) -> str:
+    def __call__(self, column: Union[Columns, str]) -> str:
         """Return the column name with prefix"""
 
-        return f"{self.value}_{column.value}"
+        if isinstance(column, enum.Enum):
+            column = column.value
+
+        return f"{self.value}_{column}"
+
+
+class Suffixes(enum.StrEnum):
+    """Suffixes for columns"""
+
+    PRIMARY = "1"
+    SECONDARY = "2"
+    FINAL = "f"
+    EFF = "eff"  # for effective spin
+    PREC = "p"  # for precessing spin
+    RETAINED = "ret"  # for retained mass
+
+    def __call__(self, column: Union[Columns, str]) -> str:
+        """Return the column name with suffix"""
+
+        if isinstance(column, enum.Enum):
+            column = column.value
+
+        return f"{column}_{self.value}"

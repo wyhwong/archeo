@@ -5,6 +5,7 @@ import pytest
 
 import archeo
 from archeo.constants import Columns as C
+from archeo.constants import Suffixes as S
 
 
 @pytest.fixture(name="prior")
@@ -21,8 +22,8 @@ def test_self_estimate(prior):
     where we let prior=posterior. Suppose we should get 100% recovery rate.
     """
 
-    mass_posterior = prior[C.BH_MASS].copy()
-    spin_posterior = prior[C.BH_SPIN].copy()
+    mass_posterior = prior[S.FINAL(C.MASS)].copy()
+    spin_posterior = prior[S.FINAL(C.SPIN_MAG)].copy()
 
     # Run the estimation on itself
     posterior = prior.to_posterior(mass_posterior, spin_posterior)
