@@ -15,24 +15,22 @@ repos:
     args: ["--branch", "master"]
 
 - repo: https://github.com/kynan/nbstripout
-  rev: 0.7.1
+  rev: 0.8.1
   hooks:
   - id: nbstripout
 
 - repo: https://github.com/psf/black
-  rev: 24.10.0
+  rev: 25.1.0
   hooks:
   - id: black
     args: [
-      "--config", "./src/pyproject.toml",
-      "src"
+      "--line-length", "120", "src"
     ]
-    additional_dependencies: [ "black[toml]" ]
     always_run: true
     verbose: true
 
 - repo: https://github.com/pylint-dev/pylint
-  rev: v3.3.1
+  rev: v3.3.7
   hooks:
   - id: pylint
     args: ["--rcfile", "./.pylintrc", "src"]
@@ -40,15 +38,15 @@ repos:
     verbose: true
 
 - repo: https://github.com/pycqa/isort
-  rev: 5.13.2
+  rev: 6.0.1
   hooks:
   - id: isort
     args: [
       "--profile", "black",
-      "--settings-path", "./src/pyproject.toml",
+      "--line-length", "120",
+      "--lines-after-imports", "2",
       "src"
     ]
-    additional_dependencies: [ "isort[toml]" ]
     always_run: true
     verbose: true
 

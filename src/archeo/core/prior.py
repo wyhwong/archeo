@@ -2,6 +2,7 @@ from typing import Optional, Union
 
 import numpy as np
 import pandas as pd
+from scipy.stats import ks_2samp
 
 import archeo.logger
 from archeo.constants import SPEED_OF_LIGHT
@@ -217,6 +218,12 @@ class Prior(pd.DataFrame):
         # Define nan recovery rate
         df[C.RECOVERY_RATE] = float("nan")
 
+        # Define nan KS tests for mass and spin
+        df[C.KS_TEST_FOR_MASS] = float("nan")
+        df[C.KS_PV_FOR_MASS] = float("nan")
+        df[C.KS_TEST_FOR_SPIN] = float("nan")
+        df[C.KS_PV_FOR_SPIN] = float("nan")
+
         # Calculate the mass ratio
         m1, m2 = df[C.HEAVIER_BH_MASS], df[C.LIGHTER_BH_MASS]
         df[C.MASS_RATIO] = q = m1 / m2
@@ -283,6 +290,15 @@ class Prior(pd.DataFrame):
             ]
 
         df_posterior = pd.concat(samples)
+
         df_posterior[C.RECOVERY_RATE] = df_posterior[C.BH_KICK].notna().sum() / len(df_posterior)
+
+        ks, p_value = ks_2samp(df_posterior[P.ORIGINAL(C.BH_SPIN)], df_posterior[C.BH_SPIN])
+        df_posterior[C.KS_TEST_FOR_SPIN] = ks
+        df_posterior[C.KS_PV_FOR_SPIN] = p_value
+
+        ks, p_value = ks_2samp(df_posterior[P.ORIGINAL(C.BH_MASS)], df_posterior[C.BH_MASS])
+        df_posterior[C.KS_TEST_FOR_MASS] = ks
+        df_posterior[C.KS_PV_FOR_MASS] = p_value
 
         return df_posterior
