@@ -162,6 +162,7 @@ class Columns(enum.StrEnum):
     KS_PV_FOR_MASS = "ks_p-value_mf"
     KS_TEST_FOR_SPIN = "ks_test_af"
     KS_PV_FOR_SPIN = "ks_p-value_af"
+    SAMPLE_ID = "sample_id"
     BH_MASS = "m_f"
     BH_KICK = "k_f"
     BH_VEL = "v_f"

@@ -31,6 +31,7 @@ def test_self_estimate(prior):
     assert posterior[C.KS_TEST_FOR_MASS].iloc[0] < 0.03
     assert np.isclose(posterior[C.KS_PV_FOR_SPIN].iloc[0], 1.0, atol=1e-7)
     assert posterior[C.KS_TEST_FOR_SPIN].iloc[0] < 0.03
+    assert posterior[C.SAMPLE_ID].notna().all()
 
     # Rescale the masses to have m_min' > m_max + mass tolerance
     # And rerun the estimation, suppose recovery rate is 0
@@ -41,3 +42,4 @@ def test_self_estimate(prior):
     assert posterior[C.KS_TEST_FOR_MASS].isna().all()
     assert posterior[C.KS_PV_FOR_SPIN].isna().all()
     assert posterior[C.KS_TEST_FOR_SPIN].isna().all()
+    assert posterior[C.SAMPLE_ID].isna().all()

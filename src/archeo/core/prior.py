@@ -215,14 +215,13 @@ class Prior(pd.DataFrame):
 
         # Extract more information from the samples
 
-        # Define nan recovery rate
+        # Define dummy columns
         df[C.RECOVERY_RATE] = float("nan")
-
-        # Define nan KS tests for mass and spin
         df[C.KS_TEST_FOR_MASS] = float("nan")
         df[C.KS_PV_FOR_MASS] = float("nan")
         df[C.KS_TEST_FOR_SPIN] = float("nan")
         df[C.KS_PV_FOR_SPIN] = float("nan")
+        df[C.SAMPLE_ID] = float("nan")
 
         # Calculate the mass ratio
         m1, m2 = df[C.HEAVIER_BH_MASS], df[C.LIGHTER_BH_MASS]
@@ -300,5 +299,8 @@ class Prior(pd.DataFrame):
         ks, p_value = ks_2samp(df_posterior[P.ORIGINAL(C.BH_MASS)], df_posterior[C.BH_MASS])
         df_posterior[C.KS_TEST_FOR_MASS] = ks
         df_posterior[C.KS_PV_FOR_MASS] = p_value
+
+        df_posterior[C.SAMPLE_ID] = df_posterior.apply(lambda x: x.name if pd.notna(x[C.BH_KICK]) else None, axis=1)
+        df_posterior = df_posterior.reset_index(drop=True)
 
         return df_posterior
