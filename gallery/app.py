@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from archeo.constants import Columns as C
+from archeo.constants import Suffixes as S
 from archeo.frontend import viz
 
 
@@ -59,9 +60,9 @@ st.markdown(
 if "figs" not in st.session_state:
     st.session_state["figs"] = {}
     for col, label in {
-        C.BH_KICK: "Birth Recoil k<sub>f</sub> [km s<sup>-1</sup>]",
-        C.BH_SPIN: "Spin χ<sub>f</sub> [-]",
-        C.BH_MASS: "Mass m<sub>f</sub> [M<sub>Sun</sub>]",
+        C.KICK: "Birth Recoil k<sub>f</sub> [km s<sup>-1</sup>]",
+        S.FINAL(C.SPIN_MAG): "Spin χ<sub>f</sub> [-]",
+        S.FINAL(C.MASS): "Mass m<sub>f</sub> [M<sub>Sun</sub>]",
     }.items():
         st.session_state.figs[col] = go.Figure()
         st.session_state.figs[col].update_layout(
@@ -74,7 +75,7 @@ if "figs" not in st.session_state:
 
 
 info: dict[str, str] = {
-    C.BH_KICK: """
+    C.KICK: """
     The Birth Recoil $k_f$ is the velocity of the remnant BH after the merger.
     This property is crucial as it determines whether the remnant remains gravitationally
     bound to its environment or is ejected, affecting its potential for future mergers
@@ -83,7 +84,9 @@ info: dict[str, str] = {
     with significantly higher recoil velocities are likely to be ejected from such environments
     instead of forming hierarchical mergers.
     """,
-    C.BH_SPIN: r"""
+    S.FINAL(
+        C.SPIN_MAG
+    ): r"""
     The dimensionless spin of the remnant BH after the merger, denoted as $\chi_f$,
     reflects its rotational properties. Supposed in the visualization, we should see remnant
     BHs exhibit a preference for high spins (a peak around $0.7$ for precessing case).
@@ -91,7 +94,9 @@ info: dict[str, str] = {
     to have masses $\lesssim 50$ $M_{\odot}$ and exhibit relatively low spins aligned to the orbital
     (Pierra, Mastrogiovanni & Perrières, 2024).
     """,
-    C.BH_MASS: r"""
+    S.FINAL(
+        C.MASS
+    ): r"""
     The remnant mass $m_f$ of the final BH is determined by the masses of the merging black
     holes and the energy radiated away. While we mentioned most BHs formed from stellar
     collapse are expected to have masses below $50$ $M_{\odot}$, BBH mergers can produce significantly
@@ -110,14 +115,14 @@ if st.sidebar.button("Run"):
 
     with st.spinner("Loading... Please wait..."):
         _df = df.loc[
-            (df[C.HEAVIER_BH_MASS] <= m1_range[1])
-            & (df[C.HEAVIER_BH_MASS] >= m1_range[0])
-            & (df[C.LIGHTER_BH_MASS] <= m2_range[1])
-            & (df[C.LIGHTER_BH_MASS] >= m2_range[0])
-            & (df[C.HEAVIER_BH_SPIN] <= a1_range[1])
-            & (df[C.HEAVIER_BH_SPIN] >= a1_range[0])
-            & (df[C.LIGHTER_BH_SPIN] <= a2_range[1])
-            & (df[C.LIGHTER_BH_SPIN] >= a2_range[0])
+            (df[S.PRIMARY(C.MASS)] <= m1_range[1])
+            & (df[S.PRIMARY(C.MASS)] >= m1_range[0])
+            & (df[S.SECONDARY(C.MASS)] <= m2_range[1])
+            & (df[S.SECONDARY(C.MASS)] >= m2_range[0])
+            & (df[S.PRIMARY(C.SPIN_MAG)] <= a1_range[1])
+            & (df[S.PRIMARY(C.SPIN_MAG)] >= a1_range[0])
+            & (df[S.SECONDARY(C.SPIN_MAG)] <= a2_range[1])
+            & (df[S.SECONDARY(C.SPIN_MAG)] >= a2_range[0])
             & (df[C.MASS_RATIO] <= q_range[1])
             & (df[C.MASS_RATIO] >= q_range[0])
         ]
@@ -128,7 +133,7 @@ if st.sidebar.button("Run"):
             st.error("No samples available. Please set a new config.")
 
         st.write("## Visualization of Remnant Properties")
-        for col in [C.BH_KICK, C.BH_SPIN, C.BH_MASS]:
+        for col in [C.KICK, S.FINAL(C.SPIN_MAG), S.FINAL(C.MASS)]:
             viz.add_pdf(st.session_state.figs[col], _df[col], prior_name)
             st.plotly_chart(st.session_state.figs[col])
             if col in info:
