@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "archeo"
-version = "1.5.3"
+version = "1.5.4"
 description = "Bayesian framework for inferring natal kick, ancestral masses and spins of black holes."
 authors = ["wyhwong <wyhwong@link.cuhk.edu.hk>"]
 license = "MIT"
