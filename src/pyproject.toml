@@ -37,7 +37,7 @@ dependencies = [
 [project.optional-dependencies]
 ui = ["streamlit (>=1.45.1,<2.0.0)", "plotly (>=6.1.2,<7.0.0)", "nbformat (>=5.10.4,<6.0.0)"]
 
-[tool.poetry.urls]
+[project.urls]
 homepage = "https://pypi.org/project/archeo/"
 repository = "https://github.com/wyhwong/archeo"
 
