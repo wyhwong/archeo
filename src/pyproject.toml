@@ -41,6 +41,12 @@ ui = ["streamlit (>=1.45.1,<2.0.0)", "plotly (>=6.1.2,<7.0.0)", "nbformat (>=5.1
 homepage = "https://pypi.org/project/archeo/"
 repository = "https://github.com/wyhwong/archeo"
 
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.5"
+pytest = "^8.3.5"
+pytest-cov = "^6.1.1"
+pre-commit = "^4.2.0"
+
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
