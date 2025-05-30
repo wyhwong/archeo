@@ -1,12 +1,12 @@
-[tool.poetry]
+[project]
 name = "archeo"
-version = "1.5.4"
+version = "1.6.0.dev0"
 description = "Bayesian framework for inferring natal kick, ancestral masses and spins of black holes."
-authors = ["wyhwong <wyhwong@link.cuhk.edu.hk>"]
-license = "MIT"
+authors = [
+    {name = "wyhwong",email = "wyhwong@link.cuhk.edu.hk"}
+]
+license = {text = "MIT"}
 readme = "README.md"
-homepage = "https://pypi.org/project/archeo/"
-repository = "https://github.com/wyhwong/archeo"
 keywords = ["black-holes", "gravitational-waves", "black-hole-archeology"]
 classifiers = [
     "License :: OSI Approved :: MIT License",
@@ -18,44 +18,29 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Physics",
     "Topic :: Software Development :: Libraries :: Python Modules"
 ]
+requires-python = ">=3.11,<4.0"
+dependencies = [
+    "pandas (>=2.2.3,<3.0.0)",
+    "numpy (>=2.2.6,<3.0.0)",
+    "matplotlib (>=3.10.3,<4.0.0)",
+    "scipy (>=1.15.3,<2.0.0)",
+    "surfinbh (>=1.2.6,<2.0.0)",
+    "corner (>=2.2.3,<3.0.0)",
+    "mpl-scatter-density (>=0.8,<0.9)",
+    "tqdm (>=4.67.1,<5.0.0)",
+    "setuptools (>=80.9.0,<81.0.0)", # For pkg_resources, which is used by mpl-scatter-density
+    "gwsurrogate (>=0.8,<0.9)",
+    "tabulate (>=0.9.0,<0.10.0)",
+    "seaborn (>=0.13.2,<0.14.0)"
+]
 
-[tool.poetry.dependencies]
-python = "^3.11"
-pandas = "^2.1.4"
-numpy = "^2.0.0"
-matplotlib = "^3.8.2"
-seaborn = "^0.13.1"
-scipy = "^1.15.2"
-# For surfinbh installation
-surfinbh = "^1.2.3"
-corner = "^2.2.2"
-mpl-scatter-density = "^0.7"
-tqdm = "^4.66.4"
-# For pkg_resources, which is used by mpl-scatter-density
-setuptools = "^80.8.0"
-gwsurrogate = "^0.8"
-tabulate = "^0.9.0"
-streamlit = { version = "^1.42.2", optional = true }
-plotly = { version = "^6.0.0", optional = true }
-nbformat = { version = "^5.10.4", optional = true }
+[project.optional-dependencies]
+ui = ["streamlit (>=1.45.1,<2.0.0)", "plotly (>=6.1.2,<7.0.0)", "nbformat (>=5.10.4,<6.0.0)"]
 
-[tool.black]
-line-length = 120
-
-[tool.isort]
-line_length = 120
-include_trailing_comma = true
-lines_after_imports = 2
-
-[tool.poetry.group.dev.dependencies]
-pre-commit = "^3.6.0"
-ipykernel = "^6.29.5"
-pytest = "^8.3.3"
-pytest-cov = "^6.0.0"
-
-[tool.poetry.extras]
-ui = ["streamlit", "plotly", "nbformat"]
+[tool.poetry.urls]
+homepage = "https://pypi.org/project/archeo/"
+repository = "https://github.com/wyhwong/archeo"
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
