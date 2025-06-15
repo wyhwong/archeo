@@ -33,19 +33,6 @@ def _safe_divide(a: np.ndarray, b: np.ndarray, ztol: float = 1e-8) -> np.ndarray
     return np.where(b > ztol, np.exp(np.log(a) - np.log(b)), 0.0)
 
 
-def get_ratios_rv(a_samples: pd.Series, b_samples: pd.Series, nbins: int, bounds: Domain) -> np.ndarray:
-    """Compute the likelihood of the posterior samples given the prior samples"""
-
-    a_hist = get_histogram(a_samples, nbins, bounds)
-    b_hist = get_histogram(b_samples, nbins, bounds)
-
-    # Avoid division by zero
-    ratio = _safe_divide(a_hist, b_hist)
-
-    rv = rv_histogram((ratio, np.linspace(bounds.low, bounds.high, nbins + 1)))
-    return rv
-
-
 @dataclass
 class ImportanceSamplingData:
     """Importance sampling data"""
@@ -141,19 +128,25 @@ class ImportanceSamplingData:
         return edges[1] - edges[0]
 
     @pre_release
-    def get_likelihood_rv(self, col_name: str) -> np.ndarray:
-        """Get the likelihood PDF for a given column name"""
+    def get_likelihood_samples(self, random_state=42, ztol=1e-8) -> np.ndarray:
+        """Get samples for likelihood function"""
 
-        nbins = self.get_nbins(col_name)
+        weights = np.ones(len(self.posterior_samples))
 
-        if nbins is None:
-            raise ValueError(f"Unknown binsize for column {col_name}")
+        for col in self.posterior_samples.columns:
+            # Assume uniform prior if the column is not in prior samples
+            if col not in self.prior_samples.columns:
+                continue
 
-        return get_ratios_rv(
-            self.posterior_samples[col_name],
-            self.prior_samples[col_name],
-            nbins=nbins,
-            bounds=self.bounds[col_name],
+            prior_hist = self._get_hist(self.prior_samples[col])
+            rv = rv_histogram((_safe_divide(1.0, prior_hist, ztol=ztol), self.get_edges(col_name=col)))
+            weights *= rv.pdf(self.posterior_samples[col])
+
+        return self.posterior_samples.sample(
+            n=len(self.posterior_samples),
+            weights=weights,
+            replace=True,
+            random_state=random_state,
         )
 
     @pre_release
