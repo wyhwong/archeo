@@ -224,6 +224,9 @@ class Prior(pd.DataFrame):
         df[C.KS_PV_FOR_SPIN] = float("nan")
         df[C.SAMPLE_ID] = float("nan")
 
+        # Store model name
+        df[C.MODEL_NAME] = simulator.model_name
+
         # Calculate the mass ratio
         m1, m2 = df[S.PRIMARY(C.MASS)], df[S.SECONDARY(C.MASS)]
         df[C.MASS_RATIO] = q = m1 / m2
@@ -293,7 +296,10 @@ class Prior(pd.DataFrame):
 
         df_posterior[C.RECOVERY_RATE] = df_posterior[C.KICK].notna().sum() / len(df_posterior)
 
-        ks, p_value = ks_2samp(df_posterior[P.ORIGINAL(S.FINAL(C.SPIN_MAG))], df_posterior[S.FINAL(C.SPIN_MAG)])
+        ks, p_value = ks_2samp(
+            df_posterior[P.ORIGINAL(S.FINAL(C.SPIN_MAG))],
+            df_posterior[S.FINAL(C.SPIN_MAG)],
+        )
         df_posterior[C.KS_TEST_FOR_SPIN] = ks
         df_posterior[C.KS_PV_FOR_SPIN] = p_value
 

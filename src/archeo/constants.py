@@ -162,6 +162,7 @@ class Columns(enum.StrEnum):
     SAMPLE_ID = "sample_id"
     KICK = "k_f"
     VELOCITY = "v"
+    MODEL_NAME = "model_name"
 
 
 class Prefixes(enum.StrEnum):

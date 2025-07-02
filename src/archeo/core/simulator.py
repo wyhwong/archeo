@@ -226,3 +226,9 @@ class Simulator:
         if bh == 2:
             self._is_remnant_2 = True
             self._r2_fn = draw
+
+    @property
+    def model_name(self) -> str:
+        """Returns the name of the model used for simulation"""
+
+        return self._prior_config.fits.value

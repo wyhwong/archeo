@@ -122,10 +122,21 @@ def corner_estimates(  # pylint: disable=dangerous-default-value
 
     corner_type_to_var_names = {
         "part": [S.PRIMARY(C.MASS), S.SECONDARY(C.MASS), C.KICK],
-        "full": [S.PRIMARY(C.MASS), S.SECONDARY(C.MASS), S.FINAL(C.MASS), C.KICK, S.FINAL(C.SPIN_MAG), S.EFF(C.SPIN)],
+        "full": [
+            S.PRIMARY(C.MASS),
+            S.SECONDARY(C.MASS),
+            S.FINAL(C.MASS),
+            C.KICK,
+            S.FINAL(C.SPIN_MAG),
+            S.EFF(C.SPIN),
+        ],
     }
     corner_type_to_labels = {
-        "part": [r"$m_1$ [$M_{\odot}$]", r"$m_2$ [$M_{\odot}$]", r"$v_f$ [km s$^{-1}$]"],
+        "part": [
+            r"$m_1$ [$M_{\odot}$]",
+            r"$m_2$ [$M_{\odot}$]",
+            r"$v_f$ [km s$^{-1}$]",
+        ],
         "full": [
             r"$m_1$ [$M_{\odot}$]",
             r"$m_2$ [$M_{\odot}$]",
@@ -337,7 +348,11 @@ def _plot_pdf(
 
     _series = series.dropna()
     density, bins = np.histogram(a=_series, bins=70, density=True)
-    low, mid, high = _series.quantile(0.05), _series.quantile(0.5), _series.quantile(0.95)
+    low, mid, high = (
+        _series.quantile(0.05),
+        _series.quantile(0.5),
+        _series.quantile(0.95),
+    )
     label = "%s: $%.2f_{-%.2f}^{+%.2f}$" % (name, mid, mid - low, high - mid)
     if unit:
         label += f" {unit}"
