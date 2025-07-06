@@ -42,11 +42,22 @@ def initialize_plot(
     fig.tight_layout(pad=padding.tpad)
     fig.subplots_adjust(left=padding.lpad, bottom=padding.bpad)
     fig.suptitle(labels.title, fontsize=fontsize)
-    fig.text(x=0.04, y=0.5, s=labels.ylabel, fontsize=fontsize, rotation="vertical", verticalalignment="center")
+    fig.text(
+        x=0.04,
+        y=0.5,
+        s=labels.ylabel,
+        fontsize=fontsize,
+        rotation="vertical",
+        verticalalignment="center",
+    )
     fig.text(x=0.5, y=0.04, s=labels.xlabel, fontsize=fontsize, horizontalalignment="center")
 
-    plt.grid()
+    if isinstance(axes, plt.Axes):
+        axes.grid()
+        return (fig, axes)
 
+    for ax in axes.flat:
+        ax.grid()
     return (fig, axes)
 
 
@@ -106,4 +117,12 @@ def add_escape_velocity(ax, v_max: float, y_max: float) -> None:
         color = next(colors)
         ax.axvline(x=v_esc, color=color, linestyle="--", linewidth=0.5)
         text_shift = 20.0 * v_max / 3000.0
-        ax.text(v_esc + text_shift, 0.7 * y_max, label, color=color, rotation=90, va="center", fontsize=12)
+        ax.text(
+            v_esc + text_shift,
+            0.7 * y_max,
+            label,
+            color=color,
+            rotation=90,
+            va="center",
+            fontsize=12,
+        )

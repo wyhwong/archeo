@@ -97,7 +97,6 @@ def corner_estimates(  # pylint: disable=dangerous-default-value
     dfs: dict[str, pd.DataFrame],
     levels: list[float] = [0.68, 0.9],
     nbins: int = 70,
-    with_precession: bool = False,
     filename="corner_estimates",
     output_dir: Optional[str] = None,
     close: bool = True,
@@ -109,7 +108,6 @@ def corner_estimates(  # pylint: disable=dangerous-default-value
         dfs (dict[str, pd.DataFrame]): Key: name of the posterior, value: posterior dataframe.
         levels (list[float]): Contour levels.
         nbins (int): Number of bins.
-        with_precession (bool): Whether to include precession spin in the corner plot.
         filename (str): Output filename.
         output_dir (Optional[str]): Output directory.
         close (bool): Whether to close the figure.
@@ -147,7 +145,8 @@ def corner_estimates(  # pylint: disable=dangerous-default-value
         ],
     }
 
-    if with_precession:
+    # Add precession spin if available
+    if max(df[S.PREC(C.SPIN)].max() for df in dfs.values()) > 0.0:
         corner_type_to_var_names["full"].append(S.PREC(C.SPIN))
         corner_type_to_labels["full"].append("$\\chi_{p}$")
 
