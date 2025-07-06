@@ -222,26 +222,8 @@ class ImportanceSamplingData:
 
         weights = np.ones(len(self.posterior_samples))
 
-        for col in self.posterior_samples.columns:
-            if col not in self.new_prior_samples.columns:
-                continue
-            weights *= self.get_weights(col_name=col, ztol=ztol)
-
-        inferred_new_prior_samples = self.prior_samples.sample(
-            n=len(self.prior_samples),
-            weights=weights,
-            replace=True,
-            random_state=random_state,
-        )
         for col in self.posterior_samples:
-            if col in self.new_prior_samples.columns:
-                continue
-
-            weights *= self.get_weights(
-                col_name=col,
-                ztol=ztol,
-                new_prior_samples=inferred_new_prior_samples[col],
-            )
+            weights *= self.get_weights(col_name=col, ztol=ztol)
 
         reweighted_samples = self.posterior_samples.sample(
             n=len(self.posterior_samples),

@@ -142,7 +142,7 @@ def corner_estimates(  # pylint: disable=dangerous-default-value
             r"$m_2$ [$M_{\odot}$]",
             r"$m_f$ [$M_{\odot}$]",
             r"$v_f$ [km s$^{-1}$]",
-            "$\\chi_f$",
+            "$a_f$",
             "$\\chi_{eff}$",
         ],
     }
@@ -384,7 +384,7 @@ def table_estimates(
         S.SECONDARY(C.MASS): "$m_2$",
         C.MASS_RATIO: "$q$",
         S.FINAL(C.MASS): "$m_f$",
-        S.FINAL(C.SPIN_MAG): "$\\chi_f$",
+        S.FINAL(C.SPIN_MAG): "$a_f$",
         C.KICK: "$v_f$",
         S.PREC(C.SPIN): "$\\chi_{p}$",
         S.EFF(C.SPIN): "$\\chi_{eff}$",
