@@ -146,9 +146,15 @@ def corner_estimates(  # pylint: disable=dangerous-default-value
     }
 
     # Add precession spin if available
-    if max(df[S.PREC(C.SPIN)].max() for df in dfs.values()) > 0.0:
-        corner_type_to_var_names["full"].append(S.PREC(C.SPIN))
-        corner_type_to_labels["full"].append("$\\chi_{p}$")
+    prec_spins = [df[S.PREC(C.SPIN)].max() for df in dfs.values()]
+    if max(prec_spins) > 0.0:
+        if np.isclose(min(prec_spins), 0.0):
+            local_logger.warning(
+                "Precession spin is not available for all dataframes, " "skipped adding it to corner plot."
+            )
+        else:
+            corner_type_to_var_names["full"].append(S.PREC(C.SPIN))
+            corner_type_to_labels["full"].append("$\\chi_{p}$")
 
     for corner_type, var_names in corner_type_to_var_names.items():
         fig, axes = base.initialize_plot(ncols=len(var_names), nrows=len(var_names), figsize=(9, 9))
