@@ -51,7 +51,7 @@ Please see [README.md](./src/README.md) inside `src` folder.
 
 The methodology is describe in the following paper:
 
-[1] Carlos Araújo Álvarez, Henry W. Y. Wong, Juan Calderón Bustillo. ["Kicking Time Back in Black Hole Mergers: Ancestral Masses, Spins, Birth Recoils, and Hierarchical-formation Viability of GW190521." The Astrophysical Journal 977.2 (2024): 220.](https://iopscience.iop.org/article/10.3847/1538-4357/ad90a9)
+[1] Carlos Araújo Álvarez, Henry W. Y. Wong, Juan Calderón Bustillo. "Kicking Time Back in Black Hole Mergers: Ancestral Masses, Spins, Birth Recoils, and Hierarchical-formation Viability of GW190521." [The Astrophysical Journal 977.2 (2024): 220.](https://iopscience.iop.org/article/10.3847/1538-4357/ad90a9)
 
 #### Bibtex Citation:
 ```bibtex
@@ -66,6 +66,16 @@ The methodology is describe in the following paper:
   publisher={IOP Publishing}
 }
 ```
+
+---
+
+## Publications
+
+Here we list the publications that have used Archeo:
+
+[1] Carlos Araújo Álvarez, Henry W. Y. Wong, Juan Calderón Bustillo. "Kicking Time Back in Black Hole Mergers: Ancestral Masses, Spins, Birth Recoils, and Hierarchical-formation Viability of GW190521." [The Astrophysical Journal 977.2 (2024): 220.](https://iopscience.iop.org/article/10.3847/1538-4357/ad90a9)
+
+[2] The LIGO Scientific Collaboration, the Virgo Collaboration, the KAGRA Collaboration. "GW231123: a Binary Black Hole Merger with Total Mass 190-265 $M_\odot$." [arXiv preprint arXiv:2507.08219.](https://arxiv.org/abs/2507.08219)
 
 ---
 
