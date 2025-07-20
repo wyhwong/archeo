@@ -31,7 +31,8 @@ dependencies = [
     "setuptools (>=80.9.0,<81.0.0)", # For pkg_resources, which is used by mpl-scatter-density
     "gwsurrogate (>=0.8,<0.9)",
     "tabulate (>=0.9.0,<0.10.0)",
-    "seaborn (>=0.13.2,<0.14.0)"
+    "seaborn (>=0.13.2,<0.14.0)",
+    "tenacity (>=9.1.2,<10.0.0)"
 ]
 
 [project.optional-dependencies]
