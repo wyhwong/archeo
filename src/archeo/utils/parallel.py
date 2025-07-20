@@ -1,4 +1,4 @@
-from concurrent.futures import ThreadPoolExecutor, wait
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Callable, Optional
 
 from tqdm import tqdm
@@ -20,10 +20,10 @@ def multithread_run(
         results (list[Any]): The results of the function.
     """
 
+    results = [None] * len(input_kwargs)
+
     with ThreadPoolExecutor(max_workers=n_threads) as exc:
         futures = [exc.submit(func, **kwargs) for kwargs in input_kwargs]
-        wait(tqdm(futures))
-
-    results = [future.result() for future in futures]
+        results = [future.result() for future in tqdm(as_completed(futures), total=len(futures))]
 
     return results
