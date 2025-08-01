@@ -60,7 +60,7 @@ st.markdown(
 if "figs" not in st.session_state:
     st.session_state["figs"] = {}
     for col, label in {
-        C.KICK: "Birth Recoil k<sub>f</sub> [km s<sup>-1</sup>]",
+        S.FINAL(C.KICK): "Birth Recoil k<sub>f</sub> [km s<sup>-1</sup>]",
         S.FINAL(C.SPIN_MAG): "Spin χ<sub>f</sub> [-]",
         S.FINAL(C.MASS): "Mass m<sub>f</sub> [M<sub>Sun</sub>]",
     }.items():
@@ -75,7 +75,9 @@ if "figs" not in st.session_state:
 
 
 info: dict[str, str] = {
-    C.KICK: """
+    S.FINAL(
+        C.KICK
+    ): """
     The Birth Recoil $k_f$ is the velocity of the remnant BH after the merger.
     This property is crucial as it determines whether the remnant remains gravitationally
     bound to its environment or is ejected, affecting its potential for future mergers
@@ -133,7 +135,7 @@ if st.sidebar.button("Run"):
             st.error("No samples available. Please set a new config.")
 
         st.write("## Visualization of Remnant Properties")
-        for col in [C.KICK, S.FINAL(C.SPIN_MAG), S.FINAL(C.MASS)]:
+        for col in [S.FINAL(C.KICK), S.FINAL(C.SPIN_MAG), S.FINAL(C.MASS)]:
             viz.add_pdf(st.session_state.figs[col], _df[col], prior_name)
             st.plotly_chart(st.session_state.figs[col])
             if col in info:
