@@ -129,7 +129,7 @@ class EscapeVelocity(enum.Enum):
             return 0.0
 
         mask = (
-            (df[Columns.KICK] <= self.value)
+            (df[Suffixes.FINAL(Columns.KICK)] <= self.value)
             & (df[Suffixes.PRIMARY(Columns.MASS)] <= 65)
             & (df[Suffixes.SECONDARY(Columns.MASS)] <= 65)
         )
@@ -160,7 +160,7 @@ class Columns(enum.StrEnum):
     KS_TEST_FOR_SPIN = "ks_test_af"
     KS_PV_FOR_SPIN = "ks_p-value_af"
     SAMPLE_ID = "sample_id"
-    KICK = "k_f"
+    KICK = "k"
     VELOCITY = "v"
     MODEL_NAME = "model_name"
 

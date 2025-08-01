@@ -29,7 +29,7 @@ def filter_unmapped_samples(df: pd.DataFrame) -> pd.DataFrame:
         df (pd.DataFrame): The filtered prior dataframe.
     """
 
-    return df.dropna(subset=[C.KICK])
+    return df.dropna(subset=[S.FINAL(C.KICK)])
 
 
 def mass_estimates(
@@ -119,12 +119,12 @@ def corner_estimates(  # pylint: disable=dangerous-default-value
     """
 
     corner_type_to_var_names = {
-        "part": [S.PRIMARY(C.MASS), S.SECONDARY(C.MASS), C.KICK],
+        "part": [S.PRIMARY(C.MASS), S.SECONDARY(C.MASS), S.FINAL(C.KICK)],
         "full": [
             S.PRIMARY(C.MASS),
             S.SECONDARY(C.MASS),
             S.FINAL(C.MASS),
-            C.KICK,
+            S.FINAL(C.KICK),
             S.FINAL(C.SPIN_MAG),
             S.EFF(C.SPIN),
         ],
@@ -221,7 +221,7 @@ def second_generation_probability_curve(
     """
 
     # Set up x-axis
-    x_max = max(df[C.KICK].max() for df in dfs.values())
+    x_max = max(df[S.FINAL(C.KICK)].max() for df in dfs.values())
     x = np.linspace(0.0, x_max, 300)
 
     padding = Padding(bpad=0.14)
@@ -239,7 +239,9 @@ def second_generation_probability_curve(
         # Calculate the CDF
         y = []
         for kick in x:
-            df_samples = df.loc[(df[C.KICK] <= kick) & (df[S.PRIMARY(C.MASS)] <= 65) & (df[S.SECONDARY(C.MASS)] <= 65)]
+            df_samples = df.loc[
+                (df[S.FINAL(C.KICK)] <= kick) & (df[S.PRIMARY(C.MASS)] <= 65) & (df[S.SECONDARY(C.MASS)] <= 65)
+            ]
             if df_samples.empty:
                 y.append(0.0)
             else:
@@ -390,7 +392,7 @@ def table_estimates(
         C.MASS_RATIO: "$q$",
         S.FINAL(C.MASS): "$m_f$",
         S.FINAL(C.SPIN_MAG): "$a_f$",
-        C.KICK: "$v_f$",
+        S.FINAL(C.KICK): "$v_f$",
         S.PREC(C.SPIN): "$\\chi_{p}$",
         S.EFF(C.SPIN): "$\\chi_{eff}$",
     }

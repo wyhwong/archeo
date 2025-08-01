@@ -1,3 +1,4 @@
+import logging
 from dataclasses import asdict
 from typing import Callable, Literal, Optional
 
@@ -13,6 +14,9 @@ from archeo.utils.file import read_data
 from archeo.utils.helper import pre_release
 from archeo.utils.math import sph2cart
 from archeo.utils.parallel import multithread_run
+
+
+logger = logging.getLogger(__name__)
 
 
 class Simulator:
@@ -39,9 +43,9 @@ class Simulator:
 
         # Dummy functions
         self._is_remnant_1 = False
-        self._r1_fn = lambda: (0, 0)
+        self._r1_fn = lambda: (0, 0, 0)
         self._is_remnant_2 = False
-        self._r2_fn = lambda: (0, 0)
+        self._r2_fn = lambda: (0, 0, 0)
 
         self._chi1_fns = {
             "magnitude": self._prior_config.a_1.draw,
@@ -78,6 +82,8 @@ class Simulator:
         return Event(
             m_1=b.m_1,
             m_2=b.m_2,
+            k_1=b.k_1,
+            k_2=b.k_2,
             m_ret=m_ret,
             m_ret_err=m_ret_err,
             v_f=v_f,
@@ -107,15 +113,15 @@ class Simulator:
         """
 
         if self._is_uniform_in_q:
-            m_1, a_1, m_2, a_2 = self._get_params_unif_q()
+            m_1, a_1, k_1, m_2, a_2, k_2 = self._get_params_unif_q()
         else:
-            m_1, a_1, m_2, a_2 = self._get_params_non_unif_q()
+            m_1, a_1, k_1, m_2, a_2, k_2 = self._get_params_non_unif_q()
 
         chi_uv_1, chi_uv_2 = self._get_spin_uv(self._chi1_fns), self._get_spin_uv(self._chi2_fns)
         chi_1 = (chi_uv_1[0] * a_1, chi_uv_1[1] * a_1, chi_uv_1[2] * a_1)
         chi_2 = (chi_uv_2[0] * a_2, chi_uv_2[1] * a_2, chi_uv_2[2] * a_2)
 
-        return Binary(m_1=m_1, m_2=m_2, chi_1=chi_1, chi_2=chi_2)
+        return Binary(m_1=m_1, m_2=m_2, chi_1=chi_1, chi_2=chi_2, k_1=k_1, k_2=k_2)
 
     def _get_spin_uv(self, fns: dict[str, Callable]) -> tuple[float, float, float]:
         """Draws the spin of the binary (unit vector)
@@ -139,7 +145,7 @@ class Simulator:
         univ = sph2cart(theta=theta, phi=phi)
         return tuple(univ)
 
-    def _get_params_non_unif_q(self) -> tuple[float, float, float, float]:
+    def _get_params_non_unif_q(self) -> tuple[float, float, float, float, float, float]:
         """Draws the masses of the binary from the mass functions
 
         Returns:
@@ -149,16 +155,17 @@ class Simulator:
         if not self._is_remnant_1 and not self._is_remnant_2:
             m_1, m_2 = (self._m1_fn(), self._m2_fn())
             a_1, a_2 = self._chi1_fns["magnitude"](), self._chi2_fns["magnitude"]()
+            k_1, k_2 = (0, 0)
         elif self._is_remnant_1 and self._is_remnant_2:
-            m_1, a_1 = self._r1_fn()
-            m_2, a_2 = self._r2_fn()
+            m_1, a_1, k_1 = self._r1_fn()
+            m_2, a_2, k_2 = self._r2_fn()
         elif self._is_remnant_1:
-            m_1, a_1 = self._r1_fn()
-            m_2, a_2 = self._m2_fn(), self._chi2_fns["magnitude"]()
+            m_1, a_1, k_1 = self._r1_fn()
+            m_2, a_2, k_2 = self._m2_fn(), self._chi2_fns["magnitude"](), 0.0
         # Only self._is_remnant_2
         else:
-            m_1, a_1 = self._m1_fn(), self._chi1_fns["magnitude"]()
-            m_2, a_2 = self._r2_fn()
+            m_1, a_1, k_1 = self._m1_fn(), self._chi1_fns["magnitude"](), 0.0
+            m_2, a_2, k_2 = self._r2_fn()
 
         # Check whether the mass ratio is in the domain
         # If not, resample the masses (recursion)
@@ -166,9 +173,9 @@ class Simulator:
         if not self._q_bounds.contain(q):
             return self._get_params_non_unif_q()
 
-        return (m_1, a_1, m_2, a_2)
+        return (m_1, a_1, k_1, m_2, a_2, k_2)
 
-    def _get_params_unif_q(self) -> tuple[float, float, float, float]:
+    def _get_params_unif_q(self) -> tuple[float, float, float, float, float, float]:
         """Draws the masses of the binary from the mass ratio function
 
         Returns:
@@ -186,20 +193,23 @@ class Simulator:
 
         a_1 = self._chi1_fns["magnitude"]()
         a_2 = self._chi2_fns["magnitude"]()
+        k_1, k_2 = (0.0, 0.0)
 
-        return (m_1, a_1, m_2, a_2)
+        return (m_1, a_1, k_1, m_2, a_2, k_2)
 
     @pre_release
     def use_remnant_results(
         self,
-        filepath: str,
         bh: Literal[1, 2],
+        df: Optional[pd.DataFrame] = None,
+        filepath: Optional[str] = None,
         kick_limit: Optional[float] = None,
     ) -> None:
         """Uses the remnant results from the given file
 
         Args:
-            filepath (str): The path to the file containing the remnant results
+            df (Optional[pd.DataFrame]): The dataframe containing the remnant results
+            filepath (Optional[str]): The path to the file containing the remnant results
             bh (Literal[1, 2]): The black hole to use the results for
             kick_limit (Optional[float]): The kick limit to apply
         """
@@ -207,17 +217,27 @@ class Simulator:
         if self._is_uniform_in_q:
             raise ValueError("Cannot use remnant results with uniform mass ratio prior")
 
-        df = read_data(filepath)
+        if df is None and filepath is None:
+            raise ValueError("Either df or filepath must be provided")
+
+        if df is None:
+            df = read_data(filepath)
 
         if kick_limit is not None:
-            df = df[df[C.KICK] <= kick_limit][[S.FINAL(C.SPIN_MAG), S.FINAL(C.MASS)]].reset_index(drop=True)
+            df = df[df[S.FINAL(C.KICK)] <= kick_limit][
+                [S.FINAL(C.SPIN_MAG), S.FINAL(C.MASS), S.FINAL(C.KICK)]
+            ].reset_index(drop=True)
 
         # Remnant draw
-        def draw() -> tuple[float, float]:
+        def draw() -> tuple[float, float, float]:
             """Draws the remnant mass and spin"""
 
             idx = np.random.random_integers(low=0, high=len(df) - 1)
-            return (df.loc[idx, S.FINAL(C.MASS)], df.loc[idx, S.FINAL(C.SPIN_MAG)])
+            return (
+                df.loc[idx, S.FINAL(C.MASS)],
+                df.loc[idx, S.FINAL(C.SPIN_MAG)],
+                df.loc[idx, S.FINAL(C.KICK)],
+            )
 
         if bh == 1:
             self._is_remnant_1 = True

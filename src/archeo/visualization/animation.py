@@ -42,7 +42,7 @@ def animate_remnant_property_change_over_kick(
         )
     label = r"Remnant Mass [$M_\odot$]" if parameter == C.MASS else "Remnant Spin"
 
-    kick_ub = df[C.KICK].max()
+    kick_ub = df[S.FINAL(C.KICK)].max()
     if kick_lb >= kick_ub:
         logger.warning(
             "Kick lower bound %.2f is greater than or equal to upper bound %.2f. " "No animation will be created.",
@@ -60,7 +60,7 @@ def animate_remnant_property_change_over_kick(
     def update(frame):
         ax.clear()
         sns.histplot(
-            df.loc[df[C.KICK] <= k_bounds[frame], col],
+            df.loc[df[S.FINAL(C.KICK)] <= k_bounds[frame], col],
             ax=ax,
             stat="density",
             binwidth=binwidth,

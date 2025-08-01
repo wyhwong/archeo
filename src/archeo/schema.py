@@ -39,12 +39,16 @@ class Binary:
         m_2 (float): Mass of the secondary black hole (in solar mass)
         chi_1 (tuple[float, float, float]): Spin of the primary black hole (dimensionless), [0, 1]
         chi_2 (tuple[float, float, float]): Spin of the secondary black hole (dimensionless), [0, 1]
+        k_1 (float): Kick of the primary black hole (in km/s)
+        k_2 (float): Kick of the secondary black hole (in km/s)
     """
 
     m_1: float
     m_2: float
     chi_1: tuple[float, float, float]
     chi_2: tuple[float, float, float]
+    k_1: float
+    k_2: float
 
 
 @dataclass(frozen=True)
@@ -53,6 +57,8 @@ class Event:
 
     m_1: float
     m_2: float
+    k_1: float
+    k_2: float
     m_ret: float
     m_ret_err: float
     v_f: tuple[float, float, float]

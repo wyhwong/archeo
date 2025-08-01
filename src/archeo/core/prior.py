@@ -235,7 +235,7 @@ class Prior(pd.DataFrame):
         df[S.FINAL(C.MASS)] = df[S.RETAINED(C.MASS)] * (m1 + m2)
 
         # Calculate the BH kick velocity
-        df[C.KICK] = df[S.FINAL(C.VELOCITY)].apply(lambda vf: np.sqrt(np.dot(vf, vf)) * SPEED_OF_LIGHT)
+        df[S.FINAL(C.KICK)] = df[S.FINAL(C.VELOCITY)].apply(lambda vf: np.sqrt(np.dot(vf, vf)) * SPEED_OF_LIGHT)
 
         # Calculate the BH spin
         df[S.FINAL(C.SPIN_MAG)] = df[S.FINAL(C.SPIN)].apply(lambda vf: np.sqrt(np.dot(vf, vf)))
@@ -294,7 +294,7 @@ class Prior(pd.DataFrame):
 
         df_posterior = pd.concat(samples)
 
-        df_posterior[C.RECOVERY_RATE] = df_posterior[C.KICK].notna().sum() / len(df_posterior)
+        df_posterior[C.RECOVERY_RATE] = df_posterior[S.FINAL(C.KICK)].notna().sum() / len(df_posterior)
 
         ks, p_value = ks_2samp(
             df_posterior[P.ORIGINAL(S.FINAL(C.SPIN_MAG))],
@@ -307,7 +307,9 @@ class Prior(pd.DataFrame):
         df_posterior[C.KS_TEST_FOR_MASS] = ks
         df_posterior[C.KS_PV_FOR_MASS] = p_value
 
-        df_posterior[C.SAMPLE_ID] = df_posterior.apply(lambda x: x.name if pd.notna(x[C.KICK]) else None, axis=1)
+        df_posterior[C.SAMPLE_ID] = df_posterior.apply(
+            lambda x: x.name if pd.notna(x[S.FINAL(C.KICK)]) else None, axis=1
+        )
         df_posterior = df_posterior.reset_index(drop=True)
 
         return df_posterior
