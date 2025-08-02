@@ -1,6 +1,6 @@
 [project]
 name = "archeo"
-version = "1.6.6"
+version = "1.6.7"
 description = "Bayesian framework for inferring natal kick, ancestral masses and spins of black holes."
 authors = [
     {name = "wyhwong",email = "wyhwong@link.cuhk.edu.hk"}
