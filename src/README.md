@@ -12,6 +12,8 @@ with a particular focus on hierarchical black hole formation.
 
 ## Basic Usage with Command Line Interface (CLI)
 
+We provide a command line interface (CLI) for archeo, which allows users to generate preset priors and visualize prior distributions easily.
+
 ```
 > python -m archeo --help
 
@@ -27,7 +29,12 @@ Commands:
   visualize-prior        Visualize the prior distribution.
 ```
 
+In the following,
+we will introduce the available commands in the CLI.
+
 ### Generate a Preset Prior with CLI
+
+We provide a command to generate preset priors, which can be used for further analysis.
 
 ```
 > python -m archeo generate-preset-prior --help
@@ -44,7 +51,25 @@ Options:
   --help                 Show this message and exit.
 ```
 
+Here is an example of how to generate a preset prior using the CLI:
+
+```bash
+python -m archeo generate-preset-prior
+```
+
+This command will generate the default prior configuration and save it in the current directory.
+Note that the default prior is an aligned spin prior with only 1000 samples.
+So we expect it to be fast to generate (within 1 minute).
+To generate other priors, you can specify the `--name` option with one of the available values.
+For example,
+
+```bash
+python -m archeo generate-preset-prior --name agnostic_precessing_spin
+```
+
 ### Visualize the Prior Distribution with CLI
+
+We provide a command to visualize the generated ancestral prior distribution.
 
 ```
 > python -m archeo visualize-prior --help
@@ -57,6 +82,18 @@ Options:
   -o, --output-dir TEXT  Directory to save the visualization output.
   --help                 Show this message and exit.
 ```
+
+Here is an example of how to visualize the prior distribution using the CLI:
+
+```bash
+python -m archeo visualize-prior --filepath ./prior.parquet
+```
+
+This command will read the prior data from `prior.parquet` and save the visualization output in the current directory.
+Note that the visualizations include:
+- Animation of how distributions (various parameters) change over kick magnitude constraint.
+- 2D histogram of the mass-spin distribution.
+- Kick distribution for each spin-bin (binwidth=0.1).
 
 ## Ancestral Parameter Estimation
 
@@ -94,7 +131,7 @@ This table provides an overview of the different prior configurations available 
 
 ## Configure your own prior
 
-Check out the preset priors in [precessing.py](https://github.com/wyhwong/archeo/blob/main/src/archeo/preset/precessing.py) and [aligned.py](https://github.com/wyhwong/archeo/blob/main/src/archeo/preset/aligned.py). From that, one should be able to create their own prior by following the same structure.
+Check out the preset priors in [quick.py](https://github.com/wyhwong/archeo/blob/main/src/archeo/preset/quick.py). From that, one should be able to create their own prior by following the same structure.
 
 ## Try our UI
 
@@ -107,6 +144,8 @@ python3 -m archeo.ui
 ```
 
 Then the UI will be available at [localhost:8501](http://localhost:8501).
+
+You may also try our [demo version](https://archeo.streamlit.app/) online, which is hosted on Streamlit Community Cloud.
 
 ## Getting Help
 
