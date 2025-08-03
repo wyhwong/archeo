@@ -1,4 +1,4 @@
-from typing import Literal, Optional
+from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -16,18 +16,18 @@ logger = get_logger(__name__)
 
 def animate_remnant_property_change_over_kick(
     df: pd.DataFrame,
-    parameter: Literal[C.MASS, C.SPIN_MAG],
+    col_name: str,
     kick_lb=50.0,
-    nbins=50,
+    kick_width=50.0,
     output_dir: Optional[str] = None,
 ):
     """Create an animation of the remnant mass/spin distribution change over different kick values
 
     Args:
         df (pd.DataFrame): DataFrame containing the prior data.
-        parameter (C): The remnant property to animate, either C.MASS or C.S
+        parameter (str): The remnant property to animate, such as C.MASS.
         kick_lb (float): Lower bound of the kick velocity to consider for the animation.
-        nbins (int): Number of bins for the histogram.
+        kick_width (float): Width of the kick velocity range to consider for the animation.
         output_dir (Optional[str]): Directory to save the animation. If None, the animation will
             not be saved to a file.
 
@@ -35,12 +35,19 @@ def animate_remnant_property_change_over_kick(
         ani (FuncAnimation): The animation object.
     """
 
-    if parameter not in [C.MASS, C.SPIN_MAG]:
-        logger.warning(
-            "Parameter %s is not supported for animation. " "Only 'mass' and 'spin' are valid parameters.",
-            parameter,
-        )
-    label = r"Remnant Mass [$M_\odot$]" if parameter == C.MASS else "Remnant Spin"
+    _labels = {
+        S.FINAL(C.MASS): "Remnant Mass",
+        S.FINAL(C.SPIN_MAG): "Remnant Spin",
+        C.MASS_RATIO: "Mass Ratio",
+        S.EFF(C.SPIN): "Effective Spin",
+        S.PREC(C.SPIN): "Precession Spin",
+    }
+
+    if col_name not in _labels:
+        logger.warning("Parameter %s is not supported for animation. ", col_name)
+        return None
+
+    label = _labels[col_name]
 
     kick_ub = df[S.FINAL(C.KICK)].max()
     if kick_lb >= kick_ub:
@@ -51,22 +58,24 @@ def animate_remnant_property_change_over_kick(
         )
         return None
 
+    nbins = int((kick_ub - kick_lb) / kick_width) + 1
     k_bounds = np.linspace(kick_lb, kick_ub, nbins)
-    col = S.FINAL(parameter)
-    binwidth = (df[col].max() - df[col].min()) / nbins
+    binwidth = (df[col_name].max() - df[col_name].min()) / nbins
 
     fig, ax = plt.subplots(figsize=(8, 6))
 
     def update(frame):
         ax.clear()
-        sns.histplot(
-            df.loc[df[S.FINAL(C.KICK)] <= k_bounds[frame], col],
-            ax=ax,
-            stat="density",
-            binwidth=binwidth,
-            fill=False,
-            element="step",
-        )
+        values = df.loc[df[S.FINAL(C.KICK)] <= k_bounds[frame], col_name]
+
+        if values.nunique() == 1:
+            ax.axvline(values.iloc[0], color="red", linestyle="--", linewidth=2)
+            ax.set_title(f"{label} (Kick $v_f$ <= {k_bounds[frame]:.2f})")
+            ax.set_xlabel(label)
+            ax.set_ylabel("Density")
+            return ax
+
+        sns.histplot(values, ax=ax, stat="density", binwidth=binwidth, fill=False, element="step")
         ax.set(xlabel=label, ylabel="Density")
         ax.grid(True)
         ax.set_title(f"Distribution of {label} (Kick $v_f$ <= {k_bounds[frame]:.2f})")
@@ -74,7 +83,7 @@ def animate_remnant_property_change_over_kick(
 
     ani = FuncAnimation(fig, update, frames=len(k_bounds), interval=100)
     if output_dir:
-        filename = "mass" if parameter == C.MASS else "spin"
+        filename = label.lower().replace(" ", "_")
         ani.save(f"{output_dir}/{filename}.gif", writer="pillow")
 
     return ani

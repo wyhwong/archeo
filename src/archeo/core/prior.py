@@ -181,6 +181,32 @@ class Prior(pd.DataFrame):
         return cls(pd.read_parquet(path), **kwargs)
 
     @classmethod
+    def from_filepath(cls, path: str, **kwargs) -> "Prior":
+        """Read the file.
+
+        Args:
+            path (str): The path to the file.
+            **kwargs: The keyword arguments for parental class (pd.DataFrame).
+
+        Returns:
+            Prior: The prior distribution.
+        """
+
+        if path.endswith(".feather"):
+            return cls.from_feather(path, **kwargs)
+
+        if path.endswith(".csv"):
+            return cls.from_csv(path, **kwargs)
+
+        if path.endswith(".json"):
+            return cls.from_json(path, **kwargs)
+
+        if path.endswith(".parquet"):
+            return cls.from_parquet(path, **kwargs)
+
+        raise ValueError(f"Unsupported file format: {path}")
+
+    @classmethod
     def from_config(cls, prior_config: Union[PriorConfig, str], use_threads=True, **kwargs) -> "Prior":
         """Generate the prior from the prior config.
 

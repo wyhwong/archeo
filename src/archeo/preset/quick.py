@@ -2,10 +2,10 @@ from archeo.constants import Fits
 from archeo.schema import Domain, PriorConfig
 
 
-AGNOSTIC_PRECESSING_SPIN_PRIOR = PriorConfig(
-    n_samples=2000000,
-    fits=Fits.NRSUR7DQ4REMNANT,
-    is_spin_aligned=False,
+TINY_ALIGNED_SPIN_PRIOR = PriorConfig(
+    n_samples=1000,
+    fits=Fits.NRSUR3DQ8REMNANT,
+    is_spin_aligned=True,
     is_only_up_aligned_spin=False,
     a_1=Domain(low=0.0, high=1.0),  # unit: dimensionless
     a_2=Domain(low=0.0, high=1.0),  # unit: dimensionless

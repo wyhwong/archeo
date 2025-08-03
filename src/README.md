@@ -10,7 +10,55 @@
 Archeo is a Python package designed to infer the natal kick, ancestral masses, and spins of black holes in the Pair-instability Supernova (PISN) gap,
 with a particular focus on hierarchical black hole formation.
 
-## Basic Usage
+## Basic Usage with Command Line Interface (CLI)
+
+```
+> python -m archeo --help
+
+Usage: python -m archeo [OPTIONS] COMMAND [ARGS]...
+
+  Command line interface for archeo
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  generate-preset-prior  Generate a preset prior.
+  visualize-prior        Visualize the prior distribution.
+```
+
+### Generate a Preset Prior with CLI
+
+```
+> python -m archeo generate-preset-prior --help
+Usage: python -m archeo generate-preset-prior [OPTIONS]
+
+  Generate a preset prior.
+
+Options:
+  -n, --name TEXT        Preset prior name, available values are default,
+                         agnostic_precessing_spin, agnostic_aligned_spin,
+                         precessing_spin, aligned_spin,
+                         positively_aligned_spin.
+  -o, --output-dir TEXT  Directory to save the generated prior configuration.
+  --help                 Show this message and exit.
+```
+
+### Visualize the Prior Distribution with CLI
+
+```
+> python -m archeo visualize-prior --help
+Usage: python -m archeo visualize-prior [OPTIONS]
+
+  Visualize the prior distribution.
+
+Options:
+  -f, --filepath TEXT    Path to the prior data.  [required]
+  -o, --output-dir TEXT  Directory to save the visualization output.
+  --help                 Show this message and exit.
+```
+
+## Ancestral Parameter Estimation
 
 The following example demonstrates how to use the package to visualize the prior and posterior distributions of a single event.
 

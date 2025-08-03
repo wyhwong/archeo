@@ -1,9 +1,14 @@
 import archeo.logger
-from archeo.preset.agnostic_aligned import AGNOSTIC_ALIGNED_SPIN_PRIOR
-from archeo.preset.agnostic_precessing import AGNOSTIC_PRECESSING_SPIN_PRIOR
-from archeo.preset.aligned import ALIGNED_SPIN_PRIOR
-from archeo.preset.positively_aligned import POSITIVELY_ALIGNED_SPIN_PRIOR
-from archeo.preset.precessing import PRECESSING_SPIN_PRIOR
+from archeo.preset.agnostic import (
+    AGNOSTIC_ALIGNED_SPIN_PRIOR,
+    AGNOSTIC_PRECESSING_SPIN_PRIOR,
+)
+from archeo.preset.bh1g import (
+    ALIGNED_SPIN_1G1G_PRIOR,
+    POSITIVELY_ALIGNED_SPIN_1G1G_PRIOR,
+    PRECESSING_SPIN_1G1G_PRIOR,
+)
+from archeo.preset.quick import TINY_ALIGNED_SPIN_PRIOR
 from archeo.schema import PriorConfig
 
 
@@ -11,12 +16,12 @@ local_logger = archeo.logger.get_logger(__name__)
 
 
 PRIOR_STORE = {
-    "default": AGNOSTIC_PRECESSING_SPIN_PRIOR,
+    "default": TINY_ALIGNED_SPIN_PRIOR,
     "agnostic_precessing_spin": AGNOSTIC_PRECESSING_SPIN_PRIOR,
     "agnostic_aligned_spin": AGNOSTIC_ALIGNED_SPIN_PRIOR,
-    "precessing_spin": PRECESSING_SPIN_PRIOR,
-    "aligned_spin": ALIGNED_SPIN_PRIOR,
-    "positively_aligned_spin": POSITIVELY_ALIGNED_SPIN_PRIOR,
+    "precessing_spin": PRECESSING_SPIN_1G1G_PRIOR,
+    "aligned_spin": ALIGNED_SPIN_1G1G_PRIOR,
+    "positively_aligned_spin": POSITIVELY_ALIGNED_SPIN_1G1G_PRIOR,
 }
 
 
