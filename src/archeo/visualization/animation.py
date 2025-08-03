@@ -60,7 +60,7 @@ def animate_remnant_property_change_over_kick(
 
     nbins = int((kick_ub - kick_lb) / kick_width) + 1
     k_bounds = np.linspace(kick_lb, kick_ub, nbins)
-    binwidth = (df[col_name].max() - df[col_name].min()) / nbins
+    binwidth = (df[col_name].max() - df[col_name].min()) / 70
 
     fig, ax = plt.subplots(figsize=(8, 6))
 
