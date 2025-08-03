@@ -169,6 +169,7 @@ class Prefixes(enum.StrEnum):
     """Prefixes for columns"""
 
     ORIGINAL = "original"
+    MIN = "min"
 
     def __call__(self, column: Union[Columns, str]) -> str:
         """Return the column name with prefix"""
@@ -188,6 +189,7 @@ class Suffixes(enum.StrEnum):
     EFF = "eff"  # for effective spin
     PREC = "p"  # for precessing spin
     RETAINED = "ret"  # for retained mass
+    ESC = "esc"  # for escape velocity
 
     def __call__(self, column: Union[Columns, str]) -> str:
         """Return the column name with suffix"""

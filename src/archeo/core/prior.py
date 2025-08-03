@@ -280,6 +280,16 @@ class Prior(pd.DataFrame):
         a2h = df[S.SECONDARY(C.SPIN)].apply(lambda chi: np.sqrt(chi[0] ** 2 + chi[1] ** 2))
         df[S.PREC(C.SPIN)] = np.maximum(a1h, (4 / q + 3) / (3 / q + 4) / q * a2h)
 
+        # Calculate minimum escape velocity of host environment
+        df[P.MIN(S.ESC(C.VELOCITY))] = df.apply(
+            lambda x: max(
+                x[S.FINAL(C.KICK)],
+                x[S.PRIMARY(C.KICK)],
+                x[S.SECONDARY(C.KICK)],
+            ),
+            axis=1,
+        )
+
         return df
 
     def to_posterior(

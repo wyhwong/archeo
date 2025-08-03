@@ -77,25 +77,23 @@ def test_run_simulation_2(uniform_q_aligned_spin_spin_prior_config):
     assert len(prior) == 1000
 
 
-def test_run_2g_simulation(uniform_mass_aligned_spin_prior_config):
+def test_run_2g1g_simulation(uniform_mass_aligned_spin_prior_config):
     """Run a simulation with the default prior config."""
 
-    test_prior_path = f"{os.path.dirname(__file__)}/test_prior.csv"
-
-    # Check if the test prior path exist
-    assert not os.path.exists(test_prior_path)
-
     prior = Prior.from_config(uniform_mass_aligned_spin_prior_config)
-    prior.to_csv(test_prior_path, index=False)
-
-    assert os.path.exists(test_prior_path)
-
     simulator = Simulator(uniform_mass_aligned_spin_prior_config)
-    simulator.use_remnant_results(filepath=test_prior_path, bh=1, kick_limit=500)
+    simulator.use_remnant_results(df_bh1=prior)
 
     prior_2g = Prior.from_simulator(simulator)
-
     assert len(prior_2g) == 1000
 
-    os.remove(test_prior_path)
-    assert not os.path.exists(test_prior_path)
+
+def test_run_2g2g_simulation(uniform_mass_aligned_spin_prior_config):
+    """Run a simulation with the default prior config."""
+
+    prior = Prior.from_config(uniform_mass_aligned_spin_prior_config)
+    simulator = Simulator(uniform_mass_aligned_spin_prior_config)
+    simulator.use_remnant_results(df_bh1=prior, df_bh2=prior)
+
+    prior_2g = Prior.from_simulator(simulator)
+    assert len(prior_2g) == 1000

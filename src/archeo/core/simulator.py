@@ -1,6 +1,6 @@
 import logging
 from dataclasses import asdict
-from typing import Callable, Literal, Optional
+from typing import Callable, Optional
 
 import numpy as np
 import pandas as pd
@@ -10,7 +10,6 @@ from archeo.constants import Columns as C
 from archeo.constants import Suffixes as S
 from archeo.core.mahapatra import get_mahapatra_mass_fn
 from archeo.schema import Binary, Event, PriorConfig
-from archeo.utils.file import read_data
 from archeo.utils.helper import pre_release
 from archeo.utils.math import sph2cart
 from archeo.utils.parallel import multithread_run
@@ -197,12 +196,28 @@ class Simulator:
 
         return (m_1, a_1, k_1, m_2, a_2, k_2)
 
+    @staticmethod
+    @pre_release
+    def get_draw_func(df: pd.DataFrame) -> Callable[[], tuple[float, float, float]]:
+        """Returns a function to draw remnant properties from the dataframe"""
+
+        def draw() -> tuple[float, float, float]:
+            """Draws the remnant mass and spin"""
+
+            idx = np.random.random_integers(low=0, high=len(df) - 1)
+            return (
+                df.loc[idx, S.FINAL(C.MASS)],
+                df.loc[idx, S.FINAL(C.SPIN_MAG)],
+                df.loc[idx, S.FINAL(C.KICK)],
+            )
+
+        return draw
+
     @pre_release
     def use_remnant_results(
         self,
-        bh: Literal[1, 2],
-        df: Optional[pd.DataFrame] = None,
-        filepath: Optional[str] = None,
+        df_bh1: Optional[pd.DataFrame] = None,
+        df_bh2: Optional[pd.DataFrame] = None,
         kick_limit: Optional[float] = None,
     ) -> None:
         """Uses the remnant results from the given file
@@ -217,35 +232,27 @@ class Simulator:
         if self._is_uniform_in_q:
             raise ValueError("Cannot use remnant results with uniform mass ratio prior")
 
-        if df is None and filepath is None:
-            raise ValueError("Either df or filepath must be provided")
-
-        if df is None:
-            df = read_data(filepath)
-
-        if kick_limit is not None:
-            df = df[df[S.FINAL(C.KICK)] <= kick_limit][
+        if df_bh1 is not None:
+            df_bh1 = df_bh1[df_bh1[S.FINAL(C.KICK)] <= (kick_limit or np.inf)][
                 [S.FINAL(C.SPIN_MAG), S.FINAL(C.MASS), S.FINAL(C.KICK)]
             ].reset_index(drop=True)
-
-        # Remnant draw
-        def draw() -> tuple[float, float, float]:
-            """Draws the remnant mass and spin"""
-
-            idx = np.random.random_integers(low=0, high=len(df) - 1)
-            return (
-                df.loc[idx, S.FINAL(C.MASS)],
-                df.loc[idx, S.FINAL(C.SPIN_MAG)],
-                df.loc[idx, S.FINAL(C.KICK)],
+            self._is_remnant_1 = True
+            self._r1_fn = self.get_draw_func(df_bh1)
+            logger.warning(
+                "Using remnant results for black hole 1. "
+                "This will override the prior configuration for black hole 1."
             )
 
-        if bh == 1:
-            self._is_remnant_1 = True
-            self._r1_fn = draw
-
-        if bh == 2:
+        if df_bh2 is not None:
+            df_bh2 = df_bh2[df_bh2[S.FINAL(C.KICK)] <= (kick_limit or np.inf)][
+                [S.FINAL(C.SPIN_MAG), S.FINAL(C.MASS), S.FINAL(C.KICK)]
+            ].reset_index(drop=True)
             self._is_remnant_2 = True
-            self._r2_fn = draw
+            self._r2_fn = self.get_draw_func(df_bh2)
+            logger.warning(
+                "Using remnant results for black hole 2. "
+                "This will override the prior configuration for black hole 2."
+            )
 
     @property
     def model_name(self) -> str:
