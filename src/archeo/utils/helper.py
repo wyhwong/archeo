@@ -1,5 +1,6 @@
 from typing import Callable
 
+from archeo.env import ENABLE_PRERELEASE_WARNING
 from archeo.logger import get_logger
 
 
@@ -12,10 +13,12 @@ def pre_release(func: Callable) -> Callable:
     def wrapper(*args, **kwargs):
         """Wrapper function to log a warning message before executing the decorated function."""
 
-        local_logger.warning(
-            "%s is a pre-release feature. Correctness is not guaranteed.",
-            func.__name__,
-        )
+        if ENABLE_PRERELEASE_WARNING:
+            local_logger.warning(
+                "%s is a pre-release feature. Correctness is not guaranteed.",
+                func.__name__,
+            )
+
         return func(*args, **kwargs)
 
     return wrapper
