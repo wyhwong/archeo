@@ -101,6 +101,7 @@ class PriorConfig:
     m_2: Domain  # unit: solar mass
     is_mahapatra: bool = False
     is_uniform_in_mass_ratio: bool = False
+    is_masses_swappable: bool = True
 
     def __post_init__(self) -> None:
         """Post initialization."""
@@ -147,6 +148,7 @@ class PriorConfig:
             m_2=Domain(data["m_2"]["low"], data["m_2"]["high"]),
             is_mahapatra=data["is_mahapatra"],
             is_uniform_in_mass_ratio=data["is_uniform_in_mass_ratio"],
+            is_masses_swappable=data["is_masses_swappable"],
         )
 
     @classmethod

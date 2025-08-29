@@ -18,6 +18,7 @@ AGNOSTIC_PRECESSING_SPIN_PRIOR = PriorConfig(
     mass_ratio=Domain(low=1.0, high=6.0),  # unit: dimensionless
     is_mahapatra=False,
     is_uniform_in_mass_ratio=False,
+    is_masses_swappable=True,
 )
 
 
@@ -37,4 +38,5 @@ AGNOSTIC_ALIGNED_SPIN_PRIOR = PriorConfig(
     mass_ratio=Domain(low=1.0, high=6.0),  # unit: dimensionless
     is_mahapatra=False,
     is_uniform_in_mass_ratio=False,
+    is_masses_swappable=True,
 )

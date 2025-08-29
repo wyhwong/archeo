@@ -166,9 +166,12 @@ class Simulator:
             m_1, a_1, k_1 = self._m1_fn(), self._chi1_fns["magnitude"](), 0.0
             m_2, a_2, k_2 = self._r2_fn()
 
-        # Check whether the mass ratio is in the domain
         # If not, resample the masses (recursion)
+        if self._prior_config.is_masses_swappable:
+            m_1, m_2 = max(m_1, m_2), min(m_1, m_2)
+
         q = m_1 / m_2
+        # Check whether the mass ratio is in the domain
         if not self._q_bounds.contain(q):
             return self._get_params_non_unif_q()
 
