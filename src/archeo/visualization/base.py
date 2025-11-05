@@ -2,6 +2,7 @@ from typing import Optional
 
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
+import numpy as np
 
 import archeo.logger
 from archeo.constants import EscapeVelocity
@@ -98,13 +99,14 @@ def clear_default_labels(ax) -> None:
     ax.set_title("")
 
 
-def add_escape_velocity(ax, v_max: float, y_max: float) -> None:
+def add_escape_velocity(ax, v_max: float, y_max: float, log_xscale: bool = False) -> None:
     """Add escape velocity to the plot.
 
     Args:
         ax (plt.Axes): Axes.
         v_max (float): Maximum escape velocity.
         y_max (float): Maximum y-axis value.
+        log_xscale (bool): Whether the x-axis is in log scale.
     """
 
     colors = iter(mcolors.TABLEAU_COLORS.keys())
@@ -116,10 +118,13 @@ def add_escape_velocity(ax, v_max: float, y_max: float) -> None:
 
         color = next(colors)
         ax.axvline(x=v_esc, color=color, linestyle="--", linewidth=0.5)
+
         text_shift = 20.0 * v_max / 3000.0
+        text_shift = np.log(text_shift) if log_xscale else text_shift
+
         ax.text(
             v_esc + text_shift,
-            0.7 * y_max,
+            0.65 * y_max,
             label,
             color=color,
             rotation=90,
