@@ -5,11 +5,17 @@ docs_dir: docs
 
 nav:
   - Installation: installation.md
+  - Methodology: methodology.md
   - Code Overview: code-overview.md
-  - Getting Started:
-    - Prior: prior.md
-    - Posterior: posterior.md
-    - Visualization: visualization.md
+  - Getting Started - Backward Approach:
+    - Prior: prior-backward.md
+    - Posterior: posterior-backward.md
+  - Getting Started - Forward Approach:
+    - Prior: prior-forward.md
+    - Posterior: posterior-forward.md
+  - Visualization:
+    - Understanding Prior: visualization-prior.md
+    - Understanding Posterior: visualization-posterior.md
 
 theme:
   name: material
