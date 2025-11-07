@@ -46,6 +46,34 @@ class Prior(pd.DataFrame):
         self._spin_tolerance = spin_tolerance
         self._mass_tolerance = mass_tolerance
 
+    def update_tolerances(
+        self,
+        spin_tolerance: Optional[float] = None,
+        mass_tolerance: Optional[float] = None,
+    ) -> None:
+        """Update the tolerances.
+
+        Args:
+            spin_tolerance (Optional[float]): The tolerance of the spin
+            mass_tolerance (Optional[float]): The tolerance of the mass
+        """
+
+        if spin_tolerance is not None:
+            local_logger.info(
+                "Updating spin tolerance from %.3f to %.3f",
+                self._spin_tolerance,
+                spin_tolerance,
+            )
+            self._spin_tolerance = spin_tolerance
+
+        if mass_tolerance is not None:
+            local_logger.info(
+                "Updating mass tolerance from %.3f to %.3f",
+                self._mass_tolerance,
+                mass_tolerance,
+            )
+            self._mass_tolerance = mass_tolerance
+
     def _sample_from_possible_samples(self, df: pd.DataFrame) -> pd.DataFrame:
         """Sample from a dataframe.
 
