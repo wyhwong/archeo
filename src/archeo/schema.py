@@ -83,7 +83,7 @@ class PriorConfig:
         theta (Domain): Domain of the polar angle of the spin.
         mass_ratio (Domain): Domain of the mass ratio.
         mass (Domain): Domain of the mass.
-        is_mahapatra (bool): Whether the Mahapatra mass function is used.
+        is_mahapatra_mass_func (bool): Whether the Mahapatra mass function is used.
     """
 
     n_samples: int
@@ -98,7 +98,7 @@ class PriorConfig:
     theta_2: Domain = Domain(low=0.0, high=1.0)  # unit: pi
     mass_ratio: Domain = Domain(low=1.0, high=6.0)  # unit: dimensionless
     is_only_up_aligned_spin: bool = False
-    is_mahapatra: bool = False
+    is_mahapatra_mass_func: bool = False
     is_uniform_in_mass_ratio: bool = False
     is_masses_swappable: bool = True
 
@@ -149,7 +149,7 @@ class PriorConfig:
             mass_ratio=Domain(data["mass_ratio"]["low"], data["mass_ratio"]["high"]),
             m_1=Domain(data["m_1"]["low"], data["m_1"]["high"]),
             m_2=Domain(data["m_2"]["low"], data["m_2"]["high"]),
-            is_mahapatra=data["is_mahapatra"],
+            is_mahapatra_mass_func=data["is_mahapatra_mass_func"],
             is_uniform_in_mass_ratio=data["is_uniform_in_mass_ratio"],
             is_masses_swappable=data["is_masses_swappable"],
         )

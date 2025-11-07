@@ -17,6 +17,7 @@ local_logger = archeo.logger.get_logger(__name__)
 
 PRIOR_STORE = {
     "default": TINY_ALIGNED_SPIN_PRIOR,
+    "tiny_aligned_spin": TINY_ALIGNED_SPIN_PRIOR,
     "agnostic_precessing_spin": AGNOSTIC_PRECESSING_SPIN_PRIOR,
     "agnostic_aligned_spin": AGNOSTIC_ALIGNED_SPIN_PRIOR,
     "precessing_spin": PRECESSING_SPIN_1G1G_PRIOR,

@@ -33,7 +33,7 @@ class Simulator:
         self._fits = self._prior_config.fits.load()
         self._n_samples = self._prior_config.n_samples
 
-        if self._prior_config.is_mahapatra:
+        if self._prior_config.is_mahapatra_mass_func:
             self._m1_fn = get_mahapatra_mass_fn(mass=self._prior_config.m_1)
             self._m2_fn = get_mahapatra_mass_fn(mass=self._prior_config.m_2)
         else:

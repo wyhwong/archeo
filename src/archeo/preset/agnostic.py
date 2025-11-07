@@ -14,7 +14,7 @@ AGNOSTIC_PRECESSING_SPIN_PRIOR = PriorConfig(
     m_1=Domain(low=5.0, high=200.0),  # unit: solar mass
     m_2=Domain(low=5.0, high=200.0),  # unit: solar mass
     mass_ratio=Domain(low=1.0, high=6.0),  # unit: dimensionless
-    is_mahapatra=False,
+    is_mahapatra_mass_func=False,
     is_uniform_in_mass_ratio=False,
     is_masses_swappable=True,
 )
@@ -33,7 +33,7 @@ AGNOSTIC_ALIGNED_SPIN_PRIOR = PriorConfig(
     m_1=Domain(low=5.0, high=200.0),  # unit: solar mass
     m_2=Domain(low=5.0, high=200.0),  # unit: solar mass
     mass_ratio=Domain(low=1.0, high=6.0),  # unit: dimensionless
-    is_mahapatra=False,
+    is_mahapatra_mass_func=False,
     is_uniform_in_mass_ratio=False,
     is_masses_swappable=True,
 )

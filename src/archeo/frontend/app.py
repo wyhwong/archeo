@@ -102,7 +102,7 @@ if st.sidebar.button("Run"):
         a_2=Domain(*a2_range),
         mass_ratio=Domain(*q_range),
         is_uniform_in_mass_ratio=is_uniform_q,
-        is_mahapatra=False,
+        is_mahapatra_mass_func=False,
         phi_1=Domain(*phi1_range),
         phi_2=Domain(*phi2_range),
         theta_1=Domain(*theta1_range),
