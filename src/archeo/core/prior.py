@@ -57,7 +57,6 @@ class Prior(pd.DataFrame):
         """
 
         if df.empty:
-            local_logger.warning("No similar samples in the prior.")
             # Return a number of samples with nan values
             df = pd.DataFrame(index=range(self._sample_ratio), columns=df.columns)
         else:
@@ -329,6 +328,13 @@ class Prior(pd.DataFrame):
             ]
 
         df_posterior = pd.concat(samples)
+        n_samples_not_recovered = df_posterior[S.FINAL(C.KICK)].isna().sum()
+        if n_samples_not_recovered > 0:
+            local_logger.warning(
+                "%d / %d samples could not be recovered from the prior.",
+                n_samples_not_recovered,
+                len(df_posterior),
+            )
 
         df_posterior[C.RECOVERY_RATE] = df_posterior[S.FINAL(C.KICK)].notna().sum() / len(df_posterior)
 

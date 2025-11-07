@@ -16,6 +16,8 @@ nav:
   - Visualization:
     - Understanding Prior: visualization-prior.md
     - Understanding Posterior: visualization-posterior.md
+  - Example:
+    - GW190521 Quickstart: notebooks/gw190521_quick.ipynb
 
 theme:
   name: material
