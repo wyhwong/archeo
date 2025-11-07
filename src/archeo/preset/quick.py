@@ -1,10 +1,8 @@
-from archeo.constants import Fits
 from archeo.schema import Domain, PriorConfig
 
 
 TINY_ALIGNED_SPIN_PRIOR = PriorConfig(
     n_samples=5000,
-    fits=Fits.NRSUR3DQ8REMNANT,
     is_spin_aligned=True,
     is_only_up_aligned_spin=False,
     a_1=Domain(low=0.0, high=1.0),  # unit: dimensionless

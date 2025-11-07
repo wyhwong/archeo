@@ -3,7 +3,6 @@ import os
 import pytest
 import surfinBH
 
-from archeo.constants import Fits
 from archeo.core.prior import Prior
 from archeo.core.simulator import Simulator
 from archeo.schema import Domain, PriorConfig
@@ -21,7 +20,6 @@ def default_uniform_mass_aligned_spin_prior_config():
 
     return PriorConfig(
         n_samples=1000,
-        fits=Fits.NRSUR3DQ8REMNANT,
         is_mahapatra=False,
         is_spin_aligned=True,
         is_only_up_aligned_spin=False,
@@ -44,7 +42,6 @@ def default_uniform_q_aligned_spin_spin_prior_config():
 
     return PriorConfig(
         n_samples=1000,
-        fits=Fits.NRSUR3DQ8REMNANT,
         is_mahapatra=False,
         is_spin_aligned=True,
         is_only_up_aligned_spin=False,

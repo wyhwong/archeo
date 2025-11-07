@@ -87,21 +87,25 @@ class PriorConfig:
     """
 
     n_samples: int
-    fits: Fits
     is_spin_aligned: bool
-    is_only_up_aligned_spin: bool
-    a_1: Domain  # unit: dimensionless
-    a_2: Domain  # unit: dimensionless
-    phi_1: Domain  # unit: pi
-    phi_2: Domain  # unit: pi
-    theta_1: Domain  # unit: pi
-    theta_2: Domain  # unit: pi
-    mass_ratio: Domain  # unit: dimensionless
     m_1: Domain  # unit: solar mass
     m_2: Domain  # unit: solar mass
+    a_1: Domain  # unit: dimensionless
+    a_2: Domain  # unit: dimensionless
+    phi_1: Domain = Domain(low=0.0, high=2.0)  # unit: pi
+    phi_2: Domain = Domain(low=0.0, high=2.0)  # unit: pi
+    theta_1: Domain = Domain(low=0.0, high=1.0)  # unit: pi
+    theta_2: Domain = Domain(low=0.0, high=1.0)  # unit: pi
+    mass_ratio: Domain = Domain(low=1.0, high=6.0)  # unit: dimensionless
+    is_only_up_aligned_spin: bool = False
     is_mahapatra: bool = False
     is_uniform_in_mass_ratio: bool = False
     is_masses_swappable: bool = True
+
+    @property
+    def fits(self) -> Fits:
+
+        return Fits.NRSUR3DQ8REMNANT if self.is_spin_aligned else Fits.NRSUR7DQ4REMNANT
 
     def __post_init__(self) -> None:
         """Post initialization."""
@@ -134,7 +138,6 @@ class PriorConfig:
 
         return PriorConfig(
             n_samples=data["n_samples"],
-            fits=Fits(data["fits"]),
             is_spin_aligned=data["is_spin_aligned"],
             is_only_up_aligned_spin=data["is_only_up_aligned_spin"],
             a_1=Domain(data["a_1"]["low"], data["a_1"]["high"]),

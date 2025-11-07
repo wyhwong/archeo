@@ -10,7 +10,6 @@ from archeo.schema import Domain, PriorConfig
 
 config = PriorConfig(
     n_samples=100,
-    fits=Fits.NRSUR3DQ8REMNANT,
     is_spin_aligned=True,
     is_only_up_aligned_spin=False,
     spin=Domain(low=0.0, high=1.0),

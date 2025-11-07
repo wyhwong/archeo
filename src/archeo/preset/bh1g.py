@@ -1,10 +1,8 @@
-from archeo.constants import Fits
 from archeo.schema import Domain, PriorConfig
 
 
 ALIGNED_SPIN_1G1G_PRIOR = PriorConfig(
     n_samples=2000000,
-    fits=Fits.NRSUR3DQ8REMNANT,
     is_spin_aligned=True,
     is_only_up_aligned_spin=False,
     a_1=Domain(low=0.0, high=1.0),  # unit: dimensionless
@@ -22,7 +20,6 @@ ALIGNED_SPIN_1G1G_PRIOR = PriorConfig(
 
 PRECESSING_SPIN_1G1G_PRIOR = PriorConfig(
     n_samples=2000000,
-    fits=Fits.NRSUR7DQ4REMNANT,
     is_spin_aligned=False,
     is_only_up_aligned_spin=False,
     a_1=Domain(low=0.0, high=1.0),  # unit: dimensionless
@@ -41,7 +38,6 @@ PRECESSING_SPIN_1G1G_PRIOR = PriorConfig(
 
 POSITIVELY_ALIGNED_SPIN_1G1G_PRIOR = PriorConfig(
     n_samples=2000000,
-    fits=Fits.NRSUR3DQ8REMNANT,
     is_spin_aligned=True,
     is_only_up_aligned_spin=True,
     a_1=Domain(low=0.0, high=1.0),  # unit: dimensionless

@@ -94,7 +94,6 @@ if st.sidebar.button("Run"):
     fits = Fits.NRSUR7DQ4REMNANT if spin_setting == "Precessing spin" else Fits.NRSUR3DQ8REMNANT
     prior_config = PriorConfig(
         n_samples=n_samples,
-        fits=fits,
         is_spin_aligned=spin_setting in ["Aligned spin", "Positively aligned spin"],
         is_only_up_aligned_spin=spin_setting == "Positively aligned spin",
         m_1=Domain(*m1_range),
