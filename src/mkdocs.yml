@@ -15,7 +15,7 @@ nav:
     - Posterior: posterior-forward.md
   - Example:
     - Quickstart - GW190521 BH1: notebooks/gw190521_quick.ipynb
-    - Advanced - GW190521 BH1 as third generation: notebooks/gw190521_2g1g.ipynb
+    - Advanced - GW190521 BH1 as 3rd gen BH: notebooks/gw190521_2g1g.ipynb
 
 theme:
   name: material
