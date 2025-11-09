@@ -3,6 +3,7 @@ from typing import Optional
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 import archeo.logger
 from archeo.constants import EscapeVelocity
@@ -131,3 +132,33 @@ def add_escape_velocity(ax, v_max: float, y_max: float, log_xscale: bool = False
             va="center",
             fontsize=12,
         )
+
+
+def plot_pdf(
+    ax,
+    series: pd.Series,
+    color: str,
+    name: str,
+    unit: Optional[str] = None,
+):
+    """Plot the PDF of a parameter.
+
+    Args:
+        ax (plt.Axes): Axes.
+        series (pd.Series): Series (pdf).
+        color (str): Color.
+        name (str): Name.
+        unit (Optional[str]): Unit.
+    """
+
+    _series = series.dropna()
+    density, bins = np.histogram(a=_series, bins=70, density=True)
+    low, mid, high = (
+        _series.quantile(0.05),
+        _series.quantile(0.5),
+        _series.quantile(0.95),
+    )
+    label = "%s: $%.2f_{-%.2f}^{+%.2f}$" % (name, mid, mid - low, high - mid)
+    if unit:
+        label += f" {unit}"
+    ax.stairs(density, bins, label=label, color=color)

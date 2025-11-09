@@ -226,10 +226,9 @@ class Simulator:
         """Uses the remnant results from the given file
 
         Args:
-            df (Optional[pd.DataFrame]): The dataframe containing the remnant results
-            filepath (Optional[str]): The path to the file containing the remnant results
-            bh (Literal[1, 2]): The black hole to use the results for
-            kick_limit (Optional[float]): The kick limit to apply
+            df_bh1 (Optional[pd.DataFrame]): The dataframe for black hole 1 remnant results
+            df_bh2 (Optional[pd.DataFrame]): The dataframe for black hole 2 remnant results
+            kick_limit (Optional[float]): The maximum kick velocity allowed
         """
 
         if self._is_uniform_in_q:

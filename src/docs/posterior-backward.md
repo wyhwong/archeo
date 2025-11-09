@@ -38,7 +38,6 @@ To customize the tolerance values, you may specify them as follows:
 ```python
 # NOTE: do this before calling to_posterior()
 prior.update_tolerances(
-    self,
     spin_tolerance=<float>, # dimensionless
     mass_tolerance=<float>, # in unit of solar mass
 )
