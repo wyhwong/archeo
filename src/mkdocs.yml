@@ -1,6 +1,6 @@
 site_name: archeo
 site_description: Documentation for the Archeo project
-site_url: https://archeo.github.io/
+site_url: https://wyhwong.github.io/archeo/
 docs_dir: docs
 
 nav:

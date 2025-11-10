@@ -135,3 +135,6 @@ posteriors
 *.h5
 *.json
 *.csv
+
+# mkdocs documentation
+site
