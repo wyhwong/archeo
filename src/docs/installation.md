@@ -1,4 +1,4 @@
-Installation is as simple as:
+Our package archeo is available via [PyPI](https://pypi.org/project/archeo/). The installation is as simple as:
 
 === "pip"
 
