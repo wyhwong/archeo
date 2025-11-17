@@ -48,6 +48,11 @@ pytest = "^8.3.5"
 pytest-cov = "^6.1.1"
 pre-commit = "^4.2.0"
 
+[tool.poetry.group.mkdocs.dependencies]
+mkdocs = "^1.6.1"
+mkdocs-mermaid2-plugin = "^1.2.2"
+mkdocs-jupyter = "^0.25.1"
+
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"

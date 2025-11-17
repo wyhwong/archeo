@@ -94,7 +94,6 @@ if st.sidebar.button("Run"):
     fits = Fits.NRSUR7DQ4REMNANT if spin_setting == "Precessing spin" else Fits.NRSUR3DQ8REMNANT
     prior_config = PriorConfig(
         n_samples=n_samples,
-        fits=fits,
         is_spin_aligned=spin_setting in ["Aligned spin", "Positively aligned spin"],
         is_only_up_aligned_spin=spin_setting == "Positively aligned spin",
         m_1=Domain(*m1_range),
@@ -103,7 +102,7 @@ if st.sidebar.button("Run"):
         a_2=Domain(*a2_range),
         mass_ratio=Domain(*q_range),
         is_uniform_in_mass_ratio=is_uniform_q,
-        is_mahapatra=False,
+        is_mahapatra_mass_func=False,
         phi_1=Domain(*phi1_range),
         phi_2=Domain(*phi2_range),
         theta_1=Domain(*theta1_range),

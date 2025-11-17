@@ -1,0 +1,10 @@
+We study the ancestral binaries of sources of gravitational-wave observations under the hypothesis that these events contain second-generation black holes born from a previous binary black hole merger. We could approach this study by two main methods:
+
+- Forward modeling: adopt a hierarchical Bayesian formalism, placing priors on the hypothesized ancestral binaries and marginalizing over the source properties of black holes to directly obtain posteriors on ancestral properties. In this approach, the analysis is conditioned on the observed data. See [Mahapatra et al., 2024](https://iopscience.iop.org/article/10.3847/1538-4357/ad781b).
+- Backward modeling: adopt the same priors on the source properties of gravitational-wave events. Instead of conditioning on the observed data, in backward approach, we condition on the existing parameter estimation samples of the observed events to infer the properties of ancestral binaries. See [Araújo Álvarez et al., 2024](https://iopscience.iop.org/article/10.3847/1538-4357/ad90a9).
+
+For a more detailed comparison of these two approaches, you may refer to the Appendix E of [The LIGO Scientific Collaboration, the Virgo Collaboration, and the KAGRA Collaboration et al., 2025](https://iopscience.iop.org/article/10.3847/2041-8213/ae0d54).
+
+In archeo, we implement the backward modeling approach to study the ancestral binaries of observed gravitational-wave events. This methodology allows us to efficiently explore the parameter space of potential ancestral binaries without the computational overhead of forward modeling. By leveraging existing parameter estimation samples, we can infer the distributions of ancestral properties and gain insights into the formation channels of second-generation black holes.
+
+Currently, we also support forward modeling approach through importance sampling, which allows us to re-weight existing samples based on new priors placed on ancestral binaries. This hybrid approach provides flexibility in analyzing gravitational-wave events and to some extent avoids the need to re-run full hierarchical Bayesian analyses from scratch.

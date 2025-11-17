@@ -72,7 +72,7 @@ def mass_estimates(
         S.SECONDARY(C.MASS): "Ligher Parent: ",
     }
     for col, name in col_to_name.items():
-        _plot_pdf(ax, next(colors), df[col], name, unit=r"[$M_{\odot}$]")
+        base.plot_pdf(ax, df[col], next(colors), name, unit=r"[$M_{\odot}$]")
     _add_pisn_gap(ax, next(colors))
 
     plt.legend()
@@ -289,7 +289,7 @@ def effective_spin_estimates(
     colors = iter(mcolors.TABLEAU_COLORS.keys())
 
     for label, df in dfs.items():
-        _plot_pdf(ax, next(colors), df[S.EFF(C.SPIN)], label)
+        base.plot_pdf(ax, df[S.EFF(C.SPIN)], next(colors), label)
 
     plt.legend()
     base.clear_default_labels(ax)
@@ -328,42 +328,12 @@ def precession_spin_estimates(
     colors = iter(mcolors.TABLEAU_COLORS.keys())
 
     for label, df in dfs.items():
-        _plot_pdf(ax, next(colors), df[S.PREC(C.SPIN)], label)
+        base.plot_pdf(ax, df[S.PREC(C.SPIN)], next(colors), label)
 
     plt.legend()
     base.clear_default_labels(ax)
     base.savefig_and_close(filename, output_dir, close, fmt)
     return (fig, ax)
-
-
-def _plot_pdf(
-    ax,
-    color: str,
-    series: pd.Series,
-    name: str,
-    unit: Optional[str] = None,
-):
-    """Plot the PDF of a parameter.
-
-    Args:
-        ax (plt.Axes): Axes.
-        color (str): Color.
-        series (pd.Series): Series (pdf).
-        name (str): Name.
-        unit (Optional[str]): Unit.
-    """
-
-    _series = series.dropna()
-    density, bins = np.histogram(a=_series, bins=70, density=True)
-    low, mid, high = (
-        _series.quantile(0.05),
-        _series.quantile(0.5),
-        _series.quantile(0.95),
-    )
-    label = "%s: $%.2f_{-%.2f}^{+%.2f}$" % (name, mid, mid - low, high - mid)
-    if unit:
-        label += f" {unit}"
-    ax.stairs(density, bins, label=label, color=color)
 
 
 def table_estimates(

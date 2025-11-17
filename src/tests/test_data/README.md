@@ -10,7 +10,6 @@ from archeo.schema import Domain, PriorConfig
 
 config = PriorConfig(
     n_samples=100,
-    fits=Fits.NRSUR3DQ8REMNANT,
     is_spin_aligned=True,
     is_only_up_aligned_spin=False,
     spin=Domain(low=0.0, high=1.0),
@@ -18,7 +17,7 @@ config = PriorConfig(
     theta=Domain(low=0.0, high=1.0),
     mass=Domain(low=5.0, high=65.0),
     mass_ratio=Domain(low=1.0, high=6.0),
-    is_mahapatra=False,
+    is_mahapatra_mass_func=False,
 )
 
 df = archeo.Prior.from_config(config)

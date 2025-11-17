@@ -46,6 +46,34 @@ class Prior(pd.DataFrame):
         self._spin_tolerance = spin_tolerance
         self._mass_tolerance = mass_tolerance
 
+    def update_tolerances(
+        self,
+        spin_tolerance: Optional[float] = None,
+        mass_tolerance: Optional[float] = None,
+    ) -> None:
+        """Update the tolerances.
+
+        Args:
+            spin_tolerance (Optional[float]): The tolerance of the spin
+            mass_tolerance (Optional[float]): The tolerance of the mass
+        """
+
+        if spin_tolerance is not None:
+            local_logger.info(
+                "Updating spin tolerance from %.3f to %.3f",
+                self._spin_tolerance,
+                spin_tolerance,
+            )
+            self._spin_tolerance = spin_tolerance
+
+        if mass_tolerance is not None:
+            local_logger.info(
+                "Updating mass tolerance from %.3f to %.3f",
+                self._mass_tolerance,
+                mass_tolerance,
+            )
+            self._mass_tolerance = mass_tolerance
+
     def _sample_from_possible_samples(self, df: pd.DataFrame) -> pd.DataFrame:
         """Sample from a dataframe.
 
@@ -57,7 +85,6 @@ class Prior(pd.DataFrame):
         """
 
         if df.empty:
-            local_logger.warning("No similar samples in the prior.")
             # Return a number of samples with nan values
             df = pd.DataFrame(index=range(self._sample_ratio), columns=df.columns)
         else:
@@ -329,6 +356,13 @@ class Prior(pd.DataFrame):
             ]
 
         df_posterior = pd.concat(samples)
+        n_samples_not_recovered = df_posterior[S.FINAL(C.KICK)].isna().sum()
+        if n_samples_not_recovered > 0:
+            local_logger.warning(
+                "%d / %d samples could not be recovered from the prior.",
+                n_samples_not_recovered,
+                len(df_posterior),
+            )
 
         df_posterior[C.RECOVERY_RATE] = df_posterior[S.FINAL(C.KICK)].notna().sum() / len(df_posterior)
 

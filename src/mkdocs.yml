@@ -1,0 +1,53 @@
+site_name: archeo
+site_description: Documentation for the Archeo project
+site_url: https://wyhwong.github.io/archeo/
+docs_dir: docs
+
+nav:
+  - Installation: installation.md
+  - Methodology: methodology.md
+  - Code Overview: code-overview.md
+  - Getting Started - Backward Approach:
+    - Prior: prior-backward.md
+    - Posterior: posterior-backward.md
+  - Getting Started - Forward Approach:
+    - Prior: prior-forward.md
+    - Posterior: posterior-forward.md
+  - Example:
+    - Quickstart - GW190521 BH1: notebooks/gw190521_quick.ipynb
+    - Advanced - GW190521 BH1 as 3rd gen BH: notebooks/gw190521_2g1g.ipynb
+
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - content.code.copy
+    - content.tabs.link
+  palette:
+    - scheme: default
+      primary: deep blue
+      accent: deep blue
+      toggle:
+        icon: material/weather-night
+        name: To dark mode
+    - scheme: slate
+      primary: light blue
+      accent: light blue
+      toggle:
+        icon: material/weather-sunny
+        name: To light mode
+
+plugins:
+  - search
+  - mermaid2
+  - mkdocs-jupyter
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
