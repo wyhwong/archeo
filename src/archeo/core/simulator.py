@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 def _extended_draw(domains: list[Domain]) -> float:
 
     indices = [i for i in range(len(domains))]
-    weights = np.array([domain.high - domain.low for domain in domains])
+    weights = np.array([domain.width for domain in domains])
     p = weights / sum(weights)
 
     def draw() -> float:

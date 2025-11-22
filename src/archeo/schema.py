@@ -19,13 +19,24 @@ class Domain:
     low: float = float("-inf")
     high: float = float("inf")
 
+    def to_tuple(self) -> tuple[float, float]:
+        """Convert to a tuple."""
+
+        return (self.low, self.high)
+
+    @property
+    def width(self) -> float:
+        """Get the width of the domain."""
+
+        return self.high - self.low
+
     def contain(self, value: float) -> bool:
         """Check if the input value is within the domain."""
 
         return self.low <= value <= self.high
 
     def draw(self) -> float:
-        """Draw a random value from the domain."""
+        """Draw a random value from the domain (uniform)."""
 
         return np.random.uniform(low=self.low, high=self.high)
 
