@@ -9,13 +9,28 @@ from tqdm import tqdm
 from archeo.constants import Columns as C
 from archeo.constants import Suffixes as S
 from archeo.core.mahapatra import get_mahapatra_mass_fn
-from archeo.schema import Binary, Event, PriorConfig
+from archeo.schema import Binary, Domain, Event, PriorConfig
 from archeo.utils.helper import pre_release
 from archeo.utils.math import sph2cart
 from archeo.utils.parallel import multithread_run
 
 
 logger = logging.getLogger(__name__)
+
+
+def _extended_draw(domains: list[Domain]) -> float:
+
+    indices = [i for i in range(len(domains))]
+    weights = np.array([domain.high - domain.low for domain in domains])
+    p = weights / sum(weights)
+
+    def draw() -> float:
+        """Draws a random value from the extended domain"""
+
+        idx = np.random.choice(indices, p=p)
+        return domains[idx].draw()
+
+    return draw
 
 
 class Simulator:
@@ -91,6 +106,32 @@ class Simulator:
             chi_2=b.chi_2,
             chi_f=chi_f,
             chi_f_err=chi_f_err,
+        )
+
+    def replace_draw_function(self, param: str, domains: list[Domain]) -> None:
+        """Replaces the draw function of the given parameter with a new one
+
+        Args:
+            param (str): The parameter to replace the draw function of
+            domains (list[Domain]): The list of domains to draw from
+        """
+
+        draw_fn = _extended_draw(domains)
+
+        if param == "m_1":
+            self._m1_fn = draw_fn
+        elif param == "m_2":
+            self._m2_fn = draw_fn
+        elif param == "a_1":
+            self._chi1_fns["magnitude"] = draw_fn
+        elif param == "a_2":
+            self._chi2_fns["magnitude"] = draw_fn
+        else:
+            raise ValueError(f"Unknown parameter: {param}")
+
+        logger.warning(
+            "Using piecewise domains for parameter %s. " "This will override the prior configuration.",
+            param,
         )
 
     def simulate(self, use_threads=True, n_threads: Optional[int] = None) -> pd.DataFrame:

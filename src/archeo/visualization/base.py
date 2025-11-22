@@ -137,9 +137,10 @@ def add_escape_velocity(ax, v_max: float, y_max: float, log_xscale: bool = False
 def plot_pdf(
     ax,
     series: pd.Series,
-    color: str,
-    name: str,
+    color: str = "blue",
+    name: Optional[str] = None,
     unit: Optional[str] = None,
+    ls: str = "-",
 ):
     """Plot the PDF of a parameter.
 
@@ -158,7 +159,12 @@ def plot_pdf(
         _series.quantile(0.5),
         _series.quantile(0.95),
     )
-    label = "%s: $%.2f_{-%.2f}^{+%.2f}$" % (name, mid, mid - low, high - mid)
+    label = "%s: $%.2f_{-%.2f}^{+%.2f}$" % (
+        (name or series.name),
+        mid,
+        mid - low,
+        high - mid,
+    )
     if unit:
         label += f" {unit}"
-    ax.stairs(density, bins, label=label, color=color)
+    ax.stairs(density, bins, label=label, color=color, linestyle=ls)
