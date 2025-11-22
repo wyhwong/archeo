@@ -43,6 +43,27 @@ class ImportanceSamplingData:
     binsize_spin: float = 0.05
     binsize_mass: float = 1.0
 
+    def __post_init__(self) -> None:
+        """Compute the bounds of the dataframes"""
+
+        self._bounds = self._compute_bounds()
+
+    @property
+    def common_columns(self) -> list[str]:
+        """Get the common columns between posterior and prior samples"""
+
+        return list(
+            set(self.posterior_samples.columns)
+            .intersection(set(self.prior_samples.columns))
+            .intersection(set(self.new_prior_samples.columns))
+        )
+
+    @property
+    def bounds(self) -> dict[str, Domain]:
+        """Get the bounds of the dataframes"""
+
+        return self._bounds
+
     def get_binsize(self, col_name: str) -> Optional[float]:
 
         if col_name.startswith("a"):
@@ -51,14 +72,12 @@ class ImportanceSamplingData:
         if col_name.startswith("m"):
             return self.binsize_mass
 
+        raise ValueError(f"Unknown column name {col_name}")
+
     def get_nbins(self, col_name: str) -> Optional[int]:
         """Get the number of bins for a given column name"""
 
         binsize = self.get_binsize(col_name)
-
-        if binsize is None:
-            return None
-
         bounds = self.bounds[col_name]
         return int((bounds.high - bounds.low) / binsize)
 
@@ -66,10 +85,6 @@ class ImportanceSamplingData:
         """Get the histogram for a given column name"""
 
         nbins = self.get_nbins(samples.name)
-
-        if nbins is None:
-            raise ValueError(f"Unknown binsize for column {samples.name}")
-
         return get_histogram(samples, nbins=nbins, bounds=self.bounds[samples.name])
 
     def _compute_bounds(self) -> dict[str, Domain]:
@@ -77,47 +92,25 @@ class ImportanceSamplingData:
 
         bounds: dict[str, Domain] = {}
 
-        for col in self.posterior_samples.columns:
-            if col not in self.prior_samples.columns:
-                prior_min = np.inf
-                prior_max = -np.inf
-            else:
-                prior_min = self.prior_samples[col].min()
-                prior_max = self.prior_samples[col].max()
-
-            if col not in self.new_prior_samples.columns:
-                new_prior_min = np.inf
-                new_prior_max = -np.inf
-            else:
-                new_prior_min = self.new_prior_samples[col].min()
-                new_prior_max = self.new_prior_samples[col].max()
-
-            _min = min(self.posterior_samples[col].min(), prior_min, new_prior_min)
-            _max = max(self.posterior_samples[col].max(), prior_max, new_prior_max)
-
+        for col in self.common_columns:
+            _min = min(
+                self.posterior_samples[col].min(),
+                self.prior_samples[col].min(),
+                self.new_prior_samples[col].min(),
+            )
+            _max = max(
+                self.posterior_samples[col].max(),
+                self.prior_samples[col].max(),
+                self.new_prior_samples[col].max(),
+            )
             bounds[col] = Domain(low=_min, high=_max)
 
         return bounds
-
-    def __post_init__(self) -> None:
-        """Compute the bounds of the dataframes"""
-
-        self._bounds = self._compute_bounds()
-
-    @property
-    def bounds(self) -> dict[str, Domain]:
-        """Get the bounds of the dataframes"""
-
-        return self._bounds
 
     def get_edges(self, col_name: str) -> np.ndarray:
         """Get the edges of the histogram for a given column name"""
 
         nbins = self.get_nbins(col_name)
-
-        if nbins is None:
-            raise ValueError(f"Unknown binsize for column {col_name}")
-
         bounds = self.bounds[col_name]
         return np.linspace(bounds.low, bounds.high, nbins + 1)
 
@@ -133,11 +126,7 @@ class ImportanceSamplingData:
 
         weights = np.ones(len(self.posterior_samples))
 
-        for col in self.posterior_samples.columns:
-            # Assume uniform prior if the column is not in prior samples
-            if col not in self.prior_samples.columns:
-                continue
-
+        for col in self.common_columns:
             prior_hist = self._get_hist(self.prior_samples[col])
             rv = rv_histogram((_safe_divide(1.0, prior_hist, ztol=ztol), self.get_edges(col_name=col)))
             weights *= rv.pdf(self.posterior_samples[col])
@@ -150,21 +139,13 @@ class ImportanceSamplingData:
         )
 
     @pre_release
-    def get_weights(self, col_name: str, ztol=1e-8, new_prior_samples: Optional[pd.Series] = None) -> np.ndarray:
+    def get_weights(self, col_name: str, ztol=1e-8) -> np.ndarray:
         """Get the weights for the importance sampling"""
 
         weights = np.ones(len(self.posterior_samples))
 
-        if (col_name not in self.prior_samples.columns) and (col_name not in self.new_prior_samples.columns):
-            return weights
-
-        prior_hist = self._get_hist(self.prior_samples[col_name]) if col_name in self.new_prior_samples.columns else 1.0
-        if new_prior_samples:
-            new_prior_hist = self._get_hist(new_prior_samples)
-        else:
-            new_prior_hist = (
-                self._get_hist(self.new_prior_samples[col_name]) if col_name in self.new_prior_samples.columns else 1.0
-            )
+        prior_hist = self._get_hist(self.prior_samples[col_name])
+        new_prior_hist = self._get_hist(self.new_prior_samples[col_name])
         # Avoid division by zero
         ratio = _safe_divide(new_prior_hist, prior_hist, ztol=ztol)
         rv = rv_histogram((ratio, self.get_edges(col_name)))
@@ -173,7 +154,7 @@ class ImportanceSamplingData:
         return weights
 
     @pre_release
-    def get_bayes_factor(self, ztol=1e-8, random_state=42) -> float:
+    def get_bayes_factor(self, ztol=1e-8) -> float:
         """Compute the Bayes factor between two models
 
         NOTE: In this implementation, the likelihood function remains untouched.
@@ -184,9 +165,7 @@ class ImportanceSamplingData:
         bf = 1.0
         weights = np.ones(len(self.prior_samples))
 
-        for col in self.posterior_samples.columns:
-            if col not in self.new_prior_samples.columns:
-                continue
+        for col in self.common_columns:
 
             prior_hist = self._get_hist(self.prior_samples[col])
             posterior_hist = self._get_hist(self.posterior_samples[col])
@@ -198,21 +177,29 @@ class ImportanceSamplingData:
 
             bf *= np.sum(new_prior_hist * _safe_divide(posterior_hist, prior_hist, ztol=ztol)) * self.get_binwidth(col)
 
-        # Correction
-        inferred_new_prior_samples = self.prior_samples.sample(
-            n=len(self.prior_samples),
-            weights=weights,
-            replace=True,
-            random_state=random_state,
-        )
-        for col in self.posterior_samples:
-            if col in self.new_prior_samples.columns:
-                continue
+        # Since weights are all zero, return BF=0
+        # Because the priors are non-overlapping
+        if weights.sum() == 0:
+            return 0.0
 
-            prior_hist = self._get_hist(self.prior_samples[col])
-            posterior_hist = self._get_hist(self.posterior_samples[col])
-            new_prior_hist = self._get_hist(inferred_new_prior_samples[col])
-            bf *= np.sum(new_prior_hist * _safe_divide(posterior_hist, prior_hist, ztol=ztol)) * self.get_binwidth(col)
+        # # Handle the correlation between parameters
+        # inferred_new_prior_samples = self.prior_samples.sample(
+        #     n=len(self.prior_samples),
+        #     weights=weights,
+        #     replace=True,
+        #     random_state=random_state,
+        # )
+        # for col in self.posterior_samples:
+        #     if col in self.new_prior_samples.columns:
+        #         continue
+        #     if col not in self.prior_samples.columns:
+        #         continue
+        #     prior_hist = self._get_hist(self.prior_samples[col])
+        #     posterior_hist = self._get_hist(self.posterior_samples[col])
+        #     new_prior_hist = self._get_hist(inferred_new_prior_samples[col])
+        #     bf *= np.sum(
+        #         new_prior_hist * _safe_divide(posterior_hist, prior_hist, ztol=ztol)
+        #     ) * self.get_binwidth(col)
 
         return bf
 
@@ -222,7 +209,7 @@ class ImportanceSamplingData:
 
         weights = np.ones(len(self.posterior_samples))
 
-        for col in self.posterior_samples:
+        for col in self.common_columns:
             weights *= self.get_weights(col_name=col, ztol=ztol)
 
         reweighted_samples = self.posterior_samples.sample(

@@ -43,7 +43,7 @@ def test_bayes_factor_with_no_prior_change(prior, posterior):
         posterior_samples=posterior,
         prior_samples=prior,
     )
-    bayes_factor = data.get_bayes_factor(random_state=42)
+    bayes_factor = data.get_bayes_factor()
 
     # Here we replace the prior by the original prior
     # The Bayes factor should be exactly 1
@@ -59,7 +59,7 @@ def test_bayes_factor_replace_delta_prior(prior, posterior):
         posterior_samples=posterior,
         prior_samples=prior,
     )
-    bayes_factor = data.get_bayes_factor(random_state=42)
+    bayes_factor = data.get_bayes_factor()
 
     # Expected Bayes factor is 4.73944449
     assert np.isclose(bayes_factor, 4.73944449, atol=0.5)
@@ -76,7 +76,7 @@ def test_bayes_factor_replace_flat_normal_prior(prior, posterior):
         posterior_samples=posterior,
         prior_samples=prior,
     )
-    bayes_factor = data.get_bayes_factor(random_state=42)
+    bayes_factor = data.get_bayes_factor()
 
     assert 1.0 <= bayes_factor <= 1.1
 
@@ -90,6 +90,6 @@ def test_bayes_factor_replace_flat_beta_prior(prior, posterior):
         posterior_samples=posterior,
         prior_samples=prior,
     )
-    bayes_factor = data.get_bayes_factor(random_state=42)
+    bayes_factor = data.get_bayes_factor()
 
     assert 0.9 <= bayes_factor <= 1.0
