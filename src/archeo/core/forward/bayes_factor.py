@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from tenacity import retry, stop_after_attempt
 
-from archeo.core.forward.resampler import ISData
+from archeo.core.forward.resampler import ImportanceSamplingData as ISData
 from archeo.utils.helper import pre_release
 from archeo.utils.parallel import multithread_run
 

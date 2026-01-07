@@ -1,6 +1,6 @@
 import logging
 from dataclasses import asdict
-from typing import Callable, Optional
+from typing import Callable, Literal, Optional
 
 import numpy as np
 import pandas as pd
@@ -108,7 +108,11 @@ class Simulator:
             chi_f_err=chi_f_err,
         )
 
-    def replace_draw_function(self, param: str, domains: list[Domain]) -> None:
+    def replace_draw_function(
+        self,
+        param: Literal["m_1", "m_2", "a_1", "a_2"],
+        domains: list[Domain],
+    ) -> None:
         """Replaces the draw function of the given parameter with a new one
 
         Args:
