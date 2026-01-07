@@ -6,6 +6,7 @@ import pandas as pd
 
 from archeo.core.forward.resampler.assume_independence import ISDataAssumeIndependence
 from archeo.core.forward.resampler.generic import ISDataGeneric
+from archeo.schema import Interface
 from archeo.utils.helper import pre_release
 
 
@@ -13,7 +14,7 @@ local_logger = logging.getLogger(__name__)
 
 
 @dataclass
-class ImportanceSamplingData(ISDataGeneric, ISDataAssumeIndependence):
+class ImportanceSamplingData(Interface, ISDataGeneric, ISDataAssumeIndependence):
     """Importance sampling data for all resamplers"""
 
     assume_parameter_independence: bool = False

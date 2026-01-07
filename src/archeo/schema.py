@@ -7,6 +7,10 @@ import yaml
 from archeo.constants import Fits
 
 
+class Interface:
+    """Dummy class to indicate the class is an interface class (user-facing)."""
+
+
 @dataclass(frozen=True)
 class Domain:
     """Domain of a parameter.
@@ -150,19 +154,19 @@ class PriorConfig:
         return PriorConfig(
             n_samples=data["n_samples"],
             is_spin_aligned=data["is_spin_aligned"],
-            is_only_up_aligned_spin=data["is_only_up_aligned_spin"],
-            a_1=Domain(data["a_1"]["low"], data["a_1"]["high"]),
-            a_2=Domain(data["a_2"]["low"], data["a_2"]["high"]),
-            phi_1=Domain(data["phi_1"]["low"], data["phi_1"]["high"]),
-            phi_2=Domain(data["phi_2"]["low"], data["phi_2"]["high"]),
-            theta_1=Domain(data["theta_1"]["low"], data["theta_1"]["high"]),
-            theta_2=Domain(data["theta_2"]["low"], data["theta_2"]["high"]),
-            mass_ratio=Domain(data["mass_ratio"]["low"], data["mass_ratio"]["high"]),
             m_1=Domain(data["m_1"]["low"], data["m_1"]["high"]),
             m_2=Domain(data["m_2"]["low"], data["m_2"]["high"]),
-            is_mahapatra_mass_func=data["is_mahapatra_mass_func"],
-            is_uniform_in_mass_ratio=data["is_uniform_in_mass_ratio"],
-            is_masses_swappable=data["is_masses_swappable"],
+            a_1=Domain(data["a_1"]["low"], data["a_1"]["high"]),
+            a_2=Domain(data["a_2"]["low"], data["a_2"]["high"]),
+            phi_1=Domain(data["phi_1"].get("low", 0.0), data["phi_1"].get("high", 2.0)),
+            phi_2=Domain(data["phi_2"].get("low", 0.0), data["phi_2"].get("high", 2.0)),
+            theta_1=Domain(data["theta_1"].get("low", 0.0), data["theta_1"].get("high", 1.0)),
+            theta_2=Domain(data["theta_2"].get("low", 0.0), data["theta_2"].get("high", 1.0)),
+            mass_ratio=Domain(data["mass_ratio"].get("low", 1.0), data["mass_ratio"].get("high", 6.0)),
+            is_only_up_aligned_spin=data.get("is_only_up_aligned_spin", False),
+            is_mahapatra_mass_func=data.get("is_mahapatra_mass_func", False),
+            is_uniform_in_mass_ratio=data.get("is_uniform_in_mass_ratio", False),
+            is_masses_swappable=data.get("is_masses_swappable", True),
         )
 
     @classmethod

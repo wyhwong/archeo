@@ -20,7 +20,7 @@ Here we list the publications that have used Archeo:
 
 [1] Carlos Araújo Álvarez, Henry W. Y. Wong, Juan Calderón Bustillo. "Kicking Time Back in Black Hole Mergers: Ancestral Masses, Spins, Birth Recoils, and Hierarchical-formation Viability of GW190521." [The Astrophysical Journal 977.2 (2024): 220.](https://iopscience.iop.org/article/10.3847/1538-4357/ad90a9)
 
-[2] The LIGO Scientific Collaboration, the Virgo Collaboration, the KAGRA Collaboration. "GW231123: a Binary Black Hole Merger with Total Mass 190-265 $M_\odot$." [arXiv preprint arXiv:2507.08219.](https://arxiv.org/abs/2507.08219)
+[2] The LIGO Scientific Collaboration, the Virgo Collaboration, the KAGRA Collaboration. "GW231123: a Binary Black Hole Merger with Total Mass 190-265 $M_\odot$." [The Astrophysical Journal Letters 993 L25.](https://iopscience.iop.org/article/10.3847/2041-8213/ae0c9c)
 
 [3] The LIGO Scientific Collaboration, the Virgo Collaboration, the KAGRA Collaboration. "GW241011 and GW241110: Exploring Binary Formation and Fundamental Physics with Asymmetric, High-spin Black Hole Coalescences." [The Astrophysical Journal Letters 993.1 (2025): L21.](https://iopscience.iop.org/article/10.3847/2041-8213/ae0d54)
 

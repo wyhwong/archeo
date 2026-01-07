@@ -11,14 +11,14 @@ from archeo.constants import Prefixes as P
 from archeo.constants import Suffixes as S
 from archeo.core.simulator import Simulator
 from archeo.preset import get_prior_config
-from archeo.schema import PriorConfig
+from archeo.schema import Interface, PriorConfig
 from archeo.utils.parallel import multithread_run
 
 
 local_logger = archeo.logger.get_logger(__name__)
 
 
-class Prior(pd.DataFrame):
+class Prior(Interface, pd.DataFrame):
     """A class to represent the prior distribution."""
 
     def __init__(

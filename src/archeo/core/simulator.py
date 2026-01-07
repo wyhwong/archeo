@@ -9,7 +9,7 @@ from tqdm import tqdm
 from archeo.constants import Columns as C
 from archeo.constants import Suffixes as S
 from archeo.core.mahapatra import get_mahapatra_mass_fn
-from archeo.schema import Binary, Domain, Event, PriorConfig
+from archeo.schema import Binary, Domain, Event, Interface, PriorConfig
 from archeo.utils.helper import pre_release
 from archeo.utils.math import sph2cart
 from archeo.utils.parallel import multithread_run
@@ -33,7 +33,7 @@ def _extended_draw(domains: list[Domain]) -> float:
     return draw
 
 
-class Simulator:
+class Simulator(Interface):
     """Simulator class to simulate binary black hole mergers"""
 
     def __init__(self, prior_config: PriorConfig):
