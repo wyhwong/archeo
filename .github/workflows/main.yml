@@ -1,4 +1,4 @@
-name: CI
+name: cicd-pipeline
 
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
       - name: Setup virtual environment
         working-directory: ./src
         run: |
-          poetry install --with dev
+
       - name: Run pytest
         working-directory: ./src
         run: |
