@@ -1,7 +1,7 @@
 # Archeo
 
 [![PyPI version](https://badge.fury.io/py/archeo.svg)](https://pypi.org/project/archeo/)
-[![DOI](https://zenodo.org/badge/626377469.svg)](https://doi.org/10.5281/zenodo.14306853)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17632389.svg)](https://doi.org/10.5281/zenodo.14306853)
 [![Downloads](https://img.shields.io/pepy/dt/archeo)](https://github.com/wyhwong/archeo)
 [![Python version](https://img.shields.io/pypi/pyversions/archeo)](https://pypi.org/project/archeo/)
 [![license](https://img.shields.io/badge/license-MIT-orange.svg)](https://github.com/wyhwong/archeo/blob/main/LICENSE)
