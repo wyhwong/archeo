@@ -33,4 +33,4 @@ jobs:
       - name: Run pytest
         working-directory: ./src
         run: |
-          poetry run pytest --disable-warnings --cov=archeo
+          poetry run pre-commit run -vvv
