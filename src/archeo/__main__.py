@@ -14,7 +14,7 @@ def cli():
     "-n",
     "--name",
     default="default",
-    help=f"Preset prior name, available values are {', '.join(PRIOR_STORE)}.",
+    help="Preset prior name, available values are " + ", ".join(PRIOR_STORE) + ".",
 )
 @click.option(
     "-o",
