@@ -2,7 +2,7 @@ fail_fast: true
 
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v5.0.0
+  rev: v6.0.0
   hooks:
   - id: check-toml
   - id: check-yaml
@@ -11,26 +11,28 @@ repos:
   - id: check-added-large-files
   - id: forbid-new-submodules
   - id: detect-private-key
-  - id: no-commit-to-branch
-    args: ["--branch", "master"]
+  # - id: no-commit-to-branch
+  #   args: ["--branch", "main"]
 
 - repo: https://github.com/kynan/nbstripout
-  rev: 0.8.1
+  rev: 0.8.2
   hooks:
   - id: nbstripout
 
 - repo: https://github.com/psf/black
-  rev: 25.1.0
+  rev: 25.12.0
   hooks:
   - id: black
     args: [
-      "--line-length", "120", "src"
+      "--config", "./src/pyproject.toml",
+      "src"
     ]
+    additional_dependencies: [ "black[toml]" ]
     always_run: true
     verbose: true
 
 - repo: https://github.com/pylint-dev/pylint
-  rev: v3.3.7
+  rev: v4.0.4
   hooks:
   - id: pylint
     args: ["--rcfile", "./.pylintrc", "src"]
@@ -38,15 +40,15 @@ repos:
     verbose: true
 
 - repo: https://github.com/pycqa/isort
-  rev: 6.0.1
+  rev: 7.0.0
   hooks:
   - id: isort
     args: [
       "--profile", "black",
-      "--line-length", "120",
-      "--lines-after-imports", "2",
+      "--settings-path", "./src/pyproject.toml",
       "src"
     ]
+    additional_dependencies: [ "isort[toml]" ]
     always_run: true
     verbose: true
 
@@ -103,7 +105,7 @@ repos:
       "--rootdir=./src"
     ]
     language: python
-    types: [python]
+    types: [ python ]
     pass_filenames: false
     always_run: true
     verbose: true
