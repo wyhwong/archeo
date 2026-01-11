@@ -7,7 +7,7 @@
 [![Downloads](https://img.shields.io/pepy/dt/archeo)](https://github.com/wyhwong/archeo)
 [![Python version](https://img.shields.io/pypi/pyversions/archeo)](https://pypi.org/project/archeo/)
 [![license](https://img.shields.io/badge/license-MIT-orange.svg)](https://github.com/wyhwong/archeo/blob/main/LICENSE)
-[![CI](https://github.com/wyhwong/archeo/actions/workflows/main.yml/badge.svg)](https://github.com/wyhwong/archeo/actions/workflows/main.yml/)
+[![CI](https://github.com/wyhwong/archeo/actions/workflows/ci.yml/badge.svg)](https://github.com/wyhwong/archeo/actions/workflows/ci.yml/)
 
 Archeo is a Python package designed to infer the natal kick, ancestral masses, and spins of black holes in the Pair-instability Supernova (PISN) gap,
 with a particular focus on hierarchical black hole formation.
