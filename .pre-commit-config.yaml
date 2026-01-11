@@ -102,7 +102,9 @@ repos:
     args: [
       "--disable-warnings",
       "--cov=archeo",
-      "--rootdir=./src"
+      "--rootdir=./src",
+      "--cov-report=xml",
+      "--cov-report=term-missing"
     ]
     language: python
     types: [ python ]

@@ -1,4 +1,5 @@
 # ARCHEO
+
 [![PyPI version](https://badge.fury.io/py/archeo.svg)](https://pypi.org/project/archeo/)
 [![documentation](https://img.shields.io/badge/docs-archeo-blue.svg)](https://wyhwong.github.io/archeo/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17632389.svg)](https://doi.org/10.5281/zenodo.14306853)
@@ -25,6 +26,7 @@ See more details at [https://wyhwong.github.io/archeo/methodology/](https://wyhw
 Install via PyPI or from source.
 
 ## PyPI
+
 ```bash
 # Basic installation (without UI)
 pip3 install archeo
@@ -33,6 +35,7 @@ pip3 install archeo[ui]
 ```
 
 ## From source
+
 ```bash
 git clone https://github.com/wyhwong/archeo.git
 cd archeo/src
@@ -46,6 +49,7 @@ pip3 install -r requirements.txt .
 ---
 
 ## Usage
+
 For CLI usage, please refer to [README.md](./src/README.md) inside `src` folder.
 
 To import archeo in your Python code, please refer to the documentation page at [https://wyhwong.github.io/archeo/](https://wyhwong.github.io/archeo/).
