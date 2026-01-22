@@ -34,7 +34,7 @@ def default_posterior() -> pd.Series:
     return df.clip(lower={"m_1": 5, "a_1": 0}, upper={"m_1": 65, "a_1": 1})
 
 
-def test_bayes_factor_with_no_prior_change_1d(prior, posterior):
+def test_bayes_factor_with_no_prior_change_1d(prior: pd.Series, posterior: pd.Series):
     """Test the computation of the Bayes factor."""
 
     candidate_prior = pd.DataFrame({"m_1": np.random.uniform(low=5, high=65, size=N_SAMPLES)})
@@ -51,7 +51,7 @@ def test_bayes_factor_with_no_prior_change_1d(prior, posterior):
     assert np.isclose(bayes_factor, 1, atol=0.05)
 
 
-def test_bayes_factor_with_no_prior_change_dd(prior, posterior):
+def test_bayes_factor_with_no_prior_change_dd(prior: pd.Series, posterior: pd.Series):
     """Test the computation of the Bayes factor."""
 
     candidate_prior = pd.DataFrame({"m_1": np.random.uniform(low=5, high=65, size=N_SAMPLES)})
@@ -68,7 +68,7 @@ def test_bayes_factor_with_no_prior_change_dd(prior, posterior):
     assert np.isclose(bayes_factor, 1, atol=0.05)
 
 
-def test_bayes_factor_replace_delta_prior_1d(prior, posterior):
+def test_bayes_factor_replace_delta_prior_1d(prior: pd.Series, posterior: pd.Series):
     """Test the computation of the Bayes factor."""
 
     candidate_prior = pd.DataFrame({"m_1": np.random.normal(loc=35, scale=0.01, size=N_SAMPLES)})
@@ -84,7 +84,7 @@ def test_bayes_factor_replace_delta_prior_1d(prior, posterior):
     assert np.isclose(bayes_factor, 4.73944449, atol=0.5)
 
 
-def test_bayes_factor_replace_delta_prior_dd(prior, posterior):
+def test_bayes_factor_replace_delta_prior_dd(prior: pd.Series, posterior: pd.Series):
     """Test the computation of the Bayes factor."""
 
     candidate_prior = pd.DataFrame({"m_1": np.random.normal(loc=35, scale=0.01, size=N_SAMPLES)})
@@ -100,7 +100,7 @@ def test_bayes_factor_replace_delta_prior_dd(prior, posterior):
     assert np.isclose(bayes_factor, 4.73944449, atol=0.5)
 
 
-def test_bayes_factor_replace_flat_normal_prior_1d(prior, posterior):
+def test_bayes_factor_replace_flat_normal_prior_1d(prior: pd.Series, posterior: pd.Series):
     """Test the computation of the Bayes factor."""
 
     samples = np.random.normal(loc=35, scale=50, size=N_SAMPLES)
@@ -117,7 +117,7 @@ def test_bayes_factor_replace_flat_normal_prior_1d(prior, posterior):
     assert 1.0 <= bayes_factor <= 1.1
 
 
-def test_bayes_factor_replace_flat_normal_prior_dd(prior, posterior):
+def test_bayes_factor_replace_flat_normal_prior_dd(prior: pd.Series, posterior: pd.Series):
     """Test the computation of the Bayes factor."""
 
     samples = np.random.normal(loc=35, scale=50, size=N_SAMPLES)
@@ -134,7 +134,7 @@ def test_bayes_factor_replace_flat_normal_prior_dd(prior, posterior):
     assert 1.0 <= bayes_factor <= 1.1
 
 
-def test_bayes_factor_replace_flat_beta_prior_1d(prior, posterior):
+def test_bayes_factor_replace_flat_beta_prior_1d(prior: pd.Series, posterior: pd.Series):
     """Test the computation of the Bayes factor."""
 
     candidate_prior = pd.DataFrame({"m_1": np.random.beta(a=0.92, b=0.92, size=N_SAMPLES) * 60 + 5})
@@ -149,7 +149,7 @@ def test_bayes_factor_replace_flat_beta_prior_1d(prior, posterior):
     assert 0.9 <= bayes_factor <= 1.0
 
 
-def test_bayes_factor_replace_flat_beta_prior_dd(prior, posterior):
+def test_bayes_factor_replace_flat_beta_prior_dd(prior: pd.Series, posterior: pd.Series):
     """Test the computation of the Bayes factor."""
 
     candidate_prior = pd.DataFrame({"m_1": np.random.beta(a=0.92, b=0.92, size=N_SAMPLES) * 60 + 5})

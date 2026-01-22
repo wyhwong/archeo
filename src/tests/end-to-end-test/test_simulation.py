@@ -58,7 +58,7 @@ def default_uniform_q_aligned_spin_spin_prior_config():
     )
 
 
-def test_run_simulation_1(uniform_mass_aligned_spin_prior_config):
+def test_run_simulation_1(uniform_mass_aligned_spin_prior_config: PriorConfig):
     """Run a simulation with the default prior config."""
 
     prior = Prior.from_config(uniform_mass_aligned_spin_prior_config)
@@ -66,7 +66,7 @@ def test_run_simulation_1(uniform_mass_aligned_spin_prior_config):
     assert len(prior) == 1000
 
 
-def test_run_simulation_2(uniform_q_aligned_spin_spin_prior_config):
+def test_run_simulation_2(uniform_q_aligned_spin_spin_prior_config: PriorConfig):
     """Run a simulation with the default prior config."""
 
     prior = Prior.from_config(uniform_q_aligned_spin_spin_prior_config)
@@ -74,7 +74,7 @@ def test_run_simulation_2(uniform_q_aligned_spin_spin_prior_config):
     assert len(prior) == 1000
 
 
-def test_run_2g1g_simulation(uniform_mass_aligned_spin_prior_config):
+def test_run_2g1g_simulation(uniform_mass_aligned_spin_prior_config: PriorConfig):
     """Run a simulation with the default prior config."""
 
     prior = Prior.from_config(uniform_mass_aligned_spin_prior_config)
@@ -85,7 +85,7 @@ def test_run_2g1g_simulation(uniform_mass_aligned_spin_prior_config):
     assert len(prior_2g) == 1000
 
 
-def test_run_2g2g_simulation(uniform_mass_aligned_spin_prior_config):
+def test_run_2g2g_simulation(uniform_mass_aligned_spin_prior_config: PriorConfig):
     """Run a simulation with the default prior config."""
 
     prior = Prior.from_config(uniform_mass_aligned_spin_prior_config)

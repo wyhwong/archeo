@@ -17,7 +17,7 @@ def default_prior():
     return archeo.Prior.from_json(filepath)
 
 
-def test_self_estimate(prior):
+def test_self_estimate(prior: archeo.Prior):
     """Run an estimation on the test dataset,
     where we let prior=posterior. Suppose we should get 100% recovery rate.
     """

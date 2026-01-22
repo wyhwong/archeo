@@ -38,7 +38,7 @@ def default_output_dir():
     return f"{os.path.dirname(os.path.dirname(__file__))}/test_data/visualization"
 
 
-def test_visualizing_posterior_estimation(posterior, output_dir):
+def test_visualizing_posterior_estimation(posterior: pd.DataFrame, output_dir: str):
     """Test the visualization of the posterior estimation.
 
     NOTE:
@@ -57,7 +57,7 @@ def test_visualizing_posterior_estimation(posterior, output_dir):
     rmtree(output_dir)
 
 
-def test_visualizing_prior_distribution(prior, output_dir):
+def test_visualizing_prior_distribution(prior: archeo.Prior, output_dir: str):
     """Test the visualization of the prior distribution.
 
     NOTE:
