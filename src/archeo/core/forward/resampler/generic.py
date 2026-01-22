@@ -62,7 +62,7 @@ class ISDataGeneric(ImportanceSamplingDataBase):
         new_prior_hist_bh = self._get_hist_dd(self.new_prior_samples[[c for c in self.common_columns]])
         prior_hist_bh = self._get_hist_dd(self.prior_samples[[c for c in self.common_columns]])
         posterior_hist_bh = self._get_hist_dd(self.posterior_samples[[c for c in self.common_columns]])
-        bf *= np.sum(new_prior_hist_bh * self._safe_divide(posterior_hist_bh, prior_hist_bh, ztol=ztol)) * bin_auc
+        bf *= np.sum(posterior_hist_bh * self._safe_divide(new_prior_hist_bh, prior_hist_bh, ztol=ztol)) * bin_auc
 
         return bf
 

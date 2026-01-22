@@ -79,26 +79,14 @@ class ISDataAssumeIndependence(ImportanceSamplingDataBase):
         """
 
         bf = 1.0
-        weights = np.ones(len(self.prior_samples))
 
         for col in self.common_columns:
-
             prior_hist = self._get_hist_1d(self.prior_samples[col])
             posterior_hist = self._get_hist_1d(self.posterior_samples[col])
             new_prior_hist = self._get_hist_1d(self.new_prior_samples[col])
-
-            ratios = self._safe_divide(new_prior_hist, prior_hist, ztol=ztol)
-            rv = rv_histogram((ratios, self.get_edges(col_name=col)))
-            weights *= rv.pdf(self.prior_samples[col])
-
-            bf *= np.sum(new_prior_hist * self._safe_divide(posterior_hist, prior_hist, ztol=ztol)) * self.get_binwidth(
+            bf *= np.sum(posterior_hist * self._safe_divide(new_prior_hist, prior_hist, ztol=ztol)) * self.get_binwidth(
                 col
             )
-
-        # Since weights are all zero, return BF=0
-        # Because the priors are non-overlapping
-        if weights.sum() == 0:
-            return 0.0
 
         return bf
 
