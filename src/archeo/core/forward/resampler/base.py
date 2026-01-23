@@ -26,13 +26,6 @@ class ImportanceSamplingDataBase:
 
         self._bounds = self._compute_bounds()
 
-    def bootstrapping(self) -> None:
-        """Perform bootstrapping on the dataframes"""
-
-        self.posterior_samples = self.posterior_samples.sample(n=len(self.posterior_samples), replace=True)
-        self.prior_samples = self.prior_samples.sample(n=len(self.prior_samples), replace=True)
-        self.new_prior_samples = self.new_prior_samples.sample(n=len(self.new_prior_samples), replace=True)
-
     @property
     def common_columns(self) -> list[str]:
         """Get the common columns between posterior and prior samples"""

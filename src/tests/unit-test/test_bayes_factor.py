@@ -44,11 +44,11 @@ def test_bayes_factor_with_no_prior_change_1d(prior: pd.Series, posterior: pd.Se
         prior_samples=prior,
         assume_parameter_independence=True,
     )
-    bayes_factor = data.get_bayes_factor()
+    bayes_factors = data.sample_bayes_factor(n=10)
 
     # Here we replace the prior by the original prior
     # The Bayes factor should be exactly 1
-    assert np.isclose(bayes_factor, 1, atol=0.05)
+    assert np.isclose(np.mean(bayes_factors), 1, atol=0.05)
 
 
 def test_bayes_factor_with_no_prior_change_dd(prior: pd.Series, posterior: pd.Series):
@@ -61,11 +61,11 @@ def test_bayes_factor_with_no_prior_change_dd(prior: pd.Series, posterior: pd.Se
         prior_samples=prior,
         assume_parameter_independence=False,
     )
-    bayes_factor = data.get_bayes_factor()
+    bayes_factors = data.sample_bayes_factor(n=10)
 
     # Here we replace the prior by the original prior
     # The Bayes factor should be exactly 1
-    assert np.isclose(bayes_factor, 1, atol=0.05)
+    assert np.isclose(np.mean(bayes_factors), 1, atol=0.05)
 
 
 def test_bayes_factor_replace_delta_prior_1d(prior: pd.Series, posterior: pd.Series):
@@ -78,10 +78,10 @@ def test_bayes_factor_replace_delta_prior_1d(prior: pd.Series, posterior: pd.Ser
         prior_samples=prior,
         assume_parameter_independence=True,
     )
-    bayes_factor = data.get_bayes_factor()
+    bayes_factors = data.sample_bayes_factor(n=10)
 
     # Expected Bayes factor is 4.73944449
-    assert np.isclose(bayes_factor, 4.73944449, atol=0.5)
+    assert np.isclose(np.mean(bayes_factors), 4.73944449, atol=0.5)
 
 
 def test_bayes_factor_replace_delta_prior_dd(prior: pd.Series, posterior: pd.Series):
@@ -94,10 +94,10 @@ def test_bayes_factor_replace_delta_prior_dd(prior: pd.Series, posterior: pd.Ser
         prior_samples=prior,
         assume_parameter_independence=False,
     )
-    bayes_factor = data.get_bayes_factor()
+    bayes_factors = data.sample_bayes_factor(n=10)
 
     # Expected Bayes factor is 4.73944449
-    assert np.isclose(bayes_factor, 4.73944449, atol=0.5)
+    assert np.isclose(np.mean(bayes_factors), 4.73944449, atol=0.5)
 
 
 def test_bayes_factor_replace_flat_normal_prior_1d(prior: pd.Series, posterior: pd.Series):
@@ -112,9 +112,9 @@ def test_bayes_factor_replace_flat_normal_prior_1d(prior: pd.Series, posterior: 
         prior_samples=prior,
         assume_parameter_independence=True,
     )
-    bayes_factor = data.get_bayes_factor()
+    bayes_factors = data.sample_bayes_factor(n=10)
 
-    assert 1.0 <= bayes_factor <= 1.1
+    assert 1.0 <= np.mean(bayes_factors) <= 1.1
 
 
 def test_bayes_factor_replace_flat_normal_prior_dd(prior: pd.Series, posterior: pd.Series):
@@ -129,9 +129,9 @@ def test_bayes_factor_replace_flat_normal_prior_dd(prior: pd.Series, posterior: 
         prior_samples=prior,
         assume_parameter_independence=False,
     )
-    bayes_factor = data.get_bayes_factor()
+    bayes_factors = data.sample_bayes_factor(n=10)
 
-    assert 1.0 <= bayes_factor <= 1.1
+    assert 1.0 <= np.mean(bayes_factors) <= 1.1
 
 
 def test_bayes_factor_replace_flat_beta_prior_1d(prior: pd.Series, posterior: pd.Series):
@@ -144,9 +144,9 @@ def test_bayes_factor_replace_flat_beta_prior_1d(prior: pd.Series, posterior: pd
         prior_samples=prior,
         assume_parameter_independence=True,
     )
-    bayes_factor = data.get_bayes_factor()
+    bayes_factors = data.sample_bayes_factor(n=10)
 
-    assert 0.9 <= bayes_factor <= 1.0
+    assert 0.9 <= np.mean(bayes_factors) <= 1.0
 
 
 def test_bayes_factor_replace_flat_beta_prior_dd(prior: pd.Series, posterior: pd.Series):
@@ -159,6 +159,6 @@ def test_bayes_factor_replace_flat_beta_prior_dd(prior: pd.Series, posterior: pd
         prior_samples=prior,
         assume_parameter_independence=False,
     )
-    bayes_factor = data.get_bayes_factor()
+    bayes_factors = data.sample_bayes_factor(n=10)
 
-    assert 0.9 <= bayes_factor <= 1.0
+    assert 0.9 <= np.mean(bayes_factors) <= 1.0

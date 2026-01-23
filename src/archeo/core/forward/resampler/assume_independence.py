@@ -70,7 +70,35 @@ class ISDataAssumeIndependence(ImportanceSamplingDataBase):
 
         return weights
 
-    def get_bayes_factor_1d(self, ztol=1e-8) -> float:
+    def get_bayes_factor_1d(
+        self,
+        bootstrapping: bool = False,
+        ztol=1e-8,
+    ) -> float:
+        """Compute the Bayes factor between two models"""
+
+        if bootstrapping:
+            return self._get_bayes_factor_1d(
+                prior_samples=self.prior_samples.sample(n=len(self.prior_samples), replace=True),
+                posterior_samples=self.posterior_samples.sample(n=len(self.posterior_samples), replace=True),
+                new_prior_samples=self.new_prior_samples.sample(n=len(self.new_prior_samples), replace=True),
+                ztol=ztol,
+            )
+
+        return self._get_bayes_factor_1d(
+            prior_samples=self.prior_samples,
+            posterior_samples=self.posterior_samples,
+            new_prior_samples=self.new_prior_samples,
+            ztol=ztol,
+        )
+
+    def _get_bayes_factor_1d(
+        self,
+        prior_samples: pd.DataFrame,
+        posterior_samples: pd.DataFrame,
+        new_prior_samples: pd.DataFrame,
+        ztol=1e-8,
+    ) -> float:
         """Compute the Bayes factor between two models
 
         NOTE: In this implementation, the likelihood function remains untouched.
@@ -81,9 +109,9 @@ class ISDataAssumeIndependence(ImportanceSamplingDataBase):
         bf = 1.0
 
         for col in self.common_columns:
-            prior_hist = self._get_hist_1d(self.prior_samples[col])
-            posterior_hist = self._get_hist_1d(self.posterior_samples[col])
-            new_prior_hist = self._get_hist_1d(self.new_prior_samples[col])
+            prior_hist = self._get_hist_1d(prior_samples[col])
+            posterior_hist = self._get_hist_1d(posterior_samples[col])
+            new_prior_hist = self._get_hist_1d(new_prior_samples[col])
             bf *= np.sum(posterior_hist * self._safe_divide(new_prior_hist, prior_hist, ztol=ztol)) * self.get_binwidth(
                 col
             )

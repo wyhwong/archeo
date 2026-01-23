@@ -48,7 +48,31 @@ class ISDataGeneric(ImportanceSamplingDataBase):
 
         raise NotImplementedError("Not implemented yet.")
 
-    def get_bayes_factor_dd(self, ztol=1e-8) -> float:
+    def get_bayes_factor_dd(self, bootstrapping: bool = False, ztol=1e-8) -> float:
+        """Compute the Bayes factor between two models"""
+
+        if bootstrapping:
+            return self._get_bayes_factor_dd(
+                prior_samples=self.prior_samples.sample(n=len(self.prior_samples), replace=True),
+                posterior_samples=self.posterior_samples.sample(n=len(self.posterior_samples), replace=True),
+                new_prior_samples=self.new_prior_samples.sample(n=len(self.new_prior_samples), replace=True),
+                ztol=ztol,
+            )
+
+        return self._get_bayes_factor_dd(
+            prior_samples=self.prior_samples,
+            posterior_samples=self.posterior_samples,
+            new_prior_samples=self.new_prior_samples,
+            ztol=ztol,
+        )
+
+    def _get_bayes_factor_dd(
+        self,
+        prior_samples: pd.DataFrame,
+        posterior_samples: pd.DataFrame,
+        new_prior_samples: pd.DataFrame,
+        ztol=1e-8,
+    ) -> float:
         """Compute the Bayes factor between two models
 
         NOTE: In this implementation, the likelihood function remains untouched.
@@ -59,9 +83,9 @@ class ISDataGeneric(ImportanceSamplingDataBase):
         bf = 1.0
 
         bin_auc = np.prod([self.get_binwidth(c) for c in self.common_columns])
-        new_prior_hist_bh = self._get_hist_dd(self.new_prior_samples[[c for c in self.common_columns]])
-        prior_hist_bh = self._get_hist_dd(self.prior_samples[[c for c in self.common_columns]])
-        posterior_hist_bh = self._get_hist_dd(self.posterior_samples[[c for c in self.common_columns]])
+        new_prior_hist_bh = self._get_hist_dd(new_prior_samples[[c for c in self.common_columns]])
+        prior_hist_bh = self._get_hist_dd(prior_samples[[c for c in self.common_columns]])
+        posterior_hist_bh = self._get_hist_dd(posterior_samples[[c for c in self.common_columns]])
         bf *= np.sum(posterior_hist_bh * self._safe_divide(new_prior_hist_bh, prior_hist_bh, ztol=ztol)) * bin_auc
 
         return bf

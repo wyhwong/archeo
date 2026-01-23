@@ -8,6 +8,7 @@ from archeo.core.forward.resampler.assume_independence import ISDataAssumeIndepe
 from archeo.core.forward.resampler.generic import ISDataGeneric
 from archeo.schema import Interface
 from archeo.utils.helper import pre_release
+from archeo.utils.parallel import multithread_run
 
 
 local_logger = logging.getLogger(__name__)
@@ -38,7 +39,7 @@ class ImportanceSamplingData(Interface, ISDataGeneric, ISDataAssumeIndependence)
         return self.get_weights_dd(col_name=col_name, ztol=ztol)
 
     @pre_release
-    def get_bayes_factor(self, ztol=1e-8) -> float:
+    def get_bayes_factor(self, bootstrapping: bool = False, ztol=1e-8) -> float:
         """Compute the Bayes factor between two models
 
         NOTE: In this implementation, the likelihood function remains untouched.
@@ -47,9 +48,36 @@ class ImportanceSamplingData(Interface, ISDataGeneric, ISDataAssumeIndependence)
         """
 
         if self.assume_parameter_independence:
-            return self.get_bayes_factor_1d(ztol=ztol)
+            return self.get_bayes_factor_1d(bootstrapping=bootstrapping, ztol=ztol)
 
-        return self.get_bayes_factor_dd(ztol=ztol)
+        return self.get_bayes_factor_dd(bootstrapping=bootstrapping, ztol=ztol)
+
+    @pre_release
+    def sample_bayes_factor(
+        self,
+        n: int,
+        ztol=1e-8,
+        is_parallel: bool = False,
+        n_threads: int | None = None,
+    ) -> list[float]:
+        """Sample the Bayes factor for the importance sampling"""
+
+        if self.assume_parameter_independence:
+            if is_parallel:
+                return multithread_run(
+                    func=self.get_bayes_factor_1d,
+                    input_kwargs=[{"bootstrapping": True, "ztol": ztol} for _ in range(n)],
+                    n_threads=n_threads,
+                )
+            return [self.get_bayes_factor_1d(bootstrapping=True, ztol=ztol) for _ in range(n)]
+
+        if is_parallel:
+            return multithread_run(
+                func=self.get_bayes_factor_dd,
+                input_kwargs=[{"bootstrapping": True, "ztol": ztol} for _ in range(n)],
+                n_threads=n_threads,
+            )
+        return [self.get_bayes_factor_dd(bootstrapping=True, ztol=ztol) for _ in range(n)]
 
     @pre_release
     def get_reweighted_samples(self, ztol=1e-8, random_state=42) -> pd.DataFrame:
