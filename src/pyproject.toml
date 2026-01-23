@@ -23,7 +23,8 @@ dependencies = [
     "pandas (>=2.2.3,<3.0.0)",
     "numpy (>=2.2.6,<3.0.0)",
     "matplotlib (>=3.10.3,<4.0.0)",
-    "scipy (>=1.15.3,<2.0.0)",
+    # TODO: Check scipy version compatibility after 1.17.1 release
+    "scipy (>=1.15.3,<1.17.0)",
     "surfinbh (>=1.2.6,<2.0.0)",
     "corner (>=2.2.3,<3.0.0)",
     "mpl-scatter-density (>=0.8,<0.9)",
