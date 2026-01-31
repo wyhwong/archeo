@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 
 from archeo.core.forward.resampler.assume_independence import ISDataAssumeIndependence
 from archeo.core.forward.resampler.generic import ISDataGeneric
@@ -28,15 +29,6 @@ class ImportanceSamplingData(Interface, ISDataGeneric, ISDataAssumeIndependence)
             return self.get_likelihood_samples_1d(random_state=random_state, ztol=ztol)
 
         return self.get_likelihood_samples_dd(random_state=random_state, ztol=ztol)
-
-    @pre_release
-    def get_weights(self, col_name: str, ztol=1e-8) -> np.ndarray:
-        """Get the weights for the importance sampling"""
-
-        if self.assume_parameter_independence:
-            return self.get_weights_1d(col_name=col_name, ztol=ztol)
-
-        return self.get_weights_dd(col_name=col_name, ztol=ztol)
 
     @pre_release
     def get_bayes_factor(self, bootstrapping: bool = False, ztol=1e-8) -> float:
@@ -69,7 +61,7 @@ class ImportanceSamplingData(Interface, ISDataGeneric, ISDataAssumeIndependence)
                     input_kwargs=[{"bootstrapping": True, "ztol": ztol} for _ in range(n)],
                     n_threads=n_threads,
                 )
-            return [self.get_bayes_factor_1d(bootstrapping=True, ztol=ztol) for _ in range(n)]
+            return [self.get_bayes_factor_1d(bootstrapping=True, ztol=ztol) for _ in tqdm(range(n))]
 
         if is_parallel:
             return multithread_run(
@@ -77,7 +69,7 @@ class ImportanceSamplingData(Interface, ISDataGeneric, ISDataAssumeIndependence)
                 input_kwargs=[{"bootstrapping": True, "ztol": ztol} for _ in range(n)],
                 n_threads=n_threads,
             )
-        return [self.get_bayes_factor_dd(bootstrapping=True, ztol=ztol) for _ in range(n)]
+        return [self.get_bayes_factor_dd(bootstrapping=True, ztol=ztol) for _ in tqdm(range(n))]
 
     @pre_release
     def get_reweighted_samples(self, ztol=1e-8, random_state=42) -> pd.DataFrame:
