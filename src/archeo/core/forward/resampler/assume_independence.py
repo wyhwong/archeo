@@ -56,7 +56,7 @@ class ISDataAssumeIndependence(ImportanceSamplingDataBase):
             random_state=random_state,
         )
 
-    def get_weights_1d(self, col_name: str, ztol=1e-8) -> np.ndarray:
+    def _get_posterior_sample_weights_1d(self, col_name: str, ztol=1e-8) -> np.ndarray:
         """Get the weights for the importance sampling"""
 
         weights = np.ones(len(self.posterior_samples))
@@ -124,7 +124,7 @@ class ISDataAssumeIndependence(ImportanceSamplingDataBase):
         weights = np.ones(len(self.posterior_samples))
 
         for col in self.common_columns:
-            weights *= self.get_weights(col_name=col, ztol=ztol)
+            weights *= self._get_posterior_sample_weights_1d(col_name=col, ztol=ztol)
 
         reweighted_samples = self.posterior_samples.sample(
             n=len(self.posterior_samples),

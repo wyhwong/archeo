@@ -41,12 +41,43 @@ class ISDataGeneric(ImportanceSamplingDataBase):
     def get_likelihood_samples_dd(self, random_state=42, ztol=1e-8) -> np.ndarray:
         """Get samples for likelihood function"""
 
-        raise NotImplementedError("Not implemented yet.")
+        edges = {}
+        for col in self.common_columns:
+            edges[col] = self.get_edges(col)
 
-    def get_weights_dd(self, col_name: str, ztol=1e-8) -> np.ndarray:
+        prior_hist = self._get_hist_dd(self.prior_samples[self.common_columns])
+        weights_matrix = self._safe_divide(1.0, prior_hist, ztol=ztol)
+
+        def _get_pdf(row: pd.Series):
+            idx = tuple(np.searchsorted(edges[col], row[col], side="right") - 1 for col in self.common_columns)
+            return weights_matrix[idx]
+
+        weights = self.posterior_samples.apply(_get_pdf, axis=1)
+
+        return self.posterior_samples.sample(
+            n=len(self.posterior_samples),
+            weights=weights,
+            replace=True,
+            random_state=random_state,
+        )
+
+    def _get_posterior_sample_weights_dd(self, ztol=1e-8) -> pd.Series:
         """Get the weights for the importance sampling"""
 
-        raise NotImplementedError("Not implemented yet.")
+        edges = {}
+        for col in self.common_columns:
+            edges[col] = self.get_edges(col)
+
+        prior_hist = self._get_hist_dd(self.prior_samples[self.common_columns])
+        new_prior_hist = self._get_hist_dd(self.new_prior_samples[self.common_columns])
+        # Avoid division by zero
+        weights_matrix = self._safe_divide(new_prior_hist, prior_hist, ztol=ztol)
+
+        def _get_pdf(row: pd.Series):
+            idx = tuple(np.searchsorted(edges[col], row[col], side="right") - 1 for col in self.common_columns)
+            return weights_matrix[idx]
+
+        return self.posterior_samples.apply(_get_pdf, axis=1)
 
     def get_bayes_factor_dd(self, bootstrapping: bool = False, ztol=1e-8) -> float:
         """Compute the Bayes factor between two models"""
@@ -93,4 +124,11 @@ class ISDataGeneric(ImportanceSamplingDataBase):
     def get_reweighted_samples_dd(self, ztol=1e-8, random_state=42) -> pd.DataFrame:
         """Get the reweighted samples for the importance sampling"""
 
-        raise NotImplementedError("Not implemented yet.")
+        weights = self._get_posterior_sample_weights_dd(ztol=ztol)
+
+        return self.posterior_samples.sample(
+            n=len(self.posterior_samples),
+            weights=weights,
+            replace=True,
+            random_state=random_state,
+        )
