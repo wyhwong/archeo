@@ -1,0 +1,31 @@
+from pydantic import BaseModel
+
+
+class Padding(BaseModel, frozen=True):
+    """
+    Padding for plot.
+
+    Attributes:
+        tpad: float, the top padding of the plot.
+        lpad: float, the left padding of the plot.
+        bpad: float, the bottom padding of the plot.
+    """
+
+    tpad: float = 2.5
+    lpad: float = 0.1
+    bpad: float = 0.12
+
+
+class Labels(BaseModel, frozen=True):
+    """
+    Labels for plot.
+
+    Attributes:
+        title: str, the title of the plot.
+        xlabel: str, the x-axis label of the plot.
+        ylabel: str, the y-axis label of the plot.
+    """
+
+    title: str = ""
+    xlabel: str = ""
+    ylabel: str = ""

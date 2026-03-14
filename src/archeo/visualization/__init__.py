@@ -1,8 +1,6 @@
 import pandas as pd
 
-from archeo.constants import Columns as C
-from archeo.constants import Suffixes as S
-from archeo.utils.file import check_and_create_dir
+from archeo.utils.fs import check_and_create_dir
 from archeo.visualization.animation import animate_remnant_property_change_over_kick
 from archeo.visualization.distribution import (
     distribution_summary,
@@ -30,11 +28,11 @@ def visualize_prior_distribution(prior: pd.DataFrame, output_dir: str, fmt: str 
 
     check_and_create_dir(output_dir)
 
-    animate_remnant_property_change_over_kick(prior, col_name=S.FINAL(C.MASS), output_dir=output_dir)
-    animate_remnant_property_change_over_kick(prior, col_name=S.FINAL(C.SPIN_MAG), output_dir=output_dir)
-    animate_remnant_property_change_over_kick(prior, col_name=C.MASS_RATIO, output_dir=output_dir)
-    animate_remnant_property_change_over_kick(prior, col_name=S.EFF(C.SPIN), output_dir=output_dir)
-    animate_remnant_property_change_over_kick(prior, col_name=S.PREC(C.SPIN), output_dir=output_dir)
+    animate_remnant_property_change_over_kick(prior, col_name="m_f", output_dir=output_dir)
+    animate_remnant_property_change_over_kick(prior, col_name="a_f", output_dir=output_dir)
+    animate_remnant_property_change_over_kick(prior, col_name="q", output_dir=output_dir)
+    animate_remnant_property_change_over_kick(prior, col_name="chi_eff", output_dir=output_dir)
+    animate_remnant_property_change_over_kick(prior, col_name="chi_p", output_dir=output_dir)
     distribution_summary(prior, output_dir=output_dir, fmt=fmt)
     kick_against_spin_cmap(prior, output_dir=output_dir, fmt=fmt)
     kick_distribution_on_spin(prior, output_dir=output_dir, fmt=fmt)

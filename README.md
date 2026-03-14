@@ -40,10 +40,12 @@ pip3 install archeo[ui]
 git clone https://github.com/wyhwong/archeo.git
 cd archeo/src
 
-# If you use poetry
-poetry install
-# If you do not use poetry
-pip3 install -r requirements.txt .
+# Install uv if you don't have it
+pip3 install uv
+# Install archeo with all optional dependencies
+uv sync --all-groups --all-extras
+# Also install archeo in editable mode for development
+uv pip install -e .
 ```
 
 ---

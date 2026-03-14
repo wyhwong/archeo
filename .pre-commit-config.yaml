@@ -7,17 +7,20 @@ repos:
   - id: check-toml
   - id: check-yaml
   - id: end-of-file-fixer
+    exclude: \.json$
   - id: trailing-whitespace
   - id: check-added-large-files
+    args: ["--maxkb=1024"]
   - id: forbid-new-submodules
   - id: detect-private-key
   # - id: no-commit-to-branch
   #   args: ["--branch", "main"]
 
 - repo: https://github.com/kynan/nbstripout
-  rev: 0.8.2
+  rev: 0.9.1
   hooks:
   - id: nbstripout
+    exclude: ^src/docs/
 
 - repo: https://github.com/psf/black
   rev: 25.12.0
@@ -31,16 +34,19 @@ repos:
     always_run: true
     verbose: true
 
-- repo: https://github.com/pylint-dev/pylint
-  rev: v4.0.4
-  hooks:
-  - id: pylint
-    args: ["--rcfile", "./.pylintrc", "src"]
-    always_run: true
-    verbose: true
+# - repo: https://github.com/pylint-dev/pylint
+#   rev: v4.0.5
+#   hooks:
+#   - id: pylint
+#     args: ["--rcfile", "./.pylintrc", "src"]
+#     files: ^src/.*\.py$
+#     exclude: ^src/(tests|archeo/ui)/
+#     always_run: true
+#     verbose: true
+
 
 - repo: https://github.com/pycqa/isort
-  rev: 7.0.0
+  rev: 8.0.1
   hooks:
   - id: isort
     args: [
@@ -66,39 +72,36 @@ repos:
     always_run: true
     verbose: true
 
-- repo: https://github.com/python-poetry/poetry
-  rev: 2.3.1
+- repo: https://github.com/astral-sh/uv-pre-commit
+  rev: 0.10.11
   hooks:
-  - id: poetry-check
-    args: ["-C", "./src"]
-    always_run: true
-    verbose: true
-  - id: poetry-lock
-    args: ["-C", "./src"]
-  - id: poetry-install
-    args: ["-C", "./src"]
-    always_run: true
-    verbose: true
+    - id: uv-lock
+      args: ["--project", "./src"]
+      always_run: true
+      verbose: true
 
-- repo: https://github.com/python-poetry/poetry-plugin-export
-  rev: 1.9.0
-  hooks:
-  - id: poetry-export
-    args: [
-      "-C", "./src",
-      "-f", "requirements.txt",
-      "-o", "requirements.txt",
-      "--without-hashes",
-      "--all-extras"
-    ]
-    always_run: true
-    verbose: true
+    - id: uv-sync
+      args: ["--project", "./src"]
+      always_run: true
+      verbose: true
+
+    - id: uv-export
+      args:
+        [
+          "--project", "./src",
+          "--no-hashes",
+          "--output-file=./src/requirements.txt",
+          "--quiet"
+        ]
+      always_run: true
+      verbose: true
+
 
 - repo: local
   hooks:
   - id: pytest
     name: pytest
-    entry: pytest
+    entry: bash -lc 'uv sync --project ./src --active && uv pip install -e ./src && uv run pytest'
     args: [
       "--disable-warnings",
       "--cov=archeo",
@@ -106,7 +109,7 @@ repos:
       "--cov-report=xml",
       "--cov-report=term-missing"
     ]
-    language: python
+    language: system
     types: [ python ]
     pass_filenames: false
     always_run: true

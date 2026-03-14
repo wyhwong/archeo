@@ -1,2 +1,0 @@
-from archeo.core.forward.bayes_factor import get_bayes_factor_over_escape_velocity
-from archeo.core.forward.resampler import ImportanceSamplingData

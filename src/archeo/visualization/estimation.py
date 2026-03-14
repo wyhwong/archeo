@@ -8,15 +8,13 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-import archeo.logger
-from archeo.constants import Columns as C
-from archeo.constants import EscapeVelocity
-from archeo.constants import Suffixes as S
-from archeo.schema import Labels, Padding
+from archeo.constants.physics import EscapeVelocity
+from archeo.data_structures.visualization import Labels, Padding
+from archeo.utils.logger import get_logger
 from archeo.visualization import base
 
 
-local_logger = archeo.logger.get_logger(__name__)
+LOGGER = get_logger(__name__)
 
 
 def filter_unmapped_samples(df: pd.DataFrame) -> pd.DataFrame:
@@ -29,7 +27,7 @@ def filter_unmapped_samples(df: pd.DataFrame) -> pd.DataFrame:
         df (pd.DataFrame): The filtered prior dataframe.
     """
 
-    return df.dropna(subset=[S.FINAL(C.KICK)])
+    return df.dropna(subset=["k_f"])
 
 
 def mass_estimates(
@@ -67,9 +65,9 @@ def mass_estimates(
     colors = iter(mcolors.TABLEAU_COLORS.keys())
 
     col_to_name = {
-        S.FINAL(C.MASS): label + ": ",
-        S.PRIMARY(C.MASS): "Heavier Parent: ",
-        S.SECONDARY(C.MASS): "Ligher Parent: ",
+        "m_f": label + ": ",
+        "m_1": "Heavier Parent: ",
+        "m_2": "Ligher Parent: ",
     }
     for col, name in col_to_name.items():
         base.plot_pdf(ax, df[col], next(colors), name, unit=r"[$M_{\odot}$]")
@@ -119,14 +117,14 @@ def corner_estimates(  # pylint: disable=dangerous-default-value
     """
 
     corner_type_to_var_names = {
-        "part": [S.PRIMARY(C.MASS), S.SECONDARY(C.MASS), S.FINAL(C.KICK)],
+        "part": ["m_1", "m_2", "k_f"],
         "full": [
-            S.PRIMARY(C.MASS),
-            S.SECONDARY(C.MASS),
-            S.FINAL(C.MASS),
-            S.FINAL(C.KICK),
-            S.FINAL(C.SPIN_MAG),
-            S.EFF(C.SPIN),
+            "m_1",
+            "m_2",
+            "m_f",
+            "k_f",
+            "a_f",
+            "chi_eff",
         ],
     }
     corner_type_to_labels = {
@@ -146,14 +144,12 @@ def corner_estimates(  # pylint: disable=dangerous-default-value
     }
 
     # Add precession spin if available
-    prec_spins = [df[S.PREC(C.SPIN)].max() for df in dfs.values()]
+    prec_spins = [df["chi_p"].max() for df in dfs.values()]
     if max(prec_spins) > 0.0:
         if np.isclose(min(prec_spins), 0.0):
-            local_logger.warning(
-                "Precession spin is not available for all dataframes, " "skipped adding it to corner plot."
-            )
+            LOGGER.warning("Precession spin is not available for all dataframes, " "skipped adding it to corner plot.")
         else:
-            corner_type_to_var_names["full"].append(S.PREC(C.SPIN))
+            corner_type_to_var_names["full"].append("chi_p")
             corner_type_to_labels["full"].append("$\\chi_{p}$")
 
     for corner_type, var_names in corner_type_to_var_names.items():
@@ -165,7 +161,7 @@ def corner_estimates(  # pylint: disable=dangerous-default-value
             df = filter_unmapped_samples(df)
 
             if len(df) < nbins:
-                local_logger.info("Dataframe does not have enough samples to plot.")
+                LOGGER.info("Dataframe does not have enough samples to plot.")
                 continue
 
             color = next(colors)
@@ -221,7 +217,7 @@ def second_generation_probability_curve(
     """
 
     # Set up x-axis
-    x_max = max(df[S.FINAL(C.KICK)].max() for df in dfs.values())
+    x_max = max(df["k_f"].max() for df in dfs.values())
     x = np.linspace(0.0, x_max, 300)
 
     padding = Padding(bpad=0.14)
@@ -239,9 +235,7 @@ def second_generation_probability_curve(
         # Calculate the CDF
         y = []
         for kick in x:
-            df_samples = df.loc[
-                (df[S.FINAL(C.KICK)] <= kick) & (df[S.PRIMARY(C.MASS)] <= 65) & (df[S.SECONDARY(C.MASS)] <= 65)
-            ]
+            df_samples = df.loc[(df["k_f"] <= kick) & (df["m_1"] <= 65) & (df["m_2"] <= 65)]
             if df_samples.empty:
                 y.append(0.0)
             else:
@@ -289,7 +283,7 @@ def effective_spin_estimates(
     colors = iter(mcolors.TABLEAU_COLORS.keys())
 
     for label, df in dfs.items():
-        base.plot_pdf(ax, df[S.EFF(C.SPIN)], next(colors), label)
+        base.plot_pdf(ax, df["chi_eff"], next(colors), label)
 
     plt.legend()
     base.clear_default_labels(ax)
@@ -328,7 +322,7 @@ def precession_spin_estimates(
     colors = iter(mcolors.TABLEAU_COLORS.keys())
 
     for label, df in dfs.items():
-        base.plot_pdf(ax, df[S.PREC(C.SPIN)], next(colors), label)
+        base.plot_pdf(ax, df["chi_p"], next(colors), label)
 
     plt.legend()
     base.clear_default_labels(ax)
@@ -357,18 +351,18 @@ def table_estimates(
     """
 
     col_to_names = {
-        S.PRIMARY(C.MASS): "$m_1$",
-        S.SECONDARY(C.MASS): "$m_2$",
-        C.MASS_RATIO: "$q$",
-        S.FINAL(C.MASS): "$m_f$",
-        S.FINAL(C.SPIN_MAG): "$a_f$",
-        S.FINAL(C.KICK): "$v_f$",
-        S.PREC(C.SPIN): "$\\chi_{p}$",
-        S.EFF(C.SPIN): "$\\chi_{eff}$",
+        "m_1": "$m_1$",
+        "m_2": "$m_2$",
+        "q": "$q$",
+        "m_f": "$m_f$",
+        "a_f": "$a_f$",
+        "k_f": "$v_f$",
+        "chi_p": "$\\chi_{p}$",
+        "chi_eff": "$\\chi_{eff}$",
     }
     data = {
         "": dfs.keys(),
-        "Recovery Rate": [df[C.RECOVERY_RATE].iloc[0] for df in dfs.values()],
+        "Recovery Rate": [df["m_1"].notna().sum() / df.shape[0] for df in dfs.values()],
         **{f"p2g_{v_esc.short()}": [v_esc.compute_p2g(df) for df in dfs.values()] for v_esc in EscapeVelocity},
     }
 
@@ -394,6 +388,6 @@ def table_estimates(
             df_table.to_csv(f"{output_dir}/{filename}.{fmt}", index=False)
 
         else:
-            local_logger.warning("Unsupported format: %s.", fmt)
+            LOGGER.warning("Unsupported format: %s.", fmt)
 
     return df_table

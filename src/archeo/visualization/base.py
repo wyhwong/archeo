@@ -5,13 +5,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-import archeo.logger
-from archeo.constants import EscapeVelocity
-from archeo.schema import Labels, Padding
-from archeo.utils import file
+from archeo.constants.physics import EscapeVelocity
+from archeo.data_structures.visualization import Labels, Padding
+from archeo.utils.fs import check_and_create_dir
+from archeo.utils.logger import get_logger
 
 
-local_logger = archeo.logger.get_logger(__name__)
+LOGGER = get_logger(__name__)
 
 
 def initialize_plot(
@@ -79,10 +79,10 @@ def savefig_and_close(
     """
 
     if output_dir:
-        file.check_and_create_dir(output_dir)
+        check_and_create_dir(output_dir)
         savepath = f"{output_dir}/{filename}.{fmt}"
         plt.savefig(savepath, bbox_inches="tight", facecolor="w")
-        local_logger.info("Saved figure to %s.", savepath)
+        LOGGER.info("Saved figure to %s.", savepath)
 
     if close:
         plt.close()

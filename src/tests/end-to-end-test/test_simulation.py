@@ -1,96 +1,51 @@
-import os
-
-import pytest
-import surfinBH
-
-from archeo.core.prior import Prior
-from archeo.core.simulator import Simulator
-from archeo.schema import Domain, PriorConfig
+from archeo.preset.simulation import get_binary_generation_pipeline
 
 
-# Ensure the model fits is downloaded during tests
-fits_filepath = os.path.dirname(surfinBH.__file__) + "/data/fit_3dq8.h5"
-if os.path.exists(fits_filepath):
-    os.remove(fits_filepath)
+SAMPLE_SIZE = 1000
 
 
-@pytest.fixture(name="uniform_mass_aligned_spin_prior_config")
-def default_uniform_mass_aligned_spin_prior_config():
-    """Create a default prior config for testing."""
+# NOTE: We do not test the precession fits here because of the long runtime.
 
-    return PriorConfig(
-        n_samples=1000,
-        is_mahapatra_mass_func=False,
-        is_spin_aligned=True,
-        is_only_up_aligned_spin=False,
-        is_uniform_in_mass_ratio=False,
-        a_1=Domain(low=0.0, high=1.0),
-        a_2=Domain(low=0.0, high=1.0),
-        phi_1=Domain(low=0.0, high=2.0),
-        phi_2=Domain(low=0.0, high=2.0),
-        theta_1=Domain(low=0.0, high=1.0),
-        theta_2=Domain(low=0.0, high=1.0),
-        m_1=Domain(low=5.0, high=65.0),
-        m_2=Domain(low=5.0, high=65.0),
-        mass_ratio=Domain(low=1.0, high=2.0),
+
+def test_run_agnostic_aligned_spin_simulation():
+
+    pipeline = get_binary_generation_pipeline("agnostic_aligned_spin")
+    df_binaries, binary_generator = pipeline(size=SAMPLE_SIZE, n_workers=1)
+
+    assert len(df_binaries) == SAMPLE_SIZE
+    assert binary_generator is not None
+
+
+def test_run_1g1g_aligned_spin_simulation():
+
+    pipeline = get_binary_generation_pipeline("2g_aligned_spin")
+    df_binaries, binary_generator = pipeline(size=SAMPLE_SIZE, n_workers=1)
+
+    assert len(df_binaries) == SAMPLE_SIZE
+    assert binary_generator is not None
+
+
+def test_run_2g1g_aligned_spin_simulation():
+
+    pipeline = get_binary_generation_pipeline("2g_aligned_spin")
+    df_1g1g_binaries, _ = pipeline(size=SAMPLE_SIZE, n_workers=1)
+
+    pipeline = get_binary_generation_pipeline("ng_aligned_spin")
+    df_2g1g_binaries, binary_generator = pipeline(df_bh1_binaries=df_1g1g_binaries, size=SAMPLE_SIZE, n_workers=1)
+
+    assert len(df_2g1g_binaries) == SAMPLE_SIZE
+    assert binary_generator is not None
+
+
+def test_run_2g2g_aligned_spin_simulation():
+
+    pipeline = get_binary_generation_pipeline("2g_aligned_spin")
+    df_1g1g_binaries, _ = pipeline(size=SAMPLE_SIZE, n_workers=1)
+
+    pipeline = get_binary_generation_pipeline("ng_aligned_spin")
+    df_2g2g_binaries, binary_generator = pipeline(
+        df_bh1_binaries=df_1g1g_binaries, df_bh2_binaries=df_1g1g_binaries, size=SAMPLE_SIZE, n_workers=1
     )
 
-
-@pytest.fixture(name="uniform_q_aligned_spin_spin_prior_config")
-def default_uniform_q_aligned_spin_spin_prior_config():
-    """Create a default prior config for testing."""
-
-    return PriorConfig(
-        n_samples=1000,
-        is_mahapatra_mass_func=False,
-        is_spin_aligned=True,
-        is_only_up_aligned_spin=False,
-        is_uniform_in_mass_ratio=True,
-        a_1=Domain(low=0.0, high=1.0),
-        a_2=Domain(low=0.0, high=1.0),
-        phi_1=Domain(low=0.0, high=2.0),
-        phi_2=Domain(low=0.0, high=2.0),
-        theta_1=Domain(low=0.0, high=1.0),
-        theta_2=Domain(low=0.0, high=1.0),
-        m_1=Domain(low=5.0, high=65.0),
-        m_2=Domain(low=5.0, high=65.0),
-        mass_ratio=Domain(low=1.0, high=2.0),
-    )
-
-
-def test_run_simulation_1(uniform_mass_aligned_spin_prior_config: PriorConfig):
-    """Run a simulation with the default prior config."""
-
-    prior = Prior.from_config(uniform_mass_aligned_spin_prior_config)
-
-    assert len(prior) == 1000
-
-
-def test_run_simulation_2(uniform_q_aligned_spin_spin_prior_config: PriorConfig):
-    """Run a simulation with the default prior config."""
-
-    prior = Prior.from_config(uniform_q_aligned_spin_spin_prior_config)
-
-    assert len(prior) == 1000
-
-
-def test_run_2g1g_simulation(uniform_mass_aligned_spin_prior_config: PriorConfig):
-    """Run a simulation with the default prior config."""
-
-    prior = Prior.from_config(uniform_mass_aligned_spin_prior_config)
-    simulator = Simulator(uniform_mass_aligned_spin_prior_config)
-    simulator.use_remnant_results(df_bh1=prior)
-
-    prior_2g = Prior.from_simulator(simulator)
-    assert len(prior_2g) == 1000
-
-
-def test_run_2g2g_simulation(uniform_mass_aligned_spin_prior_config: PriorConfig):
-    """Run a simulation with the default prior config."""
-
-    prior = Prior.from_config(uniform_mass_aligned_spin_prior_config)
-    simulator = Simulator(uniform_mass_aligned_spin_prior_config)
-    simulator.use_remnant_results(df_bh1=prior, df_bh2=prior)
-
-    prior_2g = Prior.from_simulator(simulator)
-    assert len(prior_2g) == 1000
+    assert len(df_2g2g_binaries) == SAMPLE_SIZE
+    assert binary_generator is not None

@@ -6,9 +6,7 @@ import pandas as pd
 import seaborn as sns
 from matplotlib.animation import FuncAnimation
 
-from archeo.constants import Columns as C
-from archeo.constants import Suffixes as S
-from archeo.logger import get_logger
+from archeo.utils.logger import get_logger
 
 
 logger = get_logger(__name__)
@@ -25,7 +23,7 @@ def animate_remnant_property_change_over_kick(
 
     Args:
         df (pd.DataFrame): DataFrame containing the prior data.
-        parameter (str): The remnant property to animate, such as C.MASS.
+        parameter (str): The remnant property to animate, such as "m_f".
         kick_lb (float): Lower bound of the kick velocity to consider for the animation.
         kick_width (float): Width of the kick velocity range to consider for the animation.
         output_dir (Optional[str]): Directory to save the animation. If None, the animation will
@@ -36,11 +34,11 @@ def animate_remnant_property_change_over_kick(
     """
 
     _labels = {
-        S.FINAL(C.MASS): "Remnant Mass",
-        S.FINAL(C.SPIN_MAG): "Remnant Spin",
-        C.MASS_RATIO: "Mass Ratio",
-        S.EFF(C.SPIN): "Effective Spin",
-        S.PREC(C.SPIN): "Precession Spin",
+        "m_f": "Remnant Mass",
+        "a_f": "Remnant Spin",
+        "q": "Mass Ratio",
+        "chi_eff": "Effective Spin",
+        "chi_p": "Precession Spin",
     }
 
     if col_name not in _labels:
@@ -49,7 +47,7 @@ def animate_remnant_property_change_over_kick(
 
     label = _labels[col_name]
 
-    kick_ub = df[S.FINAL(C.KICK)].max()
+    kick_ub = df["k_f"].max()
     if kick_lb >= kick_ub:
         logger.warning(
             "Kick lower bound %.2f is greater than or equal to upper bound %.2f. " "No animation will be created.",
@@ -66,7 +64,7 @@ def animate_remnant_property_change_over_kick(
 
     def update(frame):
         ax.clear()
-        values = df.loc[df[S.FINAL(C.KICK)] <= k_bounds[frame], col_name]
+        values = df.loc[df["k_f"] <= k_bounds[frame], col_name]
 
         if values.nunique() == 1:
             ax.axvline(values.iloc[0], color="red", linestyle="--", linewidth=2)

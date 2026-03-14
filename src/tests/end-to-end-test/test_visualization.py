@@ -4,7 +4,6 @@ from shutil import rmtree
 import pandas as pd
 import pytest
 
-import archeo
 from archeo.visualization import visualize_posterior_estimation, visualize_prior_distribution
 
 
@@ -14,7 +13,7 @@ def default_prior():
 
     filepath = f"{os.path.dirname(os.path.dirname(__file__))}/test_data/prior.json"
 
-    return archeo.Prior.from_json(filepath)
+    return pd.read_json(filepath)
 
 
 @pytest.fixture(name="posterior")
@@ -22,7 +21,7 @@ def default_posterior():
     """Load the default posterior for testing."""
 
     filepath = f"{os.path.dirname(os.path.dirname(__file__))}/test_data/prior.json"
-    prior = archeo.Prior.from_json(filepath)
+    prior = pd.read_json(filepath)
 
     # Here we inject some NaN samples to test the handling for visualization
     nan_samples = pd.DataFrame(index=range(10), columns=prior.columns)
@@ -57,7 +56,7 @@ def test_visualizing_posterior_estimation(posterior: pd.DataFrame, output_dir: s
     rmtree(output_dir)
 
 
-def test_visualizing_prior_distribution(prior: archeo.Prior, output_dir: str):
+def test_visualizing_prior_distribution(prior: pd.DataFrame, output_dir: str):
     """Test the visualization of the prior distribution.
 
     NOTE:
