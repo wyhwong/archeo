@@ -137,3 +137,6 @@ class PiecewiseUniform(BaseModel, DistributionBase, frozen=True):
         # Select a uniform distribution based on weights
         selected_uniform = np.random.choice(list(self.uniforms.keys()), p=list(self.uniforms.values()))
         return selected_uniform.draw()
+
+
+Distribution: TypeAlias = Union[Uniform, Normal, PiecewiseUniform]

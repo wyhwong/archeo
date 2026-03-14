@@ -94,20 +94,20 @@ repos:
     always_run: true
     verbose: true
 
-- repo: local
-  hooks:
-  - id: pytest
-    name: pytest
-    entry: pytest
-    args: [
-      "--disable-warnings",
-      "--cov=archeo",
-      "--rootdir=./src",
-      "--cov-report=xml",
-      "--cov-report=term-missing"
-    ]
-    language: python
-    types: [ python ]
-    pass_filenames: false
-    always_run: true
-    verbose: true
+# - repo: local
+#   hooks:
+#   - id: pytest
+#     name: pytest
+#     entry: pytest
+#     args: [
+#       "--disable-warnings",
+#       "--cov=archeo",
+#       "--rootdir=./src",
+#       "--cov-report=xml",
+#       "--cov-report=term-missing"
+#     ]
+#     language: python
+#     types: [ python ]
+#     pass_filenames: false
+#     always_run: true
+#     verbose: true

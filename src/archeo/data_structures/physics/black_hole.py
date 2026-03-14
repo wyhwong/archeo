@@ -1,9 +1,9 @@
-from typing import Optional, TypeAlias
+from typing import TypeAlias, Union
 
 import numpy as np
-from pydantic import BaseModel, PositiveFloat, field_validator
+from pydantic import BaseModel, NonNegativeFloat, PositiveFloat, field_validator
 
-from archeo.data_structures.distribution import DistributionBase, Uniform
+from archeo.data_structures.distribution import Distribution, Uniform
 
 
 class BlackHole(BaseModel, frozen=True):
@@ -12,7 +12,19 @@ class BlackHole(BaseModel, frozen=True):
     mass: PositiveFloat
     spin_magnitude: PositiveFloat
     spin_vector: tuple[float, float, float]
-    speed: PositiveFloat
+    speed: NonNegativeFloat
+
+    @property
+    def horizontal_spin(self) -> float:
+        """Calculate the horizontal spin component of the black hole."""
+
+        return np.sqrt(self.spin_vector[0] ** 2 + self.spin_vector[1] ** 2)
+
+    @property
+    def vertical_spin(self) -> float:
+        """Calculate the vertical spin component of the black hole."""
+
+        return self.spin_vector[2]
 
 
 BlackHoles: TypeAlias = list[BlackHole]
@@ -21,10 +33,10 @@ BlackHoles: TypeAlias = list[BlackHole]
 class BlackHoleGenerator(BaseModel, frozen=True):
     """Black hole generator data class."""
 
-    mass_distribution: DistributionBase = Uniform(low=5, high=65)
-    spin_magnitude_distribution: DistributionBase = Uniform(low=0, high=1)
-    phi_distribution: DistributionBase = Uniform(low=0, high=2 * np.pi)
-    theta_distribution: DistributionBase = Uniform(low=0, high=np.pi)
+    mass_distribution: Distribution = Uniform(low=5, high=65)
+    spin_magnitude_distribution: Distribution = Uniform(low=0, high=1)
+    phi_distribution: Distribution = Uniform(low=0, high=2 * np.pi)
+    theta_distribution: Distribution = Uniform(low=0, high=np.pi)
 
     @field_validator("spin_magnitude_distribution", mode="before")
     @classmethod
@@ -56,7 +68,7 @@ class BlackHoleGenerator(BaseModel, frozen=True):
 
         return v
 
-    def generate(self, size: Optional[int] = None) -> BlackHoles:
+    def draw(self, size: int = 1) -> BlackHoles:
         """Generate a list of black holes based on the specified distributions."""
 
         masses = self.mass_distribution.draw(size=size)
@@ -74,3 +86,17 @@ class BlackHoleGenerator(BaseModel, frozen=True):
             black_holes.append(BlackHole(mass=mass, spin_magnitude=spin_magnitude, spin_vector=spin_vector, speed=0.0))
 
         return black_holes
+
+
+class BlackHolePopulation(BaseModel, frozen=True):
+    """Black hole population data class."""
+
+    black_holes: BlackHoles
+
+    def draw(self, size: int = 1) -> BlackHoles:
+        """Draw a sample of black holes from the population."""
+
+        return np.random.choice(self.black_holes, size=size, replace=True).tolist()
+
+
+BlackHoleSource: TypeAlias = Union[BlackHoleGenerator, BlackHolePopulation]
