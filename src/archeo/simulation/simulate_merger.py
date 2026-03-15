@@ -1,9 +1,11 @@
+from typing import Optional
+
 import numpy as np
 
 from archeo.constants.enum import Fits
 from archeo.data_structures.physics.binary import Binaries, Binary, BinaryGenerator
 from archeo.data_structures.physics.black_hole import BlackHole, BlackHoles
-from archeo.utils.parallel import multithread_run
+from archeo.utils.parallel import multiprocess_run, multithread_run
 
 
 def _simulate_black_hole_merger(binary: Binary, loaded_fits) -> BlackHole:
@@ -31,7 +33,7 @@ def _simulate_black_hole_merger(binary: Binary, loaded_fits) -> BlackHole:
     )
 
 
-def simulate_black_hole_mergers(
+def _simulate_black_hole_mergers(
     binary_generator: BinaryGenerator,
     fits: Fits,
     size: int,
@@ -53,4 +55,47 @@ def simulate_black_hole_mergers(
     remnants = multithread_run(
         _simulate_black_hole_merger, [{"binary": binary, "loaded_fits": loaded_fits} for binary in binaries]
     )
+    return binaries, remnants
+
+
+def simulate_black_hole_mergers(
+    binary_generator: BinaryGenerator,
+    fits: Fits,
+    size: int,
+    n_workers: Optional[int] = 1,
+) -> tuple[Binaries, BlackHoles]:
+    """Simulate black hole mergers.
+
+    Args:
+        binary_generator (BinaryGenerator): Binary generator to draw binaries from
+        fits (Fits): surfinBH model to use for the simulation
+        size (int): Number of mergers to simulate
+
+    Returns:
+        tuple[Binaries, BlackHoles]: Tuple of binaries and black holes resulting from the mergers
+    """
+
+    if n_workers == 1:
+        return _simulate_black_hole_mergers(binary_generator, fits, size)
+
+    # If n_workers > 1, we can parallelize the simulation by splitting the size into chunks
+    chunk_size = size // n_workers
+    results = multiprocess_run(
+        _simulate_black_hole_mergers,
+        [{"binary_generator": binary_generator, "fits": fits, "size": chunk_size} for _ in range(n_workers)],
+    )
+    # Combine the results from the different processes
+    binaries = []
+    remnants = []
+    for result in results:
+        binaries.extend(result[0])
+        remnants.extend(result[1])
+
+    if len(binaries) < size:
+        # If there are any remaining mergers to simulate (due to rounding), simulate them in the main process
+        remaining_size = size - len(binaries)
+        remaining_binaries, remaining_remnants = _simulate_black_hole_mergers(binary_generator, fits, remaining_size)
+        binaries.extend(remaining_binaries)
+        remnants.extend(remaining_remnants)
+
     return binaries, remnants

@@ -3,7 +3,8 @@ from typing import TypeAlias, Union
 import numpy as np
 from pydantic import BaseModel, NonNegativeFloat, PositiveFloat, field_validator
 
-from archeo.data_structures.distribution import Distribution, Uniform
+from archeo.data_structures.annotation import Distribution
+from archeo.data_structures.distribution import Uniform
 
 
 class BlackHole(BaseModel, frozen=True):

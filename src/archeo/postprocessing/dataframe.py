@@ -4,7 +4,7 @@ from archeo.data_structures.physics.binary import Binaries
 from archeo.data_structures.physics.black_hole import BlackHoles
 
 
-def convert_to_dataframe(binaries: Binaries, remnants: BlackHoles) -> pd.DataFrame:
+def convert_simulated_binaries_to_dataframe(binaries: Binaries, remnants: BlackHoles) -> pd.DataFrame:
     """Convert the simulated binaries and remnants to a pandas DataFrame.
 
     Args:
@@ -29,8 +29,7 @@ def convert_to_dataframe(binaries: Binaries, remnants: BlackHoles) -> pd.DataFra
                 "a_f": remnant.spin_magnitude,
                 "v_f": remnant.speed,
                 "chi_eff": binary.effective_spin,
-                "chi_p": binary.precessing_spin,
-                "v_esc": max(binary.primary_black_hole.speed, binary.secondary_black_hole.speed, remnant.speed),
+                "chi_p": binary.precession_spin,
             }
         )
     return pd.DataFrame(records)
