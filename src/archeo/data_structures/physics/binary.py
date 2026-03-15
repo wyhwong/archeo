@@ -1,3 +1,5 @@
+from typing import TypeAlias
+
 import numpy as np
 from pydantic import BaseModel
 
@@ -33,6 +35,9 @@ class Binary(BaseModel, frozen=True):
         a1z = self.primary_black_hole.vertical_spin
         a2z = self.secondary_black_hole.vertical_spin
         return (a1z * m1 + a2z * m2) / (m1 + m2)
+
+
+Binaries: TypeAlias = list[Binary]
 
 
 class BinaryGenerator(BaseModel, frozen=True):
