@@ -1,4 +1,5 @@
 import multiprocessing
+import warnings
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from typing import Any, Callable, Optional
 
@@ -57,9 +58,13 @@ def multithread_run(
 
     results = [None] * len(input_kwargs)
 
-    with ThreadPoolExecutor(max_workers=n_threads) as exc:
-        futures = [exc.submit(func, **kwargs) for kwargs in input_kwargs]
-        results = [future.result() for future in tqdm(futures, total=len(futures))]
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=UserWarning)
+        warnings.filterwarnings("ignore", category=RuntimeWarning)
+
+        with ThreadPoolExecutor(max_workers=n_threads) as exc:
+            futures = [exc.submit(func, **kwargs) for kwargs in input_kwargs]
+            results = [future.result() for future in tqdm(futures, total=len(futures))]
 
     return results
 
@@ -82,8 +87,12 @@ def multiprocess_run(
 
     results = [None] * len(input_kwargs)
 
-    with ProcessPoolExecutor(max_workers=n_processes) as exc:
-        futures = [exc.submit(func, **kwargs) for kwargs in input_kwargs]
-        results = [future.result() for future in tqdm(futures, total=len(futures))]
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=UserWarning)
+        warnings.filterwarnings("ignore", category=RuntimeWarning)
+
+        with ProcessPoolExecutor(max_workers=n_processes) as exc:
+            futures = [exc.submit(func, **kwargs) for kwargs in input_kwargs]
+            results = [future.result() for future in tqdm(futures, total=len(futures))]
 
     return results
