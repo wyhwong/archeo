@@ -1,7 +1,18 @@
+import json
+
 import click
 
-import archeo
-from archeo.preset import PRIOR_STORE, get_prior_config
+from archeo.preset.simulation.agnostic import (
+    simulate_agnostic_aligned_spin_binaries,
+    simulate_agnostic_precession_spin_binaries,
+)
+from archeo.preset.simulation.second_generation import (
+    simulate_second_generation_aligned_spin_binaries,
+    simulate_second_generation_precession_spin_binaries,
+)
+from archeo.utils.fs import load_dataframe
+from archeo.utils.parallel import get_n_workers
+from archeo.visualization import visualize_prior_distribution
 
 
 @click.group()
@@ -10,58 +21,95 @@ def cli():
 
 
 @cli.command()
-@click.option(
-    "-n",
-    "--name",
-    default="default",
-    help="Preset prior name, available values are " + ", ".join(PRIOR_STORE) + ".",
-)
-@click.option(
-    "-o",
-    "--output-dir",
-    default=".",
-    help="Directory to save the generated prior configuration.",
-)
-def generate_preset_prior(name: str, output_dir: str):
-    """Generate a preset prior."""
+@click.option("-n", "--size", default=500000, help="Number of black holes to simulate.")
+@click.option("-np", "--n-workers", default=-1, help="Number of cores to use for simulation.")
+@click.option("-o", "--output-dir", default=".", help="Directory to save the generated data.")
+@click.option("-as", "--aligned-spin", is_flag=True, help="Toggle to simulate aligned spin binaries.")
+def simulate_second_generation_black_hole_population(size: int, n_workers: int, output_dir: str, aligned_spin: bool):
+    """Simulate a population of second generation black hole binaries.
+    The function simulates both aligned and precession spin configurations based on the user's choice.
 
-    click.echo(f"Generating preset prior: {name}")
+    Command example:
+    >> python -m archeo simulate-second-generation-black-hole-population --aligned-spin
+    """
 
-    prior_config = get_prior_config(name)
-    click.echo(f"Prior configuration: {prior_config}")
+    n_workers = get_n_workers(n_workers)
+    click.echo(
+        f"Generating {size} second generation black hole binaries with "
+        f"{"aligned" if aligned_spin else "precession"} spin configuration "
+        f"using {n_workers} workers..."
+    )
 
-    output_path = f"{output_dir}/{name}_prior_config.yaml"
-    prior_config.to_yaml(output_path)
+    if aligned_spin:
+        df_binaries, binary_generator = simulate_second_generation_aligned_spin_binaries(size=size, n_workers=n_workers)
+    else:
+        df_binaries, binary_generator = simulate_second_generation_precession_spin_binaries(
+            size=size, n_workers=n_workers
+        )
 
-    prior = archeo.Prior.from_config(prior_config)
+    with open(f"{output_dir}/binary_generator_config.json", "w", encoding="utf-8") as fp:
+        json.dump(binary_generator.model_dump(), fp, indent=4)
 
     try:
-        prior.to_parquet(f"{output_dir}/{name}_prior.parquet")
-        click.echo(f"Prior saved as parquet: {output_dir}/{name}_prior.parquet")
+        df_binaries.to_parquet(f"{output_dir}/simulated_binaries.parquet")
+        click.echo(f"Prior saved as parquet: {output_dir}/simulated_binaries.parquet")
     except ImportError:
         click.echo("Failed to save prior as parquet, please install pyarrow if you want to use this feature.")
-        prior.to_csv(f"{output_dir}/{name}_prior.csv")
-        click.echo(f"Prior saved as CSV: {output_dir}/{name}_prior.csv")
+        df_binaries.to_csv(f"{output_dir}/simulated_binaries.csv", index=False)
+        click.echo(f"Prior saved as CSV: {output_dir}/simulated_binaries.csv")
 
 
 @cli.command()
-@click.option(
-    "-f",
-    "--filepath",
-    required=True,
-    help="Path to the prior data.",
-)
-@click.option(
-    "-o",
-    "--output-dir",
-    default=".",
-    help="Directory to save the visualization output.",
-)
-def visualize_prior(filepath: str, output_dir: str):
-    """Visualize the prior distribution."""
+@click.option("-n", "--size", default=500000, help="Number of black holes to simulate.")
+@click.option("-np", "--n-workers", default=-1, help="Number of cores to use for simulation.")
+@click.option("-o", "--output-dir", default=".", help="Directory to save the generated data.")
+@click.option("-as", "--aligned-spin", is_flag=True, help="Toggle to simulate aligned spin binaries.")
+def simulate_agnostic_black_hole_population(size: int, n_workers: int, output_dir: str, aligned_spin: bool):
+    """Simulate a population of agnostic black hole binaries.
+    The function simulates both aligned and precession spin configurations based on the user's choice.
 
-    prior = archeo.Prior.from_filepath(filepath)
-    archeo.visualize_prior_distribution(prior, output_dir=output_dir)
+    Command example:
+    >> python -m archeo simulate-agnostic-black-hole-population --aligned-spin
+    """
+
+    n_workers = get_n_workers(n_workers)
+    click.echo(
+        f"Generating {size} agnostic black hole binaries with "
+        f"{"aligned" if aligned_spin else "precession"} spin configuration "
+        f"using {n_workers} workers..."
+    )
+
+    if aligned_spin:
+        df_binaries, binary_generator = simulate_agnostic_aligned_spin_binaries(size=size, n_workers=n_workers)
+    else:
+        df_binaries, binary_generator = simulate_agnostic_precession_spin_binaries(size=size, n_workers=n_workers)
+
+    with open(f"{output_dir}/binary_generator_config.json", "w", encoding="utf-8") as fp:
+        json.dump(binary_generator.model_dump(), fp, indent=4)
+
+    try:
+        df_binaries.to_parquet(f"{output_dir}/simulated_binaries.parquet")
+        click.echo(f"Prior saved as parquet: {output_dir}/simulated_binaries.parquet")
+    except ImportError:
+        click.echo("Failed to save prior as parquet, please install pyarrow if you want to use this feature.")
+        df_binaries.to_csv(f"{output_dir}/simulated_binaries.csv", index=False)
+        click.echo(f"Prior saved as CSV: {output_dir}/simulated_binaries.csv")
+
+
+@cli.command()
+@click.option("-f", "--filepath", required=True, help="Path to the binary data.")
+@click.option("-o", "--output-dir", default=".", help="Directory to save visualizations.")
+def visualize_black_hole_population(filepath: str, output_dir: str):
+    """Generate some visualizations for a black hole population.
+
+    Command example:
+    >> python -m archeo visualize-black-hole-population --filepath ./simulated_binaries.parquet
+    """
+
+    click.echo(f"Generating visualizations for black hole population at {filepath}")
+
+    df_binaries = load_dataframe(filepath)
+    visualize_prior_distribution(df_binaries, output_dir=output_dir)
 
 
 if __name__ == "__main__":
