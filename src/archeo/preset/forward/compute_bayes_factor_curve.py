@@ -1,7 +1,6 @@
 import pandas as pd
 
 from archeo.bayesian.importance_sampling import BayesFactorCurve, CandidatePrior
-from archeo.data_structures.bayesian.bayes_factor import BayesFactorCurveMetadata
 from archeo.postprocessing.dataframe import convert_bayes_factor_curve_to_dataframe
 from archeo.utils.parallel import get_n_workers
 

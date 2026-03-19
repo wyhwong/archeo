@@ -34,15 +34,13 @@ repos:
     always_run: true
     verbose: true
 
-# - repo: https://github.com/pylint-dev/pylint
-#   rev: v4.0.5
-#   hooks:
-#   - id: pylint
-#     args: ["--rcfile", "./.pylintrc", "src"]
-#     files: ^src/.*\.py$
-#     exclude: ^src/(tests|archeo/ui)/
-#     always_run: true
-#     verbose: true
+- repo: https://github.com/pylint-dev/pylint
+  rev: v4.0.5
+  hooks:
+  - id: pylint
+    args: ["--rcfile", "./.pylintrc", "src/archeo"]
+    always_run: true
+    verbose: true
 
 
 - repo: https://github.com/pycqa/isort
@@ -101,14 +99,11 @@ repos:
   hooks:
   - id: pytest
     name: pytest
-    entry: bash -lc 'uv sync --project ./src --active && uv pip install -e ./src && uv run pytest'
-    args: [
-      "--disable-warnings",
-      "--cov=archeo",
-      "--rootdir=./src",
-      "--cov-report=xml",
-      "--cov-report=term-missing"
-    ]
+    entry: bash -lc '
+      uv sync --project ./src &&
+      uv pip install -e ./src &&
+      uv run pytest --disable-warnings --cov=archeo --rootdir=./src --cov-report=xml
+      '
     language: system
     types: [ python ]
     pass_filenames: false
