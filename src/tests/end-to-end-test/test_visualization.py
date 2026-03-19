@@ -4,6 +4,7 @@ from shutil import rmtree
 import pandas as pd
 import pytest
 
+from archeo.preset.simulation.agnostic import simulate_agnostic_aligned_spin_binaries
 from archeo.visualization import visualize_posterior_estimation, visualize_prior_distribution
 
 
@@ -11,17 +12,17 @@ from archeo.visualization import visualize_posterior_estimation, visualize_prior
 def default_prior():
     """Load the default prior for testing."""
 
-    filepath = f"{os.path.dirname(os.path.dirname(__file__))}/test_data/prior.json"
+    df_binaries, _ = simulate_agnostic_aligned_spin_binaries(size=1000)
 
-    return pd.read_json(filepath)
+    return df_binaries
 
 
 @pytest.fixture(name="posterior")
 def default_posterior():
     """Load the default posterior for testing."""
 
-    filepath = f"{os.path.dirname(os.path.dirname(__file__))}/test_data/prior.json"
-    prior = pd.read_json(filepath)
+    df_binaries, _ = simulate_agnostic_aligned_spin_binaries(size=1000)
+    prior = df_binaries
 
     # Here we inject some NaN samples to test the handling for visualization
     nan_samples = pd.DataFrame(index=range(10), columns=prior.columns)

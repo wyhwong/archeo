@@ -67,7 +67,7 @@ igwn-segments==2.1.1
     #   lscsoft-glue
 iniconfig==2.3.0
     # via pytest
-ipykernel==7.2.0
+ipykernel==6.31.0
 ipython==9.10.0 ; python_full_version < '3.12'
     # via ipykernel
 ipython==9.11.0 ; python_full_version >= '3.12'

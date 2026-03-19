@@ -34,9 +34,10 @@ def simulate_second_generation_black_hole_population(size: int, n_workers: int, 
     """
 
     n_workers = get_n_workers(n_workers)
+    spin_desc = "aligned" if aligned_spin else "precession"
     click.echo(
         f"Generating {size} second generation black hole binaries with "
-        f"{"aligned" if aligned_spin else "precession"} spin configuration "
+        f"{spin_desc} spin configuration "
         f"using {n_workers} workers..."
     )
 

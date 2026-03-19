@@ -49,15 +49,15 @@ documentation = "https://wyhwong.github.io/archeo/"
 
 [dependency-groups]
 dev = [
-    "ipykernel>=7.2.0",
+    "ipykernel>=6.9.2, <7.0.0",
     "pre-commit>=4.5.1",
     "pyarrow>=23.0.1",
     "pytest>=9.0.2",
     "pytest-cov>=7.0.0",
 ]
 mkdocs = [
-    "mkdocs>=1.6.1",
-    "mkdocs-jupyter>=0.24.1",
+    "mkdocs>=1.6.1, <2.0.0",
+    "mkdocs-jupyter>=0.25.1",
     "mkdocs-mermaid2-plugin>=1.2.3",
 ]
 ui = [

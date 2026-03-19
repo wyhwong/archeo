@@ -61,6 +61,7 @@ def multithread_run(
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=UserWarning)
         warnings.filterwarnings("ignore", category=RuntimeWarning)
+        warnings.filterwarnings("ignore", category=FutureWarning)
 
         with ThreadPoolExecutor(max_workers=n_threads) as exc:
             futures = [exc.submit(func, **kwargs) for kwargs in input_kwargs]
@@ -90,6 +91,7 @@ def multiprocess_run(
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=UserWarning)
         warnings.filterwarnings("ignore", category=RuntimeWarning)
+        warnings.filterwarnings("ignore", category=FutureWarning)
 
         with ProcessPoolExecutor(max_workers=n_processes) as exc:
             futures = [exc.submit(func, **kwargs) for kwargs in input_kwargs]

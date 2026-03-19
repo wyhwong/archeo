@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from archeo.utils.parallel import multiprocess_run, multithread_run
+from archeo.utils.parallel import get_n_workers, multiprocess_run, multithread_run
 
 
 def _retrieve_sample(
@@ -44,6 +44,8 @@ def infer_ancestral_posterior_distribution(
 
     if len(mass_posterior_samples) != len(spin_posterior_samples):
         raise ValueError("The number of mass and spin posterior samples must be the same.")
+
+    n_workers = get_n_workers(n_workers)
 
     if n_workers == 1:
         np.random.seed(random_state)
