@@ -62,4 +62,4 @@ jobs:
           UV_PUBLISH_USERNAME: __token__
           UV_PUBLISH_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         run: |
-          uv publish --skip-existing
+          uv publish

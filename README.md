@@ -1,4 +1,4 @@
-# ARCHEO
+# ARCHEO (V2)
 
 [![PyPI version](https://badge.fury.io/py/archeo.svg)](https://pypi.org/project/archeo/)
 [![documentation](https://img.shields.io/badge/docs-archeo-blue.svg)](https://wyhwong.github.io/archeo/)
@@ -13,9 +13,16 @@ Archeo is a Python package designed to infer the natal kick, ancestral masses, a
 with a particular focus on hierarchical black hole formation.
 
 Our method applies to any binary black hole event detected via gravitational waves, enabling researchers to:
+- Simulate the formation history of black hole binaries.
 - Infer the parental (ancestral) black holes of observed binaries.
 - Estimate the birth recoil velocities to determine if a black hole remains in its host environment or is ejected.
 - Evaluate hierarchical merger scenarios to assess whether a black hole could be a product of previous mergers.
+
+In v2, we have reimplemented everything from scratch with a more modular and extensible design,
+which allows users to easily customize the prior assumptions and the simulation configuration.
+The most important note is that we have boosted the sampling speed dramatically.
+**With a 8-core CPU (AMD Ryzen 7 9700X), we can now generate 2M samples of aligned spin binaries within 10 minutes.**
+This is 10+x faster than in v1, where we needed hours to generate the same amount of samples.
 
 See more details at [https://wyhwong.github.io/archeo/methodology/](https://wyhwong.github.io/archeo/methodology/).
 
@@ -27,6 +34,17 @@ Install via PyPI or from source.
 
 ## PyPI
 
+Install with uv:
+
+```bash
+# Basic installation (without UI)
+uv add archeo
+# If you want to use the web UI features (powered by Streamlit)
+uv add 'archeo[ui]'
+```
+
+Install with pip:
+
 ```bash
 # Basic installation (without UI)
 pip3 install archeo
@@ -34,7 +52,10 @@ pip3 install archeo
 pip3 install archeo[ui]
 ```
 
-## From source
+## Development
+
+If you want to develop archeo, we recommend using `uv` for its runtime performance.
+You can install `uv` via pip if you don't have it:
 
 ```bash
 git clone https://github.com/wyhwong/archeo.git

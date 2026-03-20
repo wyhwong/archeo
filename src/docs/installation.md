@@ -12,13 +12,14 @@ Our package archeo is available via [PyPI](https://pypi.org/project/archeo/). Th
     uv add archeo
     ```
 
-Most of archeo's functionality relies on:
+archeo's functionalities are built heavily on the following dependencies:
 
 * [`pandas`](https://pypi.org/project/pandas/): Core data manipulation library.
+* [`pydantic`](https://pypi.org/project/pydantic/): Data validation and settings management using Python type annotations.
 * [`surfinbh`](https://pypi.org/project/surfinbh/): Surrogate final Black Hole properties for mergers of binary black holes.
-* [`corner`](https://pypi.org/project/corner/): Corner plot visualization library.
 
-If you've got Python 3.11+ and `pip` installed, you're good to go.
+If you've got Python 3.11+ and `pip` installed, you should be good to go.
+We strongly recommend uv for its runtime performance.
 
 ## Optional dependencies
 

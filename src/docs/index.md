@@ -1,4 +1,4 @@
-# Archeo
+# Archeo (V2)
 
 [![PyPI version](https://badge.fury.io/py/archeo.svg)](https://pypi.org/project/archeo/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17632389.svg)](https://doi.org/10.5281/zenodo.14306853)

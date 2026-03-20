@@ -16,7 +16,7 @@ classifiers = [
     "Operating System :: OS Independent"
 ]
 keywords = ["black-holes", "gravitational-waves", "black-hole-archeology"]
-version = "2.0.0"
+version = "2.0.0.dev0"
 readme = "README.md"
 requires-python = ">=3.11,<3.14"
 dependencies = [
