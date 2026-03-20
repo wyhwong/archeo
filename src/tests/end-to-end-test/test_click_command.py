@@ -1,4 +1,5 @@
 import os
+from shutil import rmtree
 
 import pytest
 from click.testing import CliRunner
@@ -54,11 +55,14 @@ def test_2g_bh_population_simulation_command(output_dir: str):
     assert not os.path.exists(f"{output_dir}/binary_generator_config.json")
 
 
-def test_agnostic_bh_population_simulation_command(output_dir: str):
+def test_visualize_black_hole_population(output_dir: str):
+
+    vizs_dir = f"{output_dir}/vizs"
 
     assert not os.path.exists(f"{output_dir}/simulated_binaries.parquet")
     assert not os.path.exists(f"{output_dir}/simulated_binaries.csv")
     assert not os.path.exists(f"{output_dir}/binary_generator_config.json")
+    assert not os.path.exists(vizs_dir)
 
     runner = CliRunner()
     result = runner.invoke(
@@ -83,12 +87,23 @@ def test_agnostic_bh_population_simulation_command(output_dir: str):
     )
     assert os.path.exists(f"{output_dir}/binary_generator_config.json")
 
-    _ = (
-        os.remove(f"{output_dir}/simulated_binaries.parquet")
+    filepath = (
+        f"{output_dir}/simulated_binaries.parquet"
         if os.path.exists(f"{output_dir}/simulated_binaries.parquet")
-        else os.remove(f"{output_dir}/simulated_binaries.csv")
+        else f"{output_dir}/simulated_binaries.csv"
     )
+
+    result_2 = runner.invoke(
+        simulation_cli,
+        ["visualize-black-hole-population", "-o", vizs_dir, "-f", filepath],
+    )
+
+    assert result_2.exit_code == 0
+    assert os.path.exists(vizs_dir)
+
+    os.remove(filepath)
     os.remove(f"{output_dir}/binary_generator_config.json")
+    rmtree(vizs_dir)
 
     assert not os.path.exists(f"{output_dir}/simulated_binaries.parquet")
     assert not os.path.exists(f"{output_dir}/simulated_binaries.csv")
