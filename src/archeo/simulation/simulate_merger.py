@@ -67,6 +67,7 @@ def simulate_black_hole_mergers(
     fits: Fits,
     size: int,
     n_workers: int = 1,
+    random_state: int = 42,
 ) -> BlackHoleMergers:
     """Simulate black hole mergers.
 
@@ -75,19 +76,20 @@ def simulate_black_hole_mergers(
         fits (Fits): surfinBH model to use for the simulation
         size (int): Number of mergers to simulate
         n_workers (int): Number of worker processes to use for parallelization. Default is 1.
+        random_state (int): Random state for reproducibility. Default is 42.
     Returns:
         BlackHoleMergers: List of tuples containing the binaries and their resulting black holes
     """
 
     if n_workers == 1:
-        return _simulate_black_hole_mergers(binary_generator, fits, size)
+        return _simulate_black_hole_mergers(binary_generator, fits, size, random_state)
 
     # If n_workers > 1, we can parallelize the simulation by splitting the size into chunks
     chunk_size = size // n_workers
     results = multiprocess_run(
         func=_simulate_black_hole_mergers,
         input_kwargs=[
-            {"binary_generator": binary_generator, "fits": fits, "size": chunk_size, "random_state": 42 + i}
+            {"binary_generator": binary_generator, "fits": fits, "size": chunk_size, "random_state": random_state + i}
             for i in range(n_workers)
         ],
         n_processes=n_workers,
@@ -99,7 +101,7 @@ def simulate_black_hole_mergers(
         # If there are any remaining mergers to simulate (due to rounding), simulate them in the main process
         remaining_size = size - len(black_hole_mergers)
         remaining_bh_mergers = _simulate_black_hole_mergers(
-            binary_generator, fits, remaining_size, random_state=42 + n_workers
+            binary_generator, fits, remaining_size, random_state=random_state + n_workers
         )
         black_hole_mergers.extend(remaining_bh_mergers)
 
