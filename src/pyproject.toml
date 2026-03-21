@@ -35,13 +35,6 @@ dependencies = [
     "tqdm>=4.67.3",
 ]
 
-[project.optional-dependencies]
-ui = [
-    "nbformat>=5.10.4",
-    "plotly>=6.6.0",
-    "streamlit>=1.55.0",
-]
-
 [project.urls]
 homepage = "https://pypi.org/project/archeo/"
 repository = "https://github.com/wyhwong/archeo"
@@ -52,6 +45,7 @@ dev = [
     "ipykernel>=6.9.2, <7.0.0",
     "pre-commit>=4.5.1",
     "pyarrow>=23.0.1",
+    "pyinstrument>=5.1.2",
     "pytest>=9.0.2",
     "pytest-cov>=7.0.0",
 ]
@@ -59,11 +53,6 @@ mkdocs = [
     "mkdocs>=1.6.1, <2.0.0",
     "mkdocs-jupyter>=0.25.1",
     "mkdocs-mermaid2-plugin>=1.2.3",
-]
-ui = [
-    "nbformat>=5.10.4",
-    "plotly>=6.6.0",
-    "streamlit>=1.55.0",
 ]
 
 [tool.black]

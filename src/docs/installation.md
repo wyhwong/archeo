@@ -21,28 +21,6 @@ archeo's functionalities are built heavily on the following dependencies:
 If you've got Python 3.11+ and `pip` installed, you should be good to go.
 We strongly recommend uv for its runtime performance.
 
-## Optional dependencies
-
-Archeo has the following optional dependency group:
-
-* `archeo[ui]`: Web UI features powered by [Streamlit](https://streamlit.io/)
-
-To install optional dependencies along with archeo, use one of the following commands:
-
-=== "pip"
-
-    ```bash
-    # with the `ui` extra:
-    pip install 'archeo[ui]'
-    ```
-
-=== "uv"
-
-    ```bash
-    # with the `ui` extra:
-    uv add 'archeo[ui]'
-    ```
-
 ## Install from repository
 
 And if you prefer to install archeo directly from the repository:
@@ -51,14 +29,10 @@ And if you prefer to install archeo directly from the repository:
 
     ```bash
     pip install 'git+https://github.com/wyhwong/archeo@main'
-    # or with UI features:
-    pip install 'git+https://github.com/wyhwong/archeo@main#egg=archeo[ui]'
     ```
 
 === "uv"
 
     ```bash
     uv add 'git+https://github.com/wyhwong/archeo@main'
-    # or with UI features:
-    uv add 'git+https://github.com/wyhwong/archeo@main#egg=archeo[ui]'
     ```

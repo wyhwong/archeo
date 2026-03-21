@@ -155,20 +155,6 @@ archeo.visualize_posterior_estimation({"GW190521": df_posterior}, output_dir="./
 
 To import archeo in your Python code, please refer to the documentation page at [https://wyhwong.github.io/archeo/](https://wyhwong.github.io/archeo/).
 
-## Try our UI
-
-Archeo also provides a simple web-based user interface to visualize the distributions of remnant properties.
-To run the UI locally, simply run the following command:
-
-```bash
-pip3 install archeo[ui]
-python3 -m archeo.ui
-```
-
-Then the UI will be available at [localhost:8501](http://localhost:8501).
-
-You may also try our [demo version](https://archeo.streamlit.app/) online, which is hosted on Streamlit Community Cloud.
-
 ## Getting Help
 
 The code is maintained by [Henry Wong](https://github.com/wyhwong) under [Juan Calderon Bustillo](https://git.ligo.org/juan.calderonbustillo)'s supervision. You can find the [list of contributors](https://github.com/wyhwong/archeo/graphs/contributors) here. Please report bugs by raising an issue on our [GitHub](https://github.com/wyhwong/archeo) repository.

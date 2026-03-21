@@ -101,12 +101,15 @@ class BlackHolePopulation(BaseModel, frozen=True):
         return np.random.choice(self.black_holes, size=size, replace=True).tolist()
 
     @classmethod
-    def from_simulation_results(cls, df: pd.DataFrame) -> "BlackHolePopulation":
+    def from_simulation_results(
+        cls,
+        df: pd.DataFrame,
+        phi_distribution: Distribution = Uniform(low=0, high=2 * np.pi),
+        theta_distribution: Distribution = Uniform(low=0, high=np.pi),
+    ) -> "BlackHolePopulation":
         """Create a black hole population from simulation results."""
 
-        phi_distribution = Uniform(low=0, high=2 * np.pi)
         phis = phi_distribution.draw(size=len(df))
-        theta_distribution = Uniform(low=0, high=np.pi)
         thetas = theta_distribution.draw(size=len(df))
 
         return cls(

@@ -37,19 +37,13 @@ Install via PyPI or from source.
 Install with uv:
 
 ```bash
-# Basic installation (without UI)
 uv add archeo
-# If you want to use the web UI features (powered by Streamlit)
-uv add 'archeo[ui]'
 ```
 
 Install with pip:
 
 ```bash
-# Basic installation (without UI)
 pip3 install archeo
-# If you want to use the web UI features (powered by Streamlit)
-pip3 install archeo[ui]
 ```
 
 ## Development
@@ -64,7 +58,7 @@ cd archeo/src
 # Install uv if you don't have it
 pip3 install uv
 # Install archeo with all optional dependencies
-uv sync --all-groups --all-extras
+uv sync --all-groups
 # Also install archeo in editable mode for development
 uv pip install -e .
 ```
