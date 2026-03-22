@@ -33,7 +33,7 @@ class ISDataAssumeIndependence(ImportanceSamplingDataBase):
         nbins = self.get_nbins(samples.name)
         return get_histogram_1d(samples, nbins=nbins, bounds=self.bounds[samples.name])
 
-    def get_likelihood_samples_1d(self, random_state=42, ztol=1e-8) -> np.ndarray:
+    def get_likelihood_samples_1d(self, random_state=42) -> np.ndarray:
         """Get samples for likelihood function"""
 
         weights = np.ones(len(self.posterior_samples))
@@ -42,7 +42,7 @@ class ISDataAssumeIndependence(ImportanceSamplingDataBase):
             prior_hist = self._get_hist_1d(self.prior_samples[col])
             rv = rv_histogram(
                 (
-                    self._safe_divide(1.0, prior_hist, ztol=ztol),
+                    self._safe_divide(1.0, prior_hist),
                     self.get_edges(col_name=col),
                 )
             )
@@ -55,7 +55,7 @@ class ISDataAssumeIndependence(ImportanceSamplingDataBase):
             random_state=random_state,
         )
 
-    def _get_posterior_sample_weights_1d(self, col_name: str, ztol=1e-8) -> np.ndarray:
+    def _get_posterior_sample_weights_1d(self, col_name: str) -> np.ndarray:
         """Get the weights for the importance sampling"""
 
         weights = np.ones(len(self.posterior_samples))
@@ -63,17 +63,13 @@ class ISDataAssumeIndependence(ImportanceSamplingDataBase):
         prior_hist = self._get_hist_1d(self.prior_samples[col_name])
         new_prior_hist = self._get_hist_1d(self.new_prior_samples[col_name])
         # Avoid division by zero
-        ratio = self._safe_divide(new_prior_hist, prior_hist, ztol=ztol)
+        ratio = self._safe_divide(new_prior_hist, prior_hist)
         rv = rv_histogram((ratio, self.get_edges(col_name)))
         weights *= rv.pdf(self.posterior_samples[col_name])
 
         return weights
 
-    def get_bayes_factor_1d(
-        self,
-        bootstrapping: bool = False,
-        ztol=1e-8,
-    ) -> float:
+    def get_bayes_factor_1d(self, bootstrapping: bool = False) -> float:
         """Compute the Bayes factor between two models"""
 
         if bootstrapping:
@@ -81,14 +77,12 @@ class ISDataAssumeIndependence(ImportanceSamplingDataBase):
                 prior_samples=self.prior_samples.sample(n=len(self.prior_samples), replace=True),
                 posterior_samples=self.posterior_samples.sample(n=len(self.posterior_samples), replace=True),
                 new_prior_samples=self.new_prior_samples.sample(n=len(self.new_prior_samples), replace=True),
-                ztol=ztol,
             )
 
         return self._get_bayes_factor_1d(
             prior_samples=self.prior_samples,
             posterior_samples=self.posterior_samples,
             new_prior_samples=self.new_prior_samples,
-            ztol=ztol,
         )
 
     def _get_bayes_factor_1d(
@@ -96,7 +90,6 @@ class ISDataAssumeIndependence(ImportanceSamplingDataBase):
         prior_samples: pd.DataFrame,
         posterior_samples: pd.DataFrame,
         new_prior_samples: pd.DataFrame,
-        ztol=1e-8,
     ) -> float:
         """Compute the Bayes factor between two models
 
@@ -111,19 +104,17 @@ class ISDataAssumeIndependence(ImportanceSamplingDataBase):
             prior_hist = self._get_hist_1d(prior_samples[col])
             posterior_hist = self._get_hist_1d(posterior_samples[col])
             new_prior_hist = self._get_hist_1d(new_prior_samples[col])
-            bf *= np.sum(posterior_hist * self._safe_divide(new_prior_hist, prior_hist, ztol=ztol)) * self.get_binwidth(
-                col
-            )
+            bf *= np.sum(posterior_hist * self._safe_divide(new_prior_hist, prior_hist)) * self.get_binwidth(col)
 
         return bf
 
-    def get_reweighted_samples_1d(self, ztol=1e-8, random_state=42) -> pd.DataFrame:
+    def get_reweighted_samples_1d(self, random_state=42) -> pd.DataFrame:
         """Get the reweighted samples for the importance sampling"""
 
         weights = np.ones(len(self.posterior_samples))
 
         for col in self.common_columns:
-            weights *= self._get_posterior_sample_weights_1d(col_name=col, ztol=ztol)
+            weights *= self._get_posterior_sample_weights_1d(col_name=col)
 
         reweighted_samples = self.posterior_samples.sample(
             n=len(self.posterior_samples),

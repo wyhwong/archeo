@@ -1,7 +1,7 @@
 from typing import TypeAlias
 
 import numpy as np
-from pydantic import BaseModel
+from pydantic import BaseModel, NonNegativeFloat, PositiveFloat
 
 from archeo.data_structures.math import Domain
 from archeo.data_structures.physics.black_hole import BlackHole, BlackHoleSource
@@ -18,13 +18,13 @@ class Binary(BaseModel, frozen=True):
     secondary_black_hole: BlackHole
 
     @property
-    def mass_ratio(self) -> float:
+    def mass_ratio(self) -> PositiveFloat:
         """Calculate the mass ratio (q) for the binary."""
 
         return self.primary_black_hole.mass / self.secondary_black_hole.mass
 
     @property
-    def precession_spin(self) -> float:
+    def precession_spin(self) -> NonNegativeFloat:
         """Calculate the precession spin parameter (chi_p) for the binary."""
 
         q = self.primary_black_hole.mass / self.secondary_black_hole.mass
@@ -33,7 +33,7 @@ class Binary(BaseModel, frozen=True):
         return np.maximum(a1h, (4 / q + 3) / (3 / q + 4) / q * a2h)
 
     @property
-    def effective_spin(self) -> float:
+    def effective_spin(self) -> NonNegativeFloat:
         """Calculate the effective spin parameter (chi_eff) for the binary."""
 
         m1 = self.primary_black_hole.mass
@@ -55,7 +55,7 @@ class BinaryGenerator(BaseModel, frozen=True):
     is_aligned_spin: bool = False
     enforce_source_binding: bool = False
 
-    def draw(self, size: int = 1) -> list[Binary]:
+    def draw(self, size: int = 1) -> Binaries:
         """Generate a list of binaries based on the specified sources and mass ratio domain."""
 
         binaries = []

@@ -33,7 +33,7 @@ class MahapatraMassFunction(BaseModel, DistributionBase, frozen=True):
     def probis(self) -> np.ndarray:
         """Probabilities of the masses."""
 
-        probis = self.smoothing_func(self.masses)
+        probis = self._smoothing_func(self.masses)
         probis /= probis.sum()
         return probis
 
@@ -43,7 +43,7 @@ class MahapatraMassFunction(BaseModel, DistributionBase, frozen=True):
         mp = masses - self.mass.low
         return np.exp(self.dm / mp + self.dm / (mp - self.dm))
 
-    def smoothing_func(self, masses: np.ndarray) -> np.ndarray:
+    def _smoothing_func(self, masses: np.ndarray) -> np.ndarray:
         """Smoothing function."""
 
         probis = masses.copy()

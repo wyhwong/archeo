@@ -1,5 +1,3 @@
-from typing import Optional
-
 import numpy as np
 import pandas as pd
 from pydantic import BaseModel, ConfigDict
@@ -21,6 +19,7 @@ class ImportanceSamplingDataBase(BaseModel, frozen=True):
     new_prior_samples: pd.DataFrame
     binsize_spin: float = 0.05
     binsize_mass: float = 1.0
+    ztol: float = 1e-8
 
     @property
     def common_columns(self) -> list[str]:
@@ -53,7 +52,7 @@ class ImportanceSamplingDataBase(BaseModel, frozen=True):
 
         return bounds
 
-    def get_binsize(self, col_name: str) -> Optional[float]:
+    def get_binsize(self, col_name: str) -> float:
 
         if col_name.startswith("a"):
             return self.binsize_spin
@@ -63,7 +62,7 @@ class ImportanceSamplingDataBase(BaseModel, frozen=True):
 
         raise ValueError(f"Unknown column name {col_name}")
 
-    def get_nbins(self, col_name: str) -> Optional[int]:
+    def get_nbins(self, col_name: str) -> int:
         """Get the number of bins for a given column name"""
 
         binsize = self.get_binsize(col_name)
@@ -83,8 +82,7 @@ class ImportanceSamplingDataBase(BaseModel, frozen=True):
         edges = self.get_edges(col_name)
         return edges[1] - edges[0]
 
-    @staticmethod
-    def _safe_divide(a: np.ndarray, b: np.ndarray, ztol: float = 1e-8) -> np.ndarray:
+    def _safe_divide(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
         """Safe division to avoid division by zero"""
 
-        return np.where(b > ztol, np.exp(np.log(a) - np.log(b)), 0.0)
+        return np.where(b > self.ztol, np.exp(np.log(a) - np.log(b)), 0.0)

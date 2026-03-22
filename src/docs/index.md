@@ -12,6 +12,12 @@ Archeo is a Python package designed to infer the natal kick, ancestral masses, a
 with a particular focus on hierarchical black hole formation.
 Please check out our [methodology](https://wyhwong.github.io/archeo/methodology/) if you are interested.
 
+In v2, we have reimplemented everything from scratch with a more modular and extensible design,
+which allows users to easily customize the prior assumptions and the simulation configuration.
+The most important note is that we have boosted the sampling speed dramatically.
+**With a 8-core CPU (AMD Ryzen 7 9700X), we can now generate 2M samples of aligned spin binaries within 10 minutes.**
+This is 10+x faster than in v1, where we needed hours to generate the same amount of samples.
+
 ---
 
 ## Publications

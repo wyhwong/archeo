@@ -37,7 +37,7 @@ class ISDataGeneric(ImportanceSamplingDataBase):
         samples_array = df_samples.to_numpy()
         return get_histogram_dd(samples_array, nbins=nbins, bounds=bounds)
 
-    def get_likelihood_samples_dd(self, random_state=42, ztol=1e-8) -> np.ndarray:
+    def get_likelihood_samples_dd(self, random_state=42) -> np.ndarray:
         """Get samples for likelihood function"""
 
         edges = {}
@@ -45,7 +45,7 @@ class ISDataGeneric(ImportanceSamplingDataBase):
             edges[col] = self.get_edges(col)
 
         prior_hist = self._get_hist_dd(self.prior_samples[self.common_columns])
-        weights_matrix = self._safe_divide(1.0, prior_hist, ztol=ztol)
+        weights_matrix = self._safe_divide(1.0, prior_hist)
 
         def _get_pdf(row: pd.Series):
             idx = tuple(np.searchsorted(edges[col], row[col], side="right") - 1 for col in self.common_columns)
@@ -60,7 +60,7 @@ class ISDataGeneric(ImportanceSamplingDataBase):
             random_state=random_state,
         )
 
-    def _get_posterior_sample_weights_dd(self, ztol=1e-8) -> pd.Series:
+    def _get_posterior_sample_weights_dd(self) -> pd.Series:
         """Get the weights for the importance sampling"""
 
         edges = {}
@@ -70,7 +70,7 @@ class ISDataGeneric(ImportanceSamplingDataBase):
         prior_hist = self._get_hist_dd(self.prior_samples[self.common_columns])
         new_prior_hist = self._get_hist_dd(self.new_prior_samples[self.common_columns])
         # Avoid division by zero
-        weights_matrix = self._safe_divide(new_prior_hist, prior_hist, ztol=ztol)
+        weights_matrix = self._safe_divide(new_prior_hist, prior_hist)
 
         def _get_pdf(row: pd.Series):
             idx = tuple(np.searchsorted(edges[col], row[col], side="right") - 1 for col in self.common_columns)
@@ -78,7 +78,7 @@ class ISDataGeneric(ImportanceSamplingDataBase):
 
         return self.posterior_samples.apply(_get_pdf, axis=1)
 
-    def get_bayes_factor_dd(self, bootstrapping: bool = False, ztol=1e-8) -> float:
+    def get_bayes_factor_dd(self, bootstrapping: bool = False) -> float:
         """Compute the Bayes factor between two models"""
 
         if bootstrapping:
@@ -86,14 +86,12 @@ class ISDataGeneric(ImportanceSamplingDataBase):
                 prior_samples=self.prior_samples.sample(n=len(self.prior_samples), replace=True),
                 posterior_samples=self.posterior_samples.sample(n=len(self.posterior_samples), replace=True),
                 new_prior_samples=self.new_prior_samples.sample(n=len(self.new_prior_samples), replace=True),
-                ztol=ztol,
             )
 
         return self._get_bayes_factor_dd(
             prior_samples=self.prior_samples,
             posterior_samples=self.posterior_samples,
             new_prior_samples=self.new_prior_samples,
-            ztol=ztol,
         )
 
     def _get_bayes_factor_dd(
@@ -101,7 +99,6 @@ class ISDataGeneric(ImportanceSamplingDataBase):
         prior_samples: pd.DataFrame,
         posterior_samples: pd.DataFrame,
         new_prior_samples: pd.DataFrame,
-        ztol=1e-8,
     ) -> float:
         """Compute the Bayes factor between two models
 
@@ -116,14 +113,14 @@ class ISDataGeneric(ImportanceSamplingDataBase):
         new_prior_hist_bh = self._get_hist_dd(new_prior_samples[[c for c in self.common_columns]])
         prior_hist_bh = self._get_hist_dd(prior_samples[[c for c in self.common_columns]])
         posterior_hist_bh = self._get_hist_dd(posterior_samples[[c for c in self.common_columns]])
-        bf *= np.sum(posterior_hist_bh * self._safe_divide(new_prior_hist_bh, prior_hist_bh, ztol=ztol)) * bin_auc
+        bf *= np.sum(posterior_hist_bh * self._safe_divide(new_prior_hist_bh, prior_hist_bh)) * bin_auc
 
         return bf
 
-    def get_reweighted_samples_dd(self, ztol=1e-8, random_state=42) -> pd.DataFrame:
+    def get_reweighted_samples_dd(self, random_state=42) -> pd.DataFrame:
         """Get the reweighted samples for the importance sampling"""
 
-        weights = self._get_posterior_sample_weights_dd(ztol=ztol)
+        weights = self._get_posterior_sample_weights_dd()
 
         return self.posterior_samples.sample(
             n=len(self.posterior_samples),
