@@ -23,22 +23,24 @@ flowchart TD
 ```
 
 **Notes**
-- Archeo primarily implements the **backward modeling** workflow (condition on existing PE samples), and supports a **forward-like mode via importance sampling** (reweighting under new ancestral priors).
+- Archeo primarily implements the **backward modeling** workflow (conditioning on existing PE samples), and supports a **forward-like mode via importance sampling** (reweighting under new ancestral priors).
 
 ---
 
 ## Base Diagrams
 
-In the following, we will introduce the data classes used in archeo using UML-style diagrams.
+In the following, we introduce the data classes used in archeo using UML-style diagrams.
+
 The UML-style diagrams below are originally generated from the codebase using **Pyreverse** ([docs](https://pylint.pycqa.org/en/v2.14.5/pyreverse.html)).
-You may get the base diagrams by running the following command:
+Pyreverse analyzes your source code and generates package and class diagrams.
+You can generate the base diagrams with:
 
 ```bash
 pyreverse -o mmd -d . archeo
 ```
 
 However, while Pyreverse is great for *complete* diagrams,
-the full-project graphs often become too dense to read in a browser.
+full-project graphs often become too dense to read in a browser.
 So below we reorganize the output into **smaller, purpose-driven diagrams**:
 
 - Core physical objects: `Binary` and `BlackHole`
@@ -50,7 +52,7 @@ So below we reorganize the output into **smaller, purpose-driven diagrams**:
 
 ## Core Physical Objects: `Binary` and `BlackHole`
 
-Here we introduce the core data models for repository: `Binary` and `BlackHole`.
+Here we introduce the core data models for the repository: `Binary` and `BlackHole`.
 These are the fundamental building blocks for simulating populations and performing inference.
 
 ```mermaid
@@ -114,7 +116,7 @@ classDiagram
   BlackHolePopulation --> BlackHole : generates
 ```
 
-For the details of `Distribution` and `Domain` classes, please see the next section.
+For details on the `Distribution` and `Domain` classes, see the next section.
 
 ---
 
@@ -122,7 +124,11 @@ For the details of `Distribution` and `Domain` classes, please see the next sect
 
 This diagram captures the “lego bricks” used to build priors (for masses/spins/etc.) and constrain them, supplementing the `Binary` and `BlackHole` data models.
 
-#### Distributions
+### Distributions
+
+At the moment, we have implemented a few basic distributions (Uniform, Normal, PiecewiseUniform)
+and a custom `MahapatraMassFunction` for modeling mass distributions.
+All distributions inherit from a common `DistributionBase` class that defines the interface for sampling and parameter management.
 
 ```mermaid
 classDiagram
@@ -162,7 +168,9 @@ classDiagram
   DistributionBase <|-- PiecewiseUniform : inherits
 ```
 
-#### Domains
+### Domains
+
+Domains are used to define the ranges of parameters (e.g., mass ratio between 1 and 6) and to check whether samples fall within these ranges.
 
 ```mermaid
 classDiagram
@@ -191,7 +199,9 @@ classDiagram
 
 Here we introduce the core classes for importance sampling, which is the key technique for forward modeling and reweighting posterior samples under new priors.
 
-The `ImportanceSamplingDataBase` class encapsulates the shared data and utilities for importance sampling, while `ISDataAssumeIndependence` and `ISDataGeneric` implement specific algorithms for computing Bayes factors and reweighted samples under different assumptions. And the `ImportanceSamplingData` class provides a unified interface that can switch between these algorithms based on user configuration.
+The `ImportanceSamplingDataBase` class encapsulates shared data and utilities for importance sampling,
+while `ISDataAssumeIndependence` and `ISDataGeneric` implement specific algorithms for computing Bayes factors and reweighted samples under different assumptions.
+The `ImportanceSamplingData` class provides a unified interface that can switch between these algorithms based on user configuration.
 
 ```mermaid
 classDiagram
@@ -229,20 +239,32 @@ classDiagram
     sample_bayes_factor(n: int, is_parallel: bool, n_threads: int) BayesFactor
   }
 
+  class BayesFactor {
+    samples: list[float]
+    median: float
+    confidence_interval(percent: float) tuple[float, float]
+  }
+
   ISDataAssumeIndependence --|> ImportanceSamplingDataBase : inherits
   ISDataGeneric --|> ImportanceSamplingDataBase : inherits
   ImportanceSamplingData --|> ISDataAssumeIndependence : inherits
   ImportanceSamplingData --|> ISDataGeneric : inherits
+  ImportanceSamplingData --> BayesFactor : generates
 ```
+
+---
 
 ## Importance Sampling: Compute Bayes Factor Curve
 
-Here we introduce the importart classes for computing the Bayes factor curve,
+Here we introduce the important classes for computing the Bayes factor curve,
 which is a key analysis tool for comparing different priors/models.
-We first define a `CandidatePrior` class to represent the candidate prior distributions and provide utilities for sampling escape velocities and conditional priors.
-Then we have a `BayesFactorCurve` class that computes the Bayes factor as a function of escape velocity by comparing the candidate prior with the inferred posterior distribution.
 
-``` mermaid
+We first define a `CandidatePrior` class to represent candidate prior distributions
+and provide utilities for sampling escape velocities and conditional priors.
+Then the `BayesFactorCurve` class computes the Bayes factor as a function of escape velocity
+by comparing the candidate prior with the inferred posterior distribution.
+
+```mermaid
 classDiagram
   class CandidatePrior {
     df_bh1 : pd.DataFrame
@@ -255,7 +277,7 @@ classDiagram
     n_pts : int
     log_scale : bool
     n_bootstrapping : int
-    get_bayes_factor_over_escape_velocity(prior: pd.DataFrame, posterior: pd.DataFrame, candidate_prior: CandidatePrior, n_workers: int) BayesFactorCurveData
+    get_bayes_factor_over_escape_velocity(prior: pd.DataFrame, posterior: pd.DataFrame, candidate_prior: CandidatePrior, n_workers: int) dict[float, BayesFactor]
   }
 
   class ImportanceSamplingData {
@@ -266,6 +288,13 @@ classDiagram
     sample_bayes_factor(n: int, is_parallel: bool, n_threads: int) BayesFactor
   }
 
+  class BayesFactor {
+    samples: list[float]
+    median: float
+    confidence_interval(percent: float) tuple[float, float]
+  }
+
   BayesFactorCurve --> CandidatePrior : uses
   BayesFactorCurve --> ImportanceSamplingData : uses
+  ImportanceSamplingData --> BayesFactor : generates
 ```
