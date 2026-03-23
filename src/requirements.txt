@@ -227,6 +227,8 @@ surfinbh==1.2.7
     # via archeo
 tabulate==0.10.0
     # via archeo
+tenacity==9.1.4
+    # via archeo
 threadpoolctl==3.6.0
     # via scikit-learn
 tomli==2.4.0 ; python_full_version <= '3.11'

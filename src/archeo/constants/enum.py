@@ -1,6 +1,8 @@
 import enum
 import os
 
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed
+
 from archeo.utils.logger import get_logger
 
 
@@ -22,6 +24,11 @@ class Fits(enum.StrEnum):
     NRSUR7DQ4REMNANT = "NRSur7dq4Remnant"
     SURFINBH7DQ2 = "surfinBH7dq2"
 
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_fixed(3),
+        retry=retry_if_exception_type(RuntimeError),
+    )
     def load(self):
         """Load a surfinBH fits.
 
@@ -42,6 +49,9 @@ class Fits(enum.StrEnum):
         )
 
         try:
+            # NOTE: We added a retry logic because the model loading can fail
+            # due to IO limitation of h5py. This happens when we have multiple
+            # processes trying to load the same model at the same time.
             return surfinBH.LoadFits(self.value)
         except (OSError, KeyError) as e:
             LOGGER.error("Failed to load surfinBH %s: %s", self.value, str(e))
