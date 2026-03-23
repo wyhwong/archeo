@@ -1,6 +1,6 @@
 ## Conceptual workflow: From GW Observations to Ancestral Inference
 
-This is the “mental model” of how the repository fits together: simulations generate populations, importance sampling connects priors/posteriors, and downstream utilities compute Bayes factors and plots.
+The following diagram illustrates the overall workflow of archeo, from simulating black hole mergers under different priors to inferring ancestral posteriors and computing Bayes factor curves.
 
 ```mermaid
 flowchart TD
