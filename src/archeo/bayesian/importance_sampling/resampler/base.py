@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, ConfigDict
 
+from archeo.constants.bayesian import DEFAULT_BINSIZE_MASS, DEFAULT_BINSIZE_SPIN
 from archeo.data_structures.math import Domain
 from archeo.utils.logger import get_logger
 
@@ -17,8 +18,8 @@ class ImportanceSamplingDataBase(BaseModel, frozen=True):
     posterior_samples: pd.DataFrame
     prior_samples: pd.DataFrame
     new_prior_samples: pd.DataFrame
-    binsize_spin: float = 0.05
-    binsize_mass: float = 1.0
+    binsize_spin: float = DEFAULT_BINSIZE_SPIN
+    binsize_mass: float = DEFAULT_BINSIZE_MASS
     ztol: float = 1e-8
 
     @property

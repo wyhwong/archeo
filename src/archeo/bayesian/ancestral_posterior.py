@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+from archeo.constants.bayesian import DEFAULT_BINSIZE_MASS, DEFAULT_BINSIZE_SPIN
 from archeo.utils.parallel import get_n_workers, multiprocess_run, multithread_run
 
 
@@ -8,8 +9,8 @@ def _retrieve_sample(
     df_binaries: pd.DataFrame,
     mass_measure: float,
     spin_measure: float,
-    binsize_mass: float = 2.0,
-    binsize_spin: float = 0.1,
+    binsize_mass: float = DEFAULT_BINSIZE_MASS,
+    binsize_spin: float = DEFAULT_BINSIZE_SPIN,
 ) -> pd.DataFrame:
     """Retrieve the samples from data frame of binaries"""
 
@@ -36,8 +37,8 @@ def infer_ancestral_posterior_distribution(
     df_binaries: pd.DataFrame,
     mass_posterior_samples: list[float],
     spin_posterior_samples: list[float],
-    binsize_mass: float = 2.0,
-    binsize_spin: float = 0.1,
+    binsize_mass: float = DEFAULT_BINSIZE_MASS,
+    binsize_spin: float = DEFAULT_BINSIZE_SPIN,
     random_state: int = 42,
     n_workers: int = 1,
 ) -> pd.DataFrame:

@@ -1,2 +1,3 @@
 from archeo.bayesian.importance_sampling.bayes_factor_curve import BayesFactorCurve, CandidatePrior
 from archeo.bayesian.importance_sampling.resampler.interface import ImportanceSamplingData
+from archeo.data_structures.bayesian.bayes_factor import BayesFactorCurveMetadata

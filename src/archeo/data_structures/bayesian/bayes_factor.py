@@ -3,6 +3,8 @@ from typing import TypeAlias
 import numpy as np
 from pydantic import BaseModel, NonNegativeFloat
 
+from archeo.constants.bayesian import ASSUME_PARAMETER_INDEPENDENCE, DEFAULT_BINSIZE_MASS, DEFAULT_BINSIZE_SPIN
+
 
 class BayesFactor(BaseModel, frozen=True):
     """Data class for Bayes factor with bootstrapping samples."""
@@ -33,5 +35,6 @@ class BayesFactorCurveMetadata(BaseModel, frozen=True):
 
     reference_candidate_name: str = "original"
     reference_bayes_factor: NonNegativeFloat = 1.0
-    binsize_spin: float = 0.05
-    binsize_mass: float = 1.0
+    binsize_spin: float = DEFAULT_BINSIZE_SPIN
+    binsize_mass: float = DEFAULT_BINSIZE_MASS
+    assume_parameter_independence: bool = ASSUME_PARAMETER_INDEPENDENCE

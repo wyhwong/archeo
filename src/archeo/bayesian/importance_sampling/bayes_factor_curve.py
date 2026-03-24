@@ -38,7 +38,7 @@ class CandidatePrior(BaseModel):
         df_bh1_prior = self.df_bh1.loc[self.df_bh1["v_esc"] <= v_esc]
         df_bh2_prior = self.df_bh2.loc[self.df_bh2["v_esc"] <= v_esc]
 
-        if df_bh1_prior.empty and df_bh2_prior.empty:
+        if df_bh1_prior.empty or df_bh2_prior.empty:
             return pd.DataFrame(columns=self.df_bh1.columns.union(self.df_bh2.columns))
 
         n_samples = max(len(df_bh1_prior), len(df_bh2_prior), n_min)
@@ -57,13 +57,9 @@ class CandidatePrior(BaseModel):
         v_esc_max = max(self.df_bh1["v_esc"].max(), self.df_bh2["v_esc"].max())
 
         if log_scale:
-            v_escs = np.logspace(np.log10(v_esc_min), np.log10(v_esc_max), n_pts)
+            v_escs = np.logspace(max(np.log10(v_esc_min), np.log10(0.1)), np.log10(v_esc_max), n_pts)
         else:
             v_escs = np.linspace(v_esc_min, v_esc_max, n_pts)
-
-        # Add zero in the beginning of the list if it's not already included
-        if v_escs[0] > 0:
-            v_escs = np.insert(v_escs, 0, 0.0)
 
         # Add 5000 km/s in the end of the list if it's not already included
         if v_escs[-1] < 5000:
@@ -78,7 +74,6 @@ class BayesFactorCurve(BaseModel, frozen=True):
     n_bootstrapping: int = 50
     n_pts: int = 10
     log_scale: bool = False
-    assume_parameter_independence: bool = False
     metadata: BayesFactorCurveMetadata = BayesFactorCurveMetadata()
 
     def _sample_bayes_factor(
@@ -95,7 +90,7 @@ class BayesFactorCurve(BaseModel, frozen=True):
             new_prior_samples=candidate_prior.get_conditional_prior(v_esc),
             binsize_spin=self.metadata.binsize_spin,
             binsize_mass=self.metadata.binsize_mass,
-            assume_parameter_independence=self.assume_parameter_independence,
+            assume_parameter_independence=self.metadata.assume_parameter_independence,
         ).sample_bayes_factor(n=self.n_bootstrapping, is_parallel=True)
 
     @pre_release
