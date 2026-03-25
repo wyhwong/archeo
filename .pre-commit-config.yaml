@@ -14,8 +14,8 @@ repos:
     args: ["--maxkb=1024"]
   - id: forbid-new-submodules
   - id: detect-private-key
-  # - id: no-commit-to-branch
-  #   args: ["--branch", "main"]
+  - id: check-merge-conflict
+  - id: check-ast
 
 - repo: https://github.com/kynan/nbstripout
   rev: 0.9.1
@@ -35,15 +35,6 @@ repos:
     always_run: true
     verbose: true
 
-- repo: https://github.com/pylint-dev/pylint
-  rev: v4.0.5
-  hooks:
-  - id: pylint
-    args: ["--rcfile", "./.pylintrc", "src/archeo"]
-    always_run: true
-    verbose: true
-
-
 - repo: https://github.com/pycqa/isort
   rev: 8.0.1
   hooks:
@@ -57,14 +48,20 @@ repos:
     always_run: true
     verbose: true
 
+- repo: https://github.com/pylint-dev/pylint
+  rev: v4.0.5
+  hooks:
+  - id: pylint
+    args: ["--rcfile", "./.pylintrc", "src/archeo"]
+    always_run: true
+    verbose: true
+
+
 - repo: https://github.com/rubik/xenon
   rev: v0.9.0
   hooks:
   - id: xenon
     args: [
-      "--max-absolute=C",
-      "--max-modules=B",
-      "--max-average=A",
       "--exclude=*test_*",
       "src"
     ]
