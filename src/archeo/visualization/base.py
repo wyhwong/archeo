@@ -112,7 +112,7 @@ def add_escape_velocity(ax, v_max: float, y_max: float, log_xscale: bool = False
 
     colors = iter(mcolors.TABLEAU_COLORS.keys())
     # Plot vertical lines and labels (escape velocities)
-    for label, v_esc in EscapeVelocity.to_vlines().items():
+    for label, v_esc in EscapeVelocity.label_values().items():
         # Skip if out of scope
         if v_esc > v_max:
             return

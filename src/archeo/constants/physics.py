@@ -60,11 +60,7 @@ class EscapeVelocity(enum.Enum):
         return mask.sum() / len(df) * 100.0
 
     @classmethod
-    def to_vlines(cls) -> dict[str, float]:
-        """Return a dictionary for vlines plotting
-
-        Returns:
-            vlines (Dict[str, float]): The escape velocity vlines.
-        """
+    def label_values(cls) -> dict[str, float]:
+        """Return a dictionary of escape velocity labels and values."""
 
         return {esc_vel.label(): esc_vel.value for esc_vel in cls}
