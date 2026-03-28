@@ -1,4 +1,4 @@
-name: documentation-deploy
+name: mkdocs-release
 
 on:
   push:
