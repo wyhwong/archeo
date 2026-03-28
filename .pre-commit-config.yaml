@@ -97,13 +97,23 @@ repos:
   hooks:
   - id: pytest
     name: pytest
-    entry: bash -lc '
-      uv sync --project ./src &&
-      uv pip install -e ./src &&
-      uv run pytest --disable-warnings --cov=archeo --rootdir=./src --cov-report=xml
-      '
     language: system
     types: [ python ]
     pass_filenames: false
     always_run: true
     verbose: true
+    entry: bash -lc '
+      uv sync --project ./src &&
+      uv pip install -e ./src &&
+      uv run pytest --disable-warnings --cov=archeo --rootdir=./src --cov-report=xml
+      '
+  - id: pyproject-version-export
+    name: pyproject-version-export
+    language: system
+    types: [ python ]
+    pass_filenames: false
+    always_run: true
+    verbose: true
+    entry: bash -c '
+        uv run python -c "import tomllib; print(tomllib.load(open(\"src/pyproject.toml\",\"rb\"))[\"project\"][\"version\"])" > VERSION
+      '
