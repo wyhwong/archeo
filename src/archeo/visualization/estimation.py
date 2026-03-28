@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-from archeo.constants.physics import EscapeVelocity
+from archeo.constants.physics import TypicalHostEscapeVelocity
 from archeo.data_structures.visualization import Labels, Padding
 from archeo.utils.logger import get_logger
 from archeo.visualization import base
@@ -363,7 +363,7 @@ def table_estimates(
     data = {
         "": dfs.keys(),
         "Recovery Rate": [df["m_1"].notna().sum() / df.shape[0] for df in dfs.values()],
-        **{f"p2g_{v_esc.short()}": [v_esc.compute_p2g(df) for df in dfs.values()] for v_esc in EscapeVelocity},
+        **{f"p2g_{v_esc.short}": [v_esc.compute_p2g(df) for df in dfs.values()] for v_esc in TypicalHostEscapeVelocity},
     }
 
     for col, name in col_to_names.items():

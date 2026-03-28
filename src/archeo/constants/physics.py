@@ -1,66 +1,58 @@
 import enum
 
 import pandas as pd
+from pydantic import BaseModel, NonNegativeFloat
 
 
 SPEED_OF_LIGHT = 299792.458  # km/s
 
 
-class EscapeVelocity(enum.Enum):
-    """Escape velocity (Unit in km s^-1)"""
+class _TypicalHostEscapeVelocityMeta(BaseModel):
+    v_esc: NonNegativeFloat  # km s^-1
+    short: str
+    latex: str
 
-    GLOBULAR_CLUSTER = 50.0
-    MILKY_WAY = 600.0
-    NUCLEAR_STAR_CLUSTER = 1500.0
-    ELLIPTICAL_GALAXY = 2500.0
 
-    def label(self) -> str:
-        """Return the escape velocity label"""
+class TypicalHostEscapeVelocity(enum.Enum):
+    """Escape velocity (units: km s^-1)."""
 
-        if self is EscapeVelocity.GLOBULAR_CLUSTER:
-            return "$v_{esc, GC}$"
+    GLOBULAR_CLUSTER = _TypicalHostEscapeVelocityMeta(v_esc=50.0, short="GC", latex=r"$v_{esc, GC}$")
+    MILKY_WAY = _TypicalHostEscapeVelocityMeta(v_esc=600.0, short="MW", latex=r"$v_{esc, MW}$")
+    NUCLEAR_STAR_CLUSTER = _TypicalHostEscapeVelocityMeta(v_esc=1500.0, short="NSC", latex=r"$v_{esc, NSC}$")
+    ELLIPTICAL_GALAXY = _TypicalHostEscapeVelocityMeta(v_esc=2500.0, short="EG", latex=r"$v_{esc, EG}$")
 
-        if self is EscapeVelocity.MILKY_WAY:
-            return "$v_{esc, MW}$"
+    @property
+    def v_esc(self) -> float:
+        return self.value.v_esc
 
-        if self is EscapeVelocity.NUCLEAR_STAR_CLUSTER:
-            return "$v_{esc, NSC}$"
-
-        if self is EscapeVelocity.ELLIPTICAL_GALAXY:
-            return "$v_{esc, EG}$"
-
-        raise ValueError(f"Unknown escape velocity {self}")
-
+    @property
     def short(self) -> str:
-        """Return the short name of the escape velocity"""
+        return self.value.short
 
-        if self is EscapeVelocity.GLOBULAR_CLUSTER:
-            return "GC"
+    @property
+    def latex(self) -> str:
+        return self.value.latex
 
-        if self is EscapeVelocity.MILKY_WAY:
-            return "MW"
-
-        if self is EscapeVelocity.NUCLEAR_STAR_CLUSTER:
-            return "NSC"
-
-        if self is EscapeVelocity.ELLIPTICAL_GALAXY:
-            return "EG"
-
-        raise ValueError(f"Unknown escape velocity {self}")
-
-    def compute_p2g(self, df: pd.DataFrame) -> float:
-        """Return the probability of
-        the black hole being a 2nd generation black hole
-        under different escape velocity conditions."""
+    def compute_p2g(
+        self,
+        df: pd.DataFrame,
+        max_mass: float = 65.0,
+        kf_col: str = "k_f",
+        m1_col: str = "m_1",
+        m2_col: str = "m_2",
+    ) -> float:
+        """Probability of being 2nd-generation under this escape velocity."""
 
         if df.empty:
             return 0.0
 
-        mask = (df["k_f"] <= self.value) & (df["m_1"] <= 65) & (df["m_2"] <= 65)
-        return mask.sum() / len(df) * 100.0
+        mask = (df[kf_col] <= self.v_esc) & (df[m1_col] <= max_mass) & (df[m2_col] <= max_mass)
+        return mask.mean() * 100.0
 
     @classmethod
-    def label_values(cls) -> dict[str, float]:
-        """Return a dictionary of escape velocity labels and values."""
+    def latex_to_values(cls) -> dict[str, float]:
+        return {m.latex: m.v_esc for m in cls}
 
-        return {esc_vel.label(): esc_vel.value for esc_vel in cls}
+    @classmethod
+    def short_to_values(cls) -> dict[str, float]:
+        return {m.short: m.v_esc for m in cls}

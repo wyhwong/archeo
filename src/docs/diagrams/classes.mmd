@@ -67,12 +67,14 @@ classDiagram
   class DomainBase {
     contains(value: float)* bool
   }
-  class EscapeVelocity {
+  class TypicalHostEscapeVelocity {
     name
     compute_p2g(df: pd.DataFrame) float
     label() str
     short() str
-    label_values() dict[str, float]
+    latex() str
+    latex_to_values() dict[str, float]
+    short_to_values() dict[str, float]
   }
   class Fits {
     name

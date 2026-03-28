@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from archeo.constants.physics import EscapeVelocity
+from archeo.constants.physics import TypicalHostEscapeVelocity
 from archeo.data_structures.visualization import Labels, Padding
 from archeo.utils.fs import check_and_create_dir
 from archeo.utils.logger import get_logger
@@ -112,7 +112,7 @@ def add_escape_velocity(ax, v_max: float, y_max: float, log_xscale: bool = False
 
     colors = iter(mcolors.TABLEAU_COLORS.keys())
     # Plot vertical lines and labels (escape velocities)
-    for label, v_esc in EscapeVelocity.label_values().items():
+    for label, v_esc in TypicalHostEscapeVelocity.latex_to_values().items():
         # Skip if out of scope
         if v_esc > v_max:
             return

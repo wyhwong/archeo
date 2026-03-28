@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 
 from archeo.bayesian.ancestral_posterior import infer_ancestral_posterior_distribution
-from archeo.constants.physics import EscapeVelocity
+from archeo.constants.physics import TypicalHostEscapeVelocity
 from archeo.preset.simulation.agnostic import simulate_agnostic_aligned_spin_binaries
 
 
@@ -46,10 +46,10 @@ def test_gw190521_ancestral_inference(gw190521_pe_samples: pd.DataFrame):
     # But the results should be roughly consistent with the paper.
 
     # Primary Black Hole results
-    assert np.isclose(EscapeVelocity.GLOBULAR_CLUSTER.compute_p2g(df_bh1_ancestors), 13.5, atol=10.0)
-    assert np.isclose(EscapeVelocity.MILKY_WAY.compute_p2g(df_bh1_ancestors), 60.5, atol=10.0)
-    assert np.isclose(EscapeVelocity.NUCLEAR_STAR_CLUSTER.compute_p2g(df_bh1_ancestors), 60.5, atol=10.0)
-    assert np.isclose(EscapeVelocity.ELLIPTICAL_GALAXY.compute_p2g(df_bh1_ancestors), 60.5, atol=10.0)
+    assert np.isclose(TypicalHostEscapeVelocity.GLOBULAR_CLUSTER.compute_p2g(df_bh1_ancestors), 13.5, atol=10.0)
+    assert np.isclose(TypicalHostEscapeVelocity.MILKY_WAY.compute_p2g(df_bh1_ancestors), 60.5, atol=10.0)
+    assert np.isclose(TypicalHostEscapeVelocity.NUCLEAR_STAR_CLUSTER.compute_p2g(df_bh1_ancestors), 60.5, atol=10.0)
+    assert np.isclose(TypicalHostEscapeVelocity.ELLIPTICAL_GALAXY.compute_p2g(df_bh1_ancestors), 60.5, atol=10.0)
 
     assert np.isclose(df_bh1_ancestors["m_1"].median(), 64, atol=8.5)
     assert np.isclose(df_bh1_ancestors["m_2"].median(), 26, atol=6.5)
@@ -59,10 +59,10 @@ def test_gw190521_ancestral_inference(gw190521_pe_samples: pd.DataFrame):
     assert np.isclose(df_bh1_ancestors["k_f"].median(), 117, atol=50)
 
     # Secondary Black Hole results
-    assert np.isclose(EscapeVelocity.GLOBULAR_CLUSTER.compute_p2g(df_bh2_ancestors), 25.5, atol=10.0)
-    assert np.isclose(EscapeVelocity.MILKY_WAY.compute_p2g(df_bh2_ancestors), 95.1, atol=10.0)
-    assert np.isclose(EscapeVelocity.NUCLEAR_STAR_CLUSTER.compute_p2g(df_bh2_ancestors), 95.1, atol=10.0)
-    assert np.isclose(EscapeVelocity.ELLIPTICAL_GALAXY.compute_p2g(df_bh2_ancestors), 95.1, atol=10.0)
+    assert np.isclose(TypicalHostEscapeVelocity.GLOBULAR_CLUSTER.compute_p2g(df_bh2_ancestors), 25.5, atol=10.0)
+    assert np.isclose(TypicalHostEscapeVelocity.MILKY_WAY.compute_p2g(df_bh2_ancestors), 95.1, atol=10.0)
+    assert np.isclose(TypicalHostEscapeVelocity.NUCLEAR_STAR_CLUSTER.compute_p2g(df_bh2_ancestors), 95.1, atol=10.0)
+    assert np.isclose(TypicalHostEscapeVelocity.ELLIPTICAL_GALAXY.compute_p2g(df_bh2_ancestors), 95.1, atol=10.0)
 
     assert np.isclose(df_bh2_ancestors["m_1"].median(), 47, atol=7.5)
     assert np.isclose(df_bh2_ancestors["m_2"].median(), 20, atol=5.0)
