@@ -43,7 +43,7 @@ documentation = "https://wyhwong.github.io/archeo/"
 
 [dependency-groups]
 dev = [
-    "ipykernel>=6.9.2, <7.0.0",
+    "ipykernel>=7.2.0",
     "pre-commit>=4.5.1",
     "pyarrow>=23.0.1",
     "pyinstrument>=5.1.2",
