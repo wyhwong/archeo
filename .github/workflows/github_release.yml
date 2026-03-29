@@ -42,4 +42,7 @@ jobs:
           tag_name: ${{ steps.extract_version.outputs.version }}
           release_name: ${{ steps.extract_version.outputs.version }}
           draft: false
-          prerelease: true
+          prerelease: false
+          body: |
+            This is automatically generated release for version ${{ steps.extract_version.outputs.version }}.
+            Please check the commits in git history for more details.
