@@ -48,8 +48,9 @@ class ISDataGeneric(ImportanceSamplingDataBase):
         weights_matrix = self._safe_divide(1.0, prior_hist)
 
         def _get_pdf(row: pd.Series):
-            idx = tuple(np.searchsorted(edges[col], row[col], side="right") - 1 for col in self.common_columns)
-            return weights_matrix[idx]
+            indices = tuple(np.searchsorted(edges[col], row[col], side="right") - 1 for col in self.common_columns)
+            indices = tuple(max(0, min(weights_matrix.shape[i] - 1, idx)) for i, idx in enumerate(indices))
+            return weights_matrix[indices]
 
         weights = self.posterior_samples.apply(_get_pdf, axis=1)
 
@@ -73,8 +74,9 @@ class ISDataGeneric(ImportanceSamplingDataBase):
         weights_matrix = self._safe_divide(new_prior_hist, prior_hist)
 
         def _get_pdf(row: pd.Series):
-            idx = tuple(np.searchsorted(edges[col], row[col], side="right") - 1 for col in self.common_columns)
-            return weights_matrix[idx]
+            indices = tuple(np.searchsorted(edges[col], row[col], side="right") - 1 for col in self.common_columns)
+            indices = tuple(max(0, min(weights_matrix.shape[i] - 1, idx)) for i, idx in enumerate(indices))
+            return weights_matrix[indices]
 
         return self.posterior_samples.apply(_get_pdf, axis=1)
 
