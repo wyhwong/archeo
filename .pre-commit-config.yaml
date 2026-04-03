@@ -52,10 +52,10 @@ repos:
   rev: v4.0.5
   hooks:
   - id: pylint
-    args: ["--rcfile", ".pylintrc"]
+    args: ["--rcfile", ".pylintrc", "src/archeo"]
+    files: \.py$
     always_run: true
     verbose: true
-
 
 - repo: https://github.com/rubik/xenon
   rev: v0.9.0
