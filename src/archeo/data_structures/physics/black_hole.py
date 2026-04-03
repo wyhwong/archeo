@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, NonNegativeFloat, PositiveFloat, field_validator
 
+from archeo.constants.physics import BH_MASS_LB, PISN_LB
 from archeo.data_structures.annotation import Distribution
 from archeo.data_structures.distribution import Uniform
 
@@ -35,7 +36,7 @@ BlackHoles: TypeAlias = list[BlackHole]
 class BlackHoleGenerator(BaseModel, frozen=True):
     """Black hole generator data class."""
 
-    mass_distribution: Distribution = Uniform(low=5, high=65)
+    mass_distribution: Distribution = Uniform(low=BH_MASS_LB, high=PISN_LB)
     spin_magnitude_distribution: Distribution = Uniform(low=0, high=1)
     phi_distribution: Distribution = Uniform(low=0, high=2 * np.pi)
     theta_distribution: Distribution = Uniform(low=0, high=np.pi)

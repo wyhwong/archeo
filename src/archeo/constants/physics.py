@@ -1,10 +1,14 @@
 import enum
+import os
 
 import pandas as pd
 from pydantic import BaseModel, NonNegativeFloat
 
 
 SPEED_OF_LIGHT = 299792.458  # km/s
+BH_MASS_LB: float = float(os.environ.get("BH_MASS_LB", 5.0))  # Solar masses
+PISN_LB: float = float(os.environ.get("PISN_LB", 65.0))  # Solar masses
+PISN_UB: float = float(os.environ.get("PISN_UB", 130.0))  # Solar masses
 
 
 class _TypicalHostEscapeVelocityMeta(BaseModel):
@@ -36,7 +40,6 @@ class TypicalHostEscapeVelocity(enum.Enum):
     def compute_p2g(
         self,
         df: pd.DataFrame,
-        max_mass: float = 65.0,
         kf_col: str = "k_f",
         m1_col: str = "m_1",
         m2_col: str = "m_2",
@@ -46,7 +49,7 @@ class TypicalHostEscapeVelocity(enum.Enum):
         if df.empty:
             return 0.0
 
-        mask = (df[kf_col] <= self.v_esc) & (df[m1_col] <= max_mass) & (df[m2_col] <= max_mass)
+        mask = (df[kf_col] <= self.v_esc) & (df[m1_col] <= PISN_LB) & (df[m2_col] <= PISN_LB)
         return mask.mean() * 100.0
 
     @classmethod

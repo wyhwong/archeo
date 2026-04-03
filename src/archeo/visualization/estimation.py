@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-from archeo.constants.physics import TypicalHostEscapeVelocity
+from archeo.constants.physics import PISN_LB, PISN_UB, TypicalHostEscapeVelocity
 from archeo.data_structures.visualization import Labels, Padding
 from archeo.utils.logger import get_logger
 from archeo.visualization import base
@@ -87,8 +87,8 @@ def _add_pisn_gap(ax, color: str) -> None:
         color (str): Color.
     """
 
-    ax.axvline(65.0, color=color, linewidth=0.9, linestyle="--", label="PISN Gap")
-    ax.axvline(130.0, color=color, linewidth=0.9, linestyle="--")
+    ax.axvline(PISN_LB, color=color, linewidth=0.9, linestyle="--", label="PISN Gap")
+    ax.axvline(PISN_UB, color=color, linewidth=0.9, linestyle="--")
 
 
 def corner_estimates(  # pylint: disable=dangerous-default-value
@@ -235,7 +235,7 @@ def second_generation_probability_curve(
         # Calculate the CDF
         y = []
         for kick in x:
-            df_samples = df.loc[(df["k_f"] <= kick) & (df["m_1"] <= 65) & (df["m_2"] <= 65)]
+            df_samples = df.loc[(df["k_f"] <= kick) & (df["m_1"] <= PISN_LB) & (df["m_2"] <= PISN_LB)]
             if df_samples.empty:
                 y.append(0.0)
             else:
