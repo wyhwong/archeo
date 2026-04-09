@@ -146,13 +146,13 @@ class MassRatioBasedBinaryGenerator(BinaryGeneratorBase):
         """Generate a list of binaries based on the specified distributions and mass domain."""
 
         primary_masses, secondary_masses = self.sample_binary_masses(size)
-        primary_bhs = BlackHoleGenerator.combine_information(
+        primary_bhs = BlackHoleGenerator.build_black_holes(
             masses=primary_masses,
             spin_magnitudes=self.spin_magnitude_distribution.draw(size),
             phis=self.phi_distribution.draw(size),
             thetas=self.theta_distribution.draw(size),
         )
-        secondary_bhs = BlackHoleGenerator.combine_information(
+        secondary_bhs = BlackHoleGenerator.build_black_holes(
             masses=secondary_masses,
             spin_magnitudes=self.spin_magnitude_distribution.draw(size),
             phis=self.phi_distribution.draw(size),

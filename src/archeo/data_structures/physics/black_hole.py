@@ -79,15 +79,16 @@ class BlackHoleGenerator(BaseModel, frozen=True):
         phis = self.phi_distribution.draw(size=size)
         thetas = self.theta_distribution.draw(size=size)
 
-        return self.combine_information(masses, spin_magnitudes, phis, thetas)
+        return self.build_black_holes(masses, spin_magnitudes, phis, thetas)
 
     @staticmethod
-    def combine_information(
+    def build_black_holes(
         masses: list[float],
         spin_magnitudes: list[float],
         phis: list[float],
         thetas: list[float],
     ) -> BlackHoles:
+        """Combine the mass, spin magnitude, phi, and theta information to create a list of black holes."""
 
         black_holes = []
         for mass, spin_magnitude, phi, theta in zip(masses, spin_magnitudes, phis, thetas):
