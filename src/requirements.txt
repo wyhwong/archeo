@@ -8,7 +8,7 @@ astroid==4.0.4
     # via pylint
 astropy==7.2.0
     # via lalsuite
-astropy-iers-data==0.2026.4.1.15.5.49
+astropy-iers-data==0.2026.4.20.0.58.15
     # via astropy
 asttokens==3.0.1
     # via stack-data
@@ -47,7 +47,7 @@ executing==2.2.1
     # via stack-data
 fast-histogram==0.14
     # via mpl-scatter-density
-filelock==3.25.2
+filelock==3.29.0
     # via
     #   python-discovery
     #   virtualenv
@@ -61,7 +61,7 @@ gwtools==1.2.0
     # via gwsurrogate
 h5py==3.16.0
     # via surfinbh
-identify==2.6.18
+identify==2.6.19
     # via pre-commit
 igwn-ligolw==2.1.1
     # via lalsuite
@@ -93,7 +93,7 @@ jupyter-core==5.9.1
     #   jupyter-client
 kiwisolver==1.5.0
     # via matplotlib
-lalsuite==7.26.4
+lalsuite==7.26.9
     # via surfinbh
 lscsoft-glue==4.1.1
     # via lalsuite
@@ -133,7 +133,7 @@ numpy==2.4.4
     #   scipy
     #   seaborn
     #   surfinbh
-packaging==26.0
+packaging==26.1
     # via
     #   astropy
     #   ipykernel
@@ -149,7 +149,7 @@ pexpect==4.9.0 ; sys_platform != 'emscripten' and sys_platform != 'win32'
     # via ipython
 pillow==12.2.0
     # via matplotlib
-platformdirs==4.9.4
+platformdirs==4.9.6
     # via
     #   jupyter-core
     #   pylint
@@ -159,7 +159,7 @@ pluggy==1.6.0
     # via
     #   pytest
     #   pytest-cov
-pre-commit==4.5.1
+pre-commit==4.6.0
 prompt-toolkit==3.0.52
     # via ipython
 psutil==7.2.2
@@ -168,12 +168,12 @@ ptyprocess==0.7.0 ; sys_platform != 'emscripten' and sys_platform != 'win32'
     # via pexpect
 pure-eval==0.2.3
     # via stack-data
-pyarrow==23.0.1
+pyarrow==24.0.0
 pycparser==3.0 ; implementation_name == 'pypy'
     # via cffi
-pydantic==2.12.5
+pydantic==2.13.3
     # via archeo
-pydantic-core==2.41.5
+pydantic-core==2.46.3
     # via pydantic
 pyerfa==2.0.1.5
     # via astropy
@@ -186,7 +186,7 @@ pyinstrument==5.1.2
 pylint==4.0.5
 pyparsing==3.3.2
     # via matplotlib
-pytest==9.0.2
+pytest==9.0.3
     # via pytest-cov
 pytest-cov==7.1.0
 python-dateutil==2.9.0.post0
@@ -196,7 +196,7 @@ python-dateutil==2.9.0.post0
     #   lalsuite
     #   matplotlib
     #   pandas
-python-discovery==1.2.1
+python-discovery==1.2.2
     # via virtualenv
 pytz==2026.1.post1
     # via pandas
@@ -260,7 +260,7 @@ typing-inspection==0.4.2
     # via pydantic
 tzdata==2026.1
     # via pandas
-virtualenv==21.2.0
+virtualenv==21.2.4
     # via pre-commit
 wcwidth==0.6.0
     # via prompt-toolkit
