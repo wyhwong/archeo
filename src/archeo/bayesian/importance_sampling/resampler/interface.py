@@ -4,8 +4,8 @@ from tqdm import tqdm
 
 from archeo.bayesian.importance_sampling.resampler.assume_independence import ISDataAssumeIndependence
 from archeo.bayesian.importance_sampling.resampler.generic import ISDataGeneric
-from archeo.data_structures.annotation import Interface
 from archeo.data_structures.bayesian.bayes_factor import BayesFactor
+from archeo.data_structures.type_alias import Interface
 from archeo.utils.decorator import pre_release
 from archeo.utils.logger import get_logger
 from archeo.utils.parallel import multithread_run

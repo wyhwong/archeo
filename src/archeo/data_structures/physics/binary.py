@@ -5,10 +5,10 @@ import numpy as np
 from pydantic import BaseModel, NonNegativeFloat, PositiveFloat
 
 from archeo.constants.physics import BH_MASS_LB, PISN_LB
-from archeo.data_structures.annotation import Distribution
 from archeo.data_structures.distribution import Uniform
 from archeo.data_structures.math import Domain
 from archeo.data_structures.physics.black_hole import BlackHole, BlackHoleGenerator, BlackHoleSource
+from archeo.data_structures.type_alias import Distribution
 from archeo.utils.logger import get_logger
 
 

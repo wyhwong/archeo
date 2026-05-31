@@ -5,8 +5,8 @@ import pandas as pd
 from pydantic import BaseModel, NonNegativeFloat, PositiveFloat, field_validator
 
 from archeo.constants.physics import BH_MASS_LB, PISN_LB
-from archeo.data_structures.annotation import Distribution
 from archeo.data_structures.distribution import Uniform
+from archeo.data_structures.type_alias import Distribution
 
 
 class BlackHole(BaseModel, frozen=True):
