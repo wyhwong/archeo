@@ -21,7 +21,14 @@ class ImportanceSamplingData(ISDataGeneric, ISDataAssumeIndependence, Interface)
 
     @pre_release
     def get_likelihood_samples(self, random_state=42) -> np.ndarray:
-        """Get samples for likelihood function"""
+        """Dispatch likelihood-resampling method by model assumption.
+
+        Args:
+            random_state (int): Random seed for weighted sampling.
+
+        Returns:
+            np.ndarray: Resampled likelihood-like samples.
+        """
 
         if self.assume_parameter_independence:
             return self.get_likelihood_samples_1d(random_state=random_state)
@@ -30,12 +37,18 @@ class ImportanceSamplingData(ISDataGeneric, ISDataAssumeIndependence, Interface)
 
     @pre_release
     def get_bayes_factor(self, bootstrapping: bool = False) -> float:
-        """Compute the Bayes factor between two models
+        """Dispatch Bayes-factor computation by model assumption.
 
-        NOTE: In this implementation, the likelihood function remains untouched.
-        So that the Bayes factor is computed as the ratio of the new prior to the old prior.
-        Details please check importance sampling.
+        Args:
+            bootstrapping (bool): If ``True``, bootstrap sample sets before estimation.
+
+        Returns:
+            float: Bayes-factor estimate. Returns 0 if candidate prior is empty.
         """
+
+        # NOTE: In this implementation, the likelihood function remains untouched.
+        # So that the Bayes factor is computed as the ratio of the new prior to the old prior.
+        # Details please check importance sampling.
 
         if self.new_prior_samples.empty:
             return 0.0
@@ -47,7 +60,16 @@ class ImportanceSamplingData(ISDataGeneric, ISDataAssumeIndependence, Interface)
 
     @pre_release
     def sample_bayes_factor(self, n: int, is_parallel: bool = False, n_threads: int | None = None) -> BayesFactor:
-        """Sample the Bayes factor for the importance sampling"""
+        """Draw bootstrap samples of the Bayes factor.
+
+        Args:
+            n (int): Number of bootstrap draws.
+            is_parallel (bool): If ``True``, compute draws in parallel threads.
+            n_threads (int | None): Optional thread count for parallel mode.
+
+        Returns:
+            BayesFactor: Container of sampled Bayes-factor values.
+        """
 
         if self.new_prior_samples.empty:
             return BayesFactor(samples=[0.0] * n)
@@ -75,7 +97,14 @@ class ImportanceSamplingData(ISDataGeneric, ISDataAssumeIndependence, Interface)
 
     @pre_release
     def get_reweighted_samples(self, random_state=42) -> pd.DataFrame:
-        """Get the reweighted samples for the importance sampling"""
+        """Dispatch posterior reweighting by model assumption.
+
+        Args:
+            random_state (int): Random seed for weighted sampling.
+
+        Returns:
+            pd.DataFrame: Reweighted posterior samples.
+        """
 
         if self.assume_parameter_independence:
             return self.get_reweighted_samples_1d(random_state=random_state)

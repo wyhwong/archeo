@@ -1,0 +1,11 @@
+[default.extend-identifiers]
+NRSur3dq8Remnant = "NRSur3dq8Remnant"
+NRSur7dq4Remnant = "NRSur7dq4Remnant"
+surfinBH7dq2 = "surfinBH7dq2"
+
+# Optional: if you have many similar names
+[default]
+extend-ignore-identifiers-re = [
+  "\\bNRSur\\d+dq\\d+Remnant\\b",
+  "\\bsurfinBH\\d+dq\\d+\\b",
+]

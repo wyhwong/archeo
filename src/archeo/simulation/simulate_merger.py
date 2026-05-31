@@ -9,6 +9,17 @@ from archeo.utils.parallel import multiprocess_run, multithread_run
 
 
 def _simulate_black_hole_merger(binary: Binary, loaded_fits) -> BlackHole:
+    """Simulate a single binary merger and return remnant black-hole properties.
+
+    Args:
+        binary (Binary): Input binary system.
+        loaded_fits: Preloaded surrogate-fit object implementing ``vf``, ``chif``,
+            and ``mf``.
+
+    Returns:
+        BlackHole: Remnant black hole inferred from the surrogate model.
+    """
+
     q = binary.primary_black_hole.mass / binary.secondary_black_hole.mass
     birth_recoil_vec, birth_recoil_vec_err = loaded_fits.vf(  # pylint: disable=unused-variable
         q,
@@ -39,16 +50,16 @@ def _simulate_black_hole_mergers(
     size: int,
     random_state: int = 42,
 ) -> BlackHoleMergers:
-    """Simulate black hole mergers.
+    """Simulate a batch of black-hole mergers in a single process.
 
     Args:
-        binary_generator (BinaryGenerator): Binary generator to draw binaries from
-        fits (Fits): surfinBH model to use for the simulation
-        size (int): Number of mergers to simulate
-        random_state (int): Random state for reproducibility. Default is 42.
+        binary_generator (BinaryGenerator): Binary source generator.
+        fits (Fits): Surrogate model enum entry.
+        size (int): Number of mergers to simulate.
+        random_state (int): Seed for reproducibility.
 
     Returns:
-        BlackHoleMergers: List of tuples containing the binaries and their resulting black holes
+        BlackHoleMergers: List of ``(binary, remnant)`` tuples.
     """
 
     np.random.seed(random_state)
@@ -69,16 +80,17 @@ def simulate_black_hole_mergers(
     n_workers: int = 1,
     random_state: int = 42,
 ) -> BlackHoleMergers:
-    """Simulate black hole mergers.
+    """Simulate black-hole mergers with optional multiprocessing.
 
     Args:
-        binary_generator (BinaryGenerator): Binary generator to draw binaries from
-        fits (Fits): surfinBH model to use for the simulation
-        size (int): Number of mergers to simulate
-        n_workers (int): Number of worker processes to use for parallelization. Default is 1.
-        random_state (int): Random state for reproducibility. Default is 42.
+        binary_generator (BinaryGenerator): Binary source generator.
+        fits (Fits): Surrogate model enum entry.
+        size (int): Number of mergers to simulate.
+        n_workers (int): Number of worker processes.
+        random_state (int): Base random seed.
+
     Returns:
-        BlackHoleMergers: List of tuples containing the binaries and their resulting black holes
+        BlackHoleMergers: List of ``(binary, remnant)`` tuples.
     """
 
     if n_workers == 1:

@@ -5,10 +5,20 @@ from archeo.postprocessing.eval_utils.kl import compute_kl_divergence_from_sampl
 
 
 def evaluate_ancestral_inference(df_samples: pd.DataFrame) -> dict[str, float]:
-    """Evaluate the validity of the estimated posterior samples by computing:
-    1. Estimation bias: the average difference between the estimated parameters and the true parameters
-    2. KL divergence between the Gaussian fitted to the estimated samples and the Gaussian fitted to
-       the true parameters.
+    """Compute summary metrics for ancestral posterior recovery quality.
+
+    Metrics include spin bias, mass bias, and Gaussian KL divergence between
+    inferred remnant samples and measured targets.
+
+    Args:
+        df_samples (pd.DataFrame): Evaluation dataframe containing inferred and
+            measured columns.
+
+    Returns:
+        dict[str, float]: Dictionary with keys:
+            - ``bias_spin``
+            - ``bias_mass``
+            - ``kl_divergence``
     """
 
     bias_spin = compute_bias_for_remnant_spin(df_samples)

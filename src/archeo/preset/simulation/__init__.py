@@ -29,7 +29,7 @@ BINARY_GENERATION_PIPELINE_STORE = {
 
 AVAILABLE_PIPELINES = list(BINARY_GENERATION_PIPELINE_STORE.keys())
 CLI_USEABLE_PIPELINES = [
-    "agnostic_precessing_spin",
+    "agnostic_precession_spin",
     "agnostic_aligned_spin",
     "2g_precession_spin",
     "2g_aligned_spin",
@@ -37,22 +37,25 @@ CLI_USEABLE_PIPELINES = [
 
 
 def get_binary_generation_pipeline(name: str) -> Callable[..., PipelineOutput]:
-    """Get the binary generation pipeline by name.
+    """Resolve a named binary-generation pipeline callable.
 
     Args:
-        name (str): The name of the binary generation pipeline. Must be one of:
-            - "agnostic_precessing_spin"
-            - "agnostic_aligned_spin"
-            - "2g_precessing_spin"
-            - "2g_aligned_spin"
-            - "ng_precessing_spin"
-            - "ng_aligned_spin"
+        name (str): Pipeline name. Must be one of keys in
+            ``BINARY_GENERATION_PIPELINE_STORE``.
+            The following pipelines are available for CLI use:
+            - ``agnostic_precession_spin``
+            - ``agnostic_aligned_spin``
+            - ``2g_precession_spin``
+            - ``2g_aligned_spin``
+            - ``ng_precession_spin``
+            - ``ng_aligned_spin``
 
     Returns:
-        Callable: The binary generation function corresponding to the given name.
+        Callable[..., PipelineOutput]: Pipeline function returning simulated dataframe
+        and generator config object.
 
     Raises:
-        ValueError: If the provided name is not in the BINARY_STORE.
+        ValueError: If ``name`` is not a registered pipeline.
     """
 
     if name not in BINARY_GENERATION_PIPELINE_STORE:

@@ -8,10 +8,25 @@ LOGGER = get_logger(__name__)
 
 
 def pre_release(func: Callable) -> Callable:
-    """Decorator to mark a function as a pre-release feature."""
+    """Mark a callable as pre-release and emit warning on invocation.
+
+    Args:
+        func (Callable): Function to wrap.
+
+    Returns:
+        Callable: Wrapped function.
+    """
 
     def wrapper(*args, **kwargs):
-        """Wrapper function to log a warning message before executing the decorated function."""
+        """Execute wrapped function with optional pre-release warning.
+
+        Args:
+            *args: Positional arguments for wrapped function.
+            **kwargs: Keyword arguments for wrapped function.
+
+        Returns:
+            Any: Wrapped function return value.
+        """
 
         if ENABLE_PRERELEASE_WARNING:
             LOGGER.warning(

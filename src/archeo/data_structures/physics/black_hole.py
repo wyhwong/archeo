@@ -10,7 +10,11 @@ from archeo.data_structures.type_alias import Distribution
 
 
 class BlackHole(BaseModel, frozen=True):
-    """Black hole data class"""
+    """Single black-hole state with mass and spin-vector components.
+
+    Stores scalar mass and Cartesian spin components, and exposes convenient
+    derived spin projections (orbital-plane and z-axis components).
+    """
 
     mass: PositiveFloat
     spin_magnitude: PositiveFloat
@@ -19,13 +23,21 @@ class BlackHole(BaseModel, frozen=True):
 
     @property
     def horizontal_spin(self) -> float:
-        """Calculate the horizontal spin component of the black hole."""
+        """Return magnitude of spin component in the orbital plane.
+
+        Returns:
+            float: Horizontal spin magnitude.
+        """
 
         return np.sqrt(self.spin_vector[0] ** 2 + self.spin_vector[1] ** 2)
 
     @property
     def vertical_spin(self) -> float:
-        """Calculate the vertical spin component of the black hole."""
+        """Return spin component along the z-axis.
+
+        Returns:
+            float: Vertical spin component.
+        """
 
         return self.spin_vector[2]
 
@@ -34,7 +46,11 @@ BlackHoles: TypeAlias = list[BlackHole]
 
 
 class BlackHoleGenerator(BaseModel, frozen=True):
-    """Black hole generator data class."""
+    """Parametric generator for black-hole samples.
+
+    Draws masses and spin angles/magnitudes from configured distributions and
+    converts sampled spherical spin parameters into Cartesian spin components.
+    """
 
     mass_distribution: Distribution = Uniform(low=BH_MASS_LB, high=PISN_LB)
     spin_magnitude_distribution: Distribution = Uniform(low=0, high=1)
@@ -44,7 +60,17 @@ class BlackHoleGenerator(BaseModel, frozen=True):
     @field_validator("spin_magnitude_distribution", mode="before")
     @classmethod
     def validate_spin_magnitude_distribution(cls, v):
-        """Validate that the spin magnitude distribution is within the range [0, 1]."""
+        """Validate spin-magnitude support is within [0, 1].
+
+        Args:
+            v: Candidate distribution object.
+
+        Returns:
+            Any: Unchanged validated distribution.
+
+        Raises:
+            ValueError: If distribution support falls outside [0, 1].
+        """
 
         if (v.min < 0) or (v.max > 1):
             raise ValueError("Spin magnitude distribution must be within the range [0, 1].")
@@ -54,7 +80,17 @@ class BlackHoleGenerator(BaseModel, frozen=True):
     @field_validator("phi_distribution", mode="before")
     @classmethod
     def validate_phi_distribution(cls, v):
-        """Validate that the phi distribution is within the range [0, 2 * pi]."""
+        """Validate azimuthal-angle support is within [0, 2*pi].
+
+        Args:
+            v: Candidate distribution object.
+
+        Returns:
+            Any: Unchanged validated distribution.
+
+        Raises:
+            ValueError: If distribution support falls outside [0, 2*pi].
+        """
 
         if (v.min < 0) or (v.max > 2 * np.pi):
             raise ValueError("Phi distribution must be within the range [0, 2 * pi].")
@@ -64,7 +100,17 @@ class BlackHoleGenerator(BaseModel, frozen=True):
     @field_validator("theta_distribution", mode="before")
     @classmethod
     def validate_theta_distribution(cls, v):
-        """Validate that the theta distribution is within the range [0, pi]."""
+        """Validate polar-angle support is within [0, pi].
+
+        Args:
+            v: Candidate distribution object.
+
+        Returns:
+            Any: Unchanged validated distribution.
+
+        Raises:
+            ValueError: If distribution support falls outside [0, pi].
+        """
 
         if (v.min < 0) or (v.max > np.pi):
             raise ValueError("Theta distribution must be within the range [0, pi].")
@@ -72,7 +118,14 @@ class BlackHoleGenerator(BaseModel, frozen=True):
         return v
 
     def draw(self, size: int = 1) -> BlackHoles:
-        """Generate a list of black holes based on the specified distributions."""
+        """Draw black-hole samples from configured parameter distributions.
+
+        Args:
+            size (int): Number of black holes to generate.
+
+        Returns:
+            BlackHoles: Generated black-hole list.
+        """
 
         masses = self.mass_distribution.draw(size=size)
         spin_magnitudes = self.spin_magnitude_distribution.draw(size=size)
@@ -88,7 +141,17 @@ class BlackHoleGenerator(BaseModel, frozen=True):
         phis: list[float],
         thetas: list[float],
     ) -> BlackHoles:
-        """Combine the mass, spin magnitude, phi, and theta information to create a list of black holes."""
+        """Assemble black-hole objects from sampled scalar parameters.
+
+        Args:
+            masses (list[float]): Mass samples.
+            spin_magnitudes (list[float]): Spin magnitude samples.
+            phis (list[float]): Azimuthal angles.
+            thetas (list[float]): Polar angles.
+
+        Returns:
+            BlackHoles: Constructed black-hole objects with Cartesian spin vectors.
+        """
 
         black_holes = []
         for mass, spin_magnitude, phi, theta in zip(masses, spin_magnitudes, phis, thetas):
@@ -103,12 +166,24 @@ class BlackHoleGenerator(BaseModel, frozen=True):
 
 
 class BlackHolePopulation(BaseModel, frozen=True):
-    """Black hole population data class."""
+    """Finite black-hole population with replacement-based resampling.
+
+    Holds a fixed collection of black holes and supports random draws with
+    replacement for Monte Carlo workflows. Can also be constructed from simulation
+    remnant tables.
+    """
 
     black_holes: BlackHoles
 
     def draw(self, size: int = 1) -> BlackHoles:
-        """Draw a sample of black holes from the population."""
+        """Sample black holes with replacement from a stored population.
+
+        Args:
+            size (int): Number of black holes to draw.
+
+        Returns:
+            BlackHoles: Drawn black-hole list.
+        """
 
         return np.random.choice(self.black_holes, size=size, replace=True).tolist()
 
@@ -119,7 +194,16 @@ class BlackHolePopulation(BaseModel, frozen=True):
         phi_distribution: Distribution = Uniform(low=0, high=2 * np.pi),
         theta_distribution: Distribution = Uniform(low=0, high=np.pi),
     ) -> "BlackHolePopulation":
-        """Create a black hole population from simulation results."""
+        """Build a black-hole population from remnant columns in a simulation dataframe.
+
+        Args:
+            df (pd.DataFrame): Simulation dataframe containing remnant mass, spin, and kick.
+            phi_distribution (Distribution): Distribution for azimuthal angles.
+            theta_distribution (Distribution): Distribution for polar angles.
+
+        Returns:
+            BlackHolePopulation: Population object constructed from remnant entries.
+        """
 
         phis = phi_distribution.draw(size=len(df))
         thetas = theta_distribution.draw(size=len(df))

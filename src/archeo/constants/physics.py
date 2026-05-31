@@ -27,14 +27,32 @@ class TypicalHostEscapeVelocity(enum.Enum):
 
     @property
     def v_esc(self) -> float:
+        """Return host escape velocity.
+
+        Returns:
+            float: Escape velocity in km/s.
+        """
+
         return self.value.v_esc
 
     @property
     def short(self) -> str:
+        """Return short host label.
+
+        Returns:
+            str: Abbreviated host name.
+        """
+
         return self.value.short
 
     @property
     def latex(self) -> str:
+        """Return display label string.
+
+        Returns:
+            str: Label representation.
+        """
+
         return self.value.latex
 
     def compute_p2g(
@@ -44,7 +62,17 @@ class TypicalHostEscapeVelocity(enum.Enum):
         m1_col: str = "m_1",
         m2_col: str = "m_2",
     ) -> float:
-        """Probability of being 2nd-generation under this escape velocity."""
+        """Compute second-generation percentage under this host escape velocity.
+
+        Args:
+            df (pd.DataFrame): Sample dataframe containing kick and component masses.
+            kf_col (str): Kick-velocity column name.
+            m1_col (str): Primary-mass column name.
+            m2_col (str): Secondary-mass column name.
+
+        Returns:
+            float: Percentage of rows satisfying 2G criteria.
+        """
 
         if df.empty:
             return 0.0
@@ -54,8 +82,20 @@ class TypicalHostEscapeVelocity(enum.Enum):
 
     @classmethod
     def latex_to_values(cls) -> dict[str, float]:
+        """Map display labels to escape-velocity values.
+
+        Returns:
+            dict[str, float]: Label-to-velocity mapping.
+        """
+
         return {m.latex: m.v_esc for m in cls}
 
     @classmethod
     def short_to_values(cls) -> dict[str, float]:
+        """Map short host labels to escape-velocity values.
+
+        Returns:
+            dict[str, float]: Abbreviation-to-velocity mapping.
+        """
+
         return {m.short: m.v_esc for m in cls}

@@ -2,9 +2,21 @@ import numpy as np
 
 
 def compute_kl_divergence_from_samples(X: np.ndarray, Y: np.ndarray) -> float:
-    """
-    Compute KL(N0 || N1) where N0 and N1 are multivariate Gaussians.
-    X and Y should be 2D arrays of shape (n, d) and (m, d) respectively.
+    """Estimate Gaussian KL divergence between two sample clouds.
+
+    The function fits multivariate Gaussian distributions to ``X`` and ``Y`` using
+    sample means and sample covariance matrices, then computes
+    ``KL(N_X || N_Y)``.
+
+    Args:
+        X (np.ndarray): Array of shape ``(n_samples_x, n_features)``.
+        Y (np.ndarray): Array of shape ``(n_samples_y, n_features)``.
+
+    Returns:
+        float: Estimated KL divergence.
+
+    Raises:
+        ValueError: If feature dimensions of ``X`` and ``Y`` do not match.
     """
 
     if X.shape[1] != Y.shape[1]:

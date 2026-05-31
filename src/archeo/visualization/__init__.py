@@ -18,12 +18,15 @@ from archeo.visualization.estimation import (
 
 
 def visualize_prior_distribution(prior: pd.DataFrame, output_dir: str, fmt: str = "png") -> None:
-    """Visualize the prior distribution of the mass, spin, and precession of the black holes.
+    """Generate the full standard visualization suite for prior samples.
 
     Args:
-        prior (pd.DataFrame): The prior samples.
-        output_dir (str): The directory where the visualizations will be saved.
-        fmt (str): The format of the visualizations. Defaults to "png".
+        prior (pd.DataFrame): Prior sample dataframe.
+        output_dir (str): Directory for output figures/animations.
+        fmt (str): Static figure format.
+
+    Returns:
+        None
     """
 
     check_and_create_dir(output_dir)
@@ -43,12 +46,15 @@ def visualize_posterior_estimation(
     output_dir: str,
     fmt: str = "png",
 ) -> None:
-    """Visualize the posterior estimation of the mass, spin, and precession of the black holes.
+    """Generate posterior diagnostic plots and summary tables.
 
     Args:
-        dfs (dict[str, pd.DataFrame]): A dictionary of dataframes with the posterior samples.
-        output_dir (str): The directory where the visualizations will be saved.
-        fmt (str): The format of the visualizations. Defaults to "png".
+        dfs (dict[str, pd.DataFrame]): Mapping from label to posterior dataframe.
+        output_dir (str): Directory for output artifacts.
+        fmt (str): Static figure format.
+
+    Returns:
+        None
     """
 
     check_and_create_dir(output_dir)

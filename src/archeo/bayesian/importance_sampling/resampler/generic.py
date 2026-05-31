@@ -10,7 +10,16 @@ LOGGER = get_logger(__name__)
 
 
 def get_histogram_dd(samples: np.ndarray, nbins: list[int], bounds: list[Domain]) -> np.ndarray:
-    """Compute the histogram of the samples"""
+    """Estimate a multi-dimensional density histogram over fixed bounds.
+
+    Args:
+        samples (np.ndarray): Sample matrix of shape ``(n, d)``.
+        nbins (list[int]): Bin counts per dimension.
+        bounds (list[Domain]): Domain bounds per dimension.
+
+    Returns:
+        np.ndarray: Multi-dimensional density histogram.
+    """
 
     hist, edges = np.histogramdd(samples, bins=nbins, density=True, range=[b.to_tuple() for b in bounds])
 
@@ -30,7 +39,14 @@ class ISDataGeneric(ImportanceSamplingDataBase):
     """Importance sampling data for generic resampler"""
 
     def _get_hist_dd(self, df_samples: pd.DataFrame) -> np.ndarray:
-        """Get the histogram for a given column name"""
+        """Compute multi-dimensional histogram from dataframe columns.
+
+        Args:
+            df_samples (pd.DataFrame): Input samples.
+
+        Returns:
+            np.ndarray: Density histogram.
+        """
 
         nbins = [self.get_nbins(col) for col in df_samples.columns]
         bounds = [self.bounds[col] for col in df_samples.columns]
@@ -38,7 +54,14 @@ class ISDataGeneric(ImportanceSamplingDataBase):
         return get_histogram_dd(samples_array, nbins=nbins, bounds=bounds)
 
     def get_likelihood_samples_dd(self, random_state=42) -> np.ndarray:
-        """Get samples for likelihood function"""
+        """Resample posterior to approximate likelihood in joint space.
+
+        Args:
+            random_state (int): Random seed for weighted sampling.
+
+        Returns:
+            np.ndarray: Resampled posterior-like samples.
+        """
 
         edges = {}
         for col in self.common_columns:
@@ -62,7 +85,11 @@ class ISDataGeneric(ImportanceSamplingDataBase):
         )
 
     def _get_posterior_sample_weights_dd(self) -> pd.Series:
-        """Get the weights for the importance sampling"""
+        """Compute multi-dimensional importance weights for posterior rows.
+
+        Returns:
+            pd.Series: Row-wise importance weights.
+        """
 
         edges = {}
         for col in self.common_columns:
@@ -81,7 +108,14 @@ class ISDataGeneric(ImportanceSamplingDataBase):
         return self.posterior_samples.apply(_get_pdf, axis=1)
 
     def get_bayes_factor_dd(self, bootstrapping: bool = False) -> float:
-        """Compute the Bayes factor between two models"""
+        """Compute Bayes factor using joint multi-dimensional histograms.
+
+        Args:
+            bootstrapping (bool): If ``True``, bootstrap all sample sets first.
+
+        Returns:
+            float: Bayes-factor estimate.
+        """
 
         if bootstrapping:
             return self._get_bayes_factor_dd(
@@ -102,12 +136,20 @@ class ISDataGeneric(ImportanceSamplingDataBase):
         posterior_samples: pd.DataFrame,
         new_prior_samples: pd.DataFrame,
     ) -> float:
-        """Compute the Bayes factor between two models
+        """Compute Bayes factor from explicit dataframe inputs (joint form).
 
-        NOTE: In this implementation, the likelihood function remains untouched.
-        So that the Bayes factor is computed as the ratio of the new prior to the old prior.
-        Details please check importance sampling.
+        Args:
+            prior_samples (pd.DataFrame): Baseline prior samples.
+            posterior_samples (pd.DataFrame): Posterior samples.
+            new_prior_samples (pd.DataFrame): Candidate prior samples.
+
+        Returns:
+            float: Bayes-factor estimate.
         """
+
+        # NOTE: In this implementation, the likelihood function remains untouched.
+        # So that the Bayes factor is computed as the ratio of the new prior to the old prior.
+        # Details please check importance sampling.
 
         bf = 1.0
 
@@ -120,7 +162,14 @@ class ISDataGeneric(ImportanceSamplingDataBase):
         return bf
 
     def get_reweighted_samples_dd(self, random_state=42) -> pd.DataFrame:
-        """Get the reweighted samples for the importance sampling"""
+        """Draw posterior samples reweighted in joint parameter space.
+
+        Args:
+            random_state (int): Random seed for weighted resampling.
+
+        Returns:
+            pd.DataFrame: Reweighted posterior samples.
+        """
 
         weights = self._get_posterior_sample_weights_dd()
 

@@ -10,12 +10,15 @@ LOGGER = get_logger(__name__)
 
 
 class Fits(enum.StrEnum):
-    """Surrogate models for binary black hole merger simulations.
+    """Enumeration of supported surfinBH fit models.
+
+    Provides resilient lazy-loading helpers with retry and cache-cleanup utilities
+    for corrupted model downloads.
 
     Attributes:
-        NRSur3dq8Remnant: non precessing BHs with mass ratio<=8, anti-/aligned spin <= 0.8.
-        NRSur7dq4Remnant: precessing BHs with mass ratio<=4, generic spin <= 0.8.
-        surfinBH7dq2: precessing BHs with mass ratio <= 2, generic spin <= 0.8.
+        NRSur3dq8Remnant: non precession BHs with mass ratio<=8, anti-/aligned spin <= 0.8.
+        NRSur7dq4Remnant: precession BHs with mass ratio<=4, generic spin <= 0.8.
+        surfinBH7dq2: precession BHs with mass ratio <= 2, generic spin <= 0.8.
 
     Details please refer to https://pypi.org/project/surfinBH/.
     """
@@ -30,10 +33,13 @@ class Fits(enum.StrEnum):
         retry=retry_if_exception_type(RuntimeError),
     )
     def load(self):
-        """Load a surfinBH fits.
+        """Load and return the configured surfinBH fit model.
 
         Returns:
-            fits (surfinBH.surfinBH.SurFinBH): The loaded fits.
+            Any: Loaded surfinBH fit object.
+
+        Notes:
+            Applies retry logic and a NumPy compatibility workaround before loading.
         """
 
         import numpy as np  # pylint: disable=import-outside-toplevel
@@ -60,13 +66,10 @@ class Fits(enum.StrEnum):
 
     @staticmethod
     def clean_up_surfinbh_data():
-        """Clean up the surfinBH data directory.
+        """Remove cached surfinBH data files to recover from corrupted downloads.
 
-        We clean up in two situations:
-        1. KeyError: this seems to be a bug in surfinBH,
-           when installing the latest version (1.2.6).
-        2. OSError: this happens when we interrupt the download
-           of the surfinBH data files.
+        Returns:
+            None
         """
 
         import surfinBH  # pylint: disable=import-outside-toplevel

@@ -12,7 +12,21 @@ def compute_bayes_factor_curve_over_escape_velocity(
     df_bh2_binaries: pd.DataFrame,
     n_workers: int = 1,
 ) -> pd.DataFrame:
-    """Compute the Bayes factor curve for the given prior and posterior distributions."""
+    """Compute Bayes-factor curve values across host escape velocities.
+
+    Args:
+        df_prior (pd.DataFrame): Baseline prior samples.
+        df_posterior (pd.DataFrame): Posterior samples to reweight.
+        df_bh1_binaries (pd.DataFrame): Candidate-prior dataframe for first-parent
+            black holes. Must include ``v_esc``.
+        df_bh2_binaries (pd.DataFrame): Candidate-prior dataframe for second-parent
+            black holes. Must include ``v_esc``.
+        n_workers (int): Number of worker processes used for curve sampling.
+
+    Returns:
+        pd.DataFrame: Tabular Bayes-factor curve with confidence interval bounds,
+        median values, and curve metadata for each escape velocity.
+    """
 
     n_workers = get_n_workers(n_workers)
 

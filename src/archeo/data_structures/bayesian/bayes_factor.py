@@ -7,17 +7,32 @@ from archeo.constants.bayesian import ASSUME_PARAMETER_INDEPENDENCE, DEFAULT_BIN
 
 
 class BayesFactor(BaseModel, frozen=True):
-    """Data class for Bayes factor with bootstrapping samples."""
+    """Bootstrap-based Bayes-factor summary container.
+
+    Stores Bayes-factor samples and provides robust summary statistics such as
+    median and equal-tail confidence intervals.
+    """
 
     samples: list[float]
 
     def median(self) -> float:
-        """Get the median of the samples."""
+        """Return median Bayes factor across bootstrap samples.
+
+        Returns:
+            float: Median value.
+        """
 
         return float(np.median(self.samples))
 
     def confidence_interval(self, percent: float = 90.0) -> tuple[float, float]:
-        """Get the confidence interval of the samples."""
+        """Compute equal-tail confidence interval from bootstrap samples.
+
+        Args:
+            percent (float): Credible interval mass in percent.
+
+        Returns:
+            tuple[float, float]: Lower and upper interval bounds.
+        """
 
         lower_percentile = (100 - percent) / 2
         upper_percentile = 100 - lower_percentile

@@ -9,7 +9,12 @@ from archeo.utils.parallel import multiprocess_run
 
 
 class CandidatePrior(BaseModel):
-    """Data class for candidate prior samples."""
+    """Container for candidate-prior components used in Bayes-factor curves.
+
+    Args:
+        df_bh1 (pd.DataFrame): Candidate prior component for first parent BH.
+        df_bh2 (pd.DataFrame): Candidate prior component for second parent BH.
+    """
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -17,11 +22,23 @@ class CandidatePrior(BaseModel):
     df_bh2: pd.DataFrame
 
     # Validation:
-    # 1. Check df_bh1 and df_bh2 do not have any overlapping colunms except for "v_esc"
+    # 1. Check df_bh1 and df_bh2 do not have any overlapping columns except for "v_esc"
     # 2. Check df_bh1 and df_bh2 have "v_esc" column
     @model_validator(mode="after")
     @classmethod
     def validate_dataframes(cls, values):
+        """Validate candidate-prior dataframe compatibility.
+
+        Args:
+            values: CandidatePrior instance under validation.
+
+        Returns:
+            CandidatePrior: Validated instance.
+
+        Raises:
+            ValueError: If ``v_esc`` is missing in either dataframe or if non-``v_esc``
+            overlapping columns are present.
+        """
 
         if ("v_esc" not in values.df_bh1.columns) or ("v_esc" not in values.df_bh2.columns):
             raise ValueError("Both df_bh1 and df_bh2 must have 'v_esc' column.")
@@ -33,7 +50,16 @@ class CandidatePrior(BaseModel):
         return values
 
     def get_conditional_prior(self, v_esc: float, n_min: int = 500000, random_state: int = 42) -> pd.DataFrame:
-        """Get the prior samples for the given escape velocity threshold."""
+        """Build conditional candidate prior at an escape-velocity threshold.
+
+        Args:
+            v_esc (float): Maximum host escape velocity retained.
+            n_min (int): Minimum number of sampled rows per side before concatenation.
+            random_state (int): Seed for reproducible resampling.
+
+        Returns:
+            pd.DataFrame: Concatenated conditional prior dataframe for the threshold.
+        """
 
         df_bh1_prior = self.df_bh1.loc[self.df_bh1["v_esc"] <= v_esc]
         df_bh2_prior = self.df_bh2.loc[self.df_bh2["v_esc"] <= v_esc]
@@ -52,6 +78,16 @@ class CandidatePrior(BaseModel):
         return conditional_prior
 
     def get_host_escape_velocities(self, n_pts: int = 50, log_scale: bool = True) -> list[float]:
+        """Generate evaluation grid of escape velocities.
+
+        Args:
+            n_pts (int): Number of velocity grid points before optional extension.
+            log_scale (bool): If ``True``, use logarithmic spacing; otherwise linear.
+
+        Returns:
+            list[float]: Escape-velocity grid, with an added terminal 5000 value when
+            not already covered.
+        """
 
         v_esc_min = min(self.df_bh1["v_esc"].min(), self.df_bh2["v_esc"].min())
         v_esc_max = max(self.df_bh1["v_esc"].max(), self.df_bh2["v_esc"].max())
@@ -83,6 +119,17 @@ class BayesFactorCurve(BaseModel, frozen=True):
         candidate_prior: CandidatePrior,
         v_esc: float,
     ) -> BayesFactor:
+        """Sample Bayes-factor bootstrap distribution at one velocity value.
+
+        Args:
+            prior (pd.DataFrame): Baseline prior samples.
+            posterior (pd.DataFrame): Posterior samples.
+            candidate_prior (CandidatePrior): Candidate prior provider.
+            v_esc (float): Escape velocity threshold.
+
+        Returns:
+            BayesFactor: Bootstrap Bayes-factor samples.
+        """
 
         return ISData(
             prior_samples=prior,
@@ -101,6 +148,17 @@ class BayesFactorCurve(BaseModel, frozen=True):
         candidate_prior: CandidatePrior,
         n_workers: int = 1,
     ) -> BayesFactorCurveData:
+        """Compute Bayes factors over a grid of host escape velocities.
+
+        Args:
+            prior (pd.DataFrame): Baseline prior samples.
+            posterior (pd.DataFrame): Posterior samples.
+            candidate_prior (CandidatePrior): Candidate prior provider.
+            n_workers (int): Number of worker processes.
+
+        Returns:
+            BayesFactorCurveData: Mapping from escape velocity to sampled Bayes factor.
+        """
 
         v_escs = candidate_prior.get_host_escape_velocities(n_pts=self.n_pts, log_scale=self.log_scale)
 

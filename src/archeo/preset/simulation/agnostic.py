@@ -11,20 +11,17 @@ from archeo.utils.parallel import get_n_workers
 def simulate_agnostic_precession_spin_binaries(
     size: int = 1000, n_workers: int = 1, random_state: int = 42
 ) -> PipelineOutput:
-    """Simulate a population of agnostic precession spin binaries.
+    """Simulate agnostic binaries with precession spins.
 
     Args:
-        size (int): The number of binaries to simulate.
-            Default is 1,000.
-        n_workers (int): The number of workers to use for parallel processing.
-            Default is 1.
-            If -1, it will use all available cores.
-        random_state (int): Random state for reproducibility. Default is 42.
+        size (int): Number of binaries to simulate.
+        n_workers (int): Number of workers. Use `-1` for all available cores.
+        random_state (int): Seed for reproducibility.
 
     Returns:
-        SimulationOutput: tuple(pd.DataFrame, BinaryGenerator)
-            The dataframe contains the simulated binaries and their properties.
-            The BinaryGenerator contains the black hole generator used for the simulation.
+        PipelineOutput: Tuple containing:
+            - pd.DataFrame: Simulated binary/remnant records.
+            - BinaryGenerator: Generator used for simulation.
     """
 
     n_workers = get_n_workers(n_workers)
@@ -45,20 +42,17 @@ def simulate_agnostic_precession_spin_binaries(
 def simulate_agnostic_aligned_spin_binaries(
     size: int = 1000, n_workers: int = 1, random_state: int = 42
 ) -> PipelineOutput:
-    """Simulate a population of agnostic aligned spin binaries.
+    """Simulate agnostic binaries with aligned spins.
 
     Args:
-        size (int): The number of binaries to simulate.
-            Default is 1,000.
-        n_workers (int): The number of workers to use for parallel processing.
-            Default is 1.
-            If -1, it will use all available cores.
-        random_state (int): Random state for reproducibility. Default is 42.
+        size (int): Number of binaries to simulate.
+        n_workers (int): Number of workers. Use `-1` for all available cores.
+        random_state (int): Seed for reproducibility.
 
     Returns:
-        SimulationOutput: tuple(pd.DataFrame, BinaryGenerator)
-            The dataframe contains the simulated binaries and their properties.
-            The BinaryGenerator contains the black hole generator used for the simulation.
+        PipelineOutput: Tuple containing:
+            - pd.DataFrame: Simulated binary/remnant records.
+            - BinaryGenerator: Generator used for simulation.
     """
 
     n_workers = get_n_workers(n_workers)

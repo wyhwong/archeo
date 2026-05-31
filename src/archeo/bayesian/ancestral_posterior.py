@@ -12,7 +12,19 @@ def _retrieve_sample(
     binsize_mass: float = DEFAULT_BINSIZE_MASS,
     binsize_spin: float = DEFAULT_BINSIZE_SPIN,
 ) -> pd.DataFrame:
-    """Retrieve the samples from data frame of binaries"""
+    """Retrieve one ancestral sample compatible with measured remnant values.
+
+    Args:
+        df_binaries (pd.DataFrame): Prior binary/remnant catalog.
+        mass_measure (float): Measured remnant mass.
+        spin_measure (float): Measured remnant spin.
+        binsize_mass (float): Mass bin width used for local matching.
+        binsize_spin (float): Spin bin width used for local matching.
+
+    Returns:
+        pd.DataFrame: Single-row sample with added columns ``logL``,
+        ``spin_measure``, and ``mass_measure``.
+    """
 
     # Find the possible samples in the prior
     possible_samples = df_binaries.loc[
@@ -42,6 +54,24 @@ def infer_ancestral_posterior_distribution(
     random_state: int = 42,
     n_workers: int = 1,
 ) -> pd.DataFrame:
+    """Infer ancestral posterior samples by lookup-and-resample from a prior bank.
+
+    Args:
+        df_binaries (pd.DataFrame): Prior binary/remnant catalog.
+        mass_posterior_samples (list[float]): Measured remnant mass samples.
+        spin_posterior_samples (list[float]): Measured remnant spin samples.
+        binsize_mass (float): Mass matching bin width.
+        binsize_spin (float): Spin matching bin width.
+        random_state (int): Base random seed.
+        n_workers (int): Number of worker processes. Use `-1` for all cores.
+
+    Returns:
+        pd.DataFrame: Concatenated ancestral posterior samples aligned with input
+        measurement samples.
+
+    Raises:
+        ValueError: If mass and spin sample lists have different lengths.
+    """
 
     if len(mass_posterior_samples) != len(spin_posterior_samples):
         raise ValueError("The number of mass and spin posterior samples must be the same.")

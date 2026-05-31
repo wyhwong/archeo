@@ -24,7 +24,11 @@ class ImportanceSamplingDataBase(BaseModel, frozen=True):
 
     @property
     def common_columns(self) -> list[str]:
-        """Get the common columns between posterior and prior samples"""
+        """Return columns shared by posterior, prior, and new-prior dataframes.
+
+        Returns:
+            list[str]: Shared column names.
+        """
 
         return list(
             set(self.posterior_samples.columns)
@@ -34,7 +38,11 @@ class ImportanceSamplingDataBase(BaseModel, frozen=True):
 
     @property
     def bounds(self) -> dict[str, Domain]:
-        """Get the bounds of the dataframes"""
+        """Compute per-column joint bounds across all sample sets.
+
+        Returns:
+            dict[str, Domain]: Mapping from column name to value domain.
+        """
 
         bounds: dict[str, Domain] = {}
 
@@ -54,6 +62,17 @@ class ImportanceSamplingDataBase(BaseModel, frozen=True):
         return bounds
 
     def get_binsize(self, col_name: str) -> float:
+        """Return bin size associated with a column name prefix.
+
+        Args:
+            col_name (str): Column name.
+
+        Returns:
+            float: Bin size used for histogramming.
+
+        Raises:
+            ValueError: If the column prefix is unsupported.
+        """
 
         if col_name.startswith("a"):
             return self.binsize_spin
@@ -64,26 +83,55 @@ class ImportanceSamplingDataBase(BaseModel, frozen=True):
         raise ValueError(f"Unknown column name {col_name}")
 
     def get_nbins(self, col_name: str) -> int:
-        """Get the number of bins for a given column name"""
+        """Compute number of histogram bins for a column.
+
+        Args:
+            col_name (str): Column name.
+
+        Returns:
+            int: Number of bins.
+        """
 
         binsize = self.get_binsize(col_name)
         bounds = self.bounds[col_name]
         return int((bounds.high - bounds.low) / binsize)
 
     def get_edges(self, col_name: str) -> np.ndarray:
-        """Get the edges of the histogram for a given column name"""
+        """Compute histogram bin edges for a column.
+
+        Args:
+            col_name (str): Column name.
+
+        Returns:
+            np.ndarray: Bin edge array.
+        """
 
         nbins = self.get_nbins(col_name)
         bounds = self.bounds[col_name]
         return np.linspace(bounds.low, bounds.high, nbins + 1)
 
     def get_binwidth(self, col_name: str) -> float:
-        """Get the bin width for a given column name"""
+        """Return scalar histogram bin width for a column.
+
+        Args:
+            col_name (str): Column name.
+
+        Returns:
+            float: Bin width.
+        """
 
         edges = self.get_edges(col_name)
         return edges[1] - edges[0]
 
     def _safe_divide(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
-        """Safe division to avoid division by zero"""
+        """Compute stable elementwise ratio with zero-protection.
+
+        Args:
+            a (np.ndarray): Numerator values.
+            b (np.ndarray): Denominator values.
+
+        Returns:
+            np.ndarray: ``a / b`` where ``b`` exceeds tolerance, else 0.
+        """
 
         return np.where(b > self.ztol, np.exp(np.log(a) - np.log(b)), 0.0)

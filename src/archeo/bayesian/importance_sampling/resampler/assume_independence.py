@@ -11,7 +11,16 @@ LOGGER = get_logger(__name__)
 
 
 def get_histogram_1d(samples: pd.Series, nbins: int, bounds: Domain) -> np.ndarray:
-    """Compute the histogram of the samples"""
+    """Estimate a 1D density histogram over fixed bounds.
+
+    Args:
+        samples (pd.Series): Input samples.
+        nbins (int): Number of bins.
+        bounds (Domain): Histogram range.
+
+    Returns:
+        np.ndarray: Density histogram values.
+    """
 
     hist, edges = np.histogram(samples, bins=nbins, density=True, range=bounds.to_tuple())
     binwidth = edges[1] - edges[0]
@@ -28,13 +37,27 @@ class ISDataAssumeIndependence(ImportanceSamplingDataBase):
     """Importance sampling data for assume independence resampler"""
 
     def _get_hist_1d(self, samples: pd.Series) -> np.ndarray:
-        """Get the histogram for a given column name"""
+        """Compute a 1D histogram for one sample column.
+
+        Args:
+            samples (pd.Series): Sample column.
+
+        Returns:
+            np.ndarray: Density histogram values.
+        """
 
         nbins = self.get_nbins(samples.name)
         return get_histogram_1d(samples, nbins=nbins, bounds=self.bounds[samples.name])
 
     def get_likelihood_samples_1d(self, random_state=42) -> np.ndarray:
-        """Get samples for likelihood function"""
+        """Resample posterior to approximate likelihood under independence assumption.
+
+        Args:
+            random_state (int): Random seed for weighted sampling.
+
+        Returns:
+            np.ndarray: Resampled posterior-like samples.
+        """
 
         weights = np.ones(len(self.posterior_samples))
 
@@ -56,7 +79,14 @@ class ISDataAssumeIndependence(ImportanceSamplingDataBase):
         )
 
     def _get_posterior_sample_weights_1d(self, col_name: str) -> np.ndarray:
-        """Get the weights for the importance sampling"""
+        """Compute per-sample weights for a single column.
+
+        Args:
+            col_name (str): Column name.
+
+        Returns:
+            np.ndarray: Importance weights.
+        """
 
         weights = np.ones(len(self.posterior_samples))
 
@@ -70,7 +100,14 @@ class ISDataAssumeIndependence(ImportanceSamplingDataBase):
         return weights
 
     def get_bayes_factor_1d(self, bootstrapping: bool = False) -> float:
-        """Compute the Bayes factor between two models"""
+        """Compute Bayes factor using factorized 1D histograms.
+
+        Args:
+            bootstrapping (bool): If ``True``, bootstrap all sample sets first.
+
+        Returns:
+            float: Bayes-factor estimate.
+        """
 
         if bootstrapping:
             return self._get_bayes_factor_1d(
@@ -91,12 +128,20 @@ class ISDataAssumeIndependence(ImportanceSamplingDataBase):
         posterior_samples: pd.DataFrame,
         new_prior_samples: pd.DataFrame,
     ) -> float:
-        """Compute the Bayes factor between two models
+        """Compute Bayes factor from explicit dataframe inputs (1D factorized form).
 
-        NOTE: In this implementation, the likelihood function remains untouched.
-        So that the Bayes factor is computed as the ratio of the new prior to the old prior.
-        Details please check importance sampling.
+        Args:
+            prior_samples (pd.DataFrame): Baseline prior samples.
+            posterior_samples (pd.DataFrame): Posterior samples.
+            new_prior_samples (pd.DataFrame): Candidate prior samples.
+
+        Returns:
+            float: Bayes-factor estimate.
         """
+
+        # NOTE: In this implementation, the likelihood function remains untouched.
+        # So the Bayes factor is computed as the ratio of the new prior to the old prior.
+        # Details please check importance sampling.
 
         bf = 1.0
 
@@ -109,7 +154,14 @@ class ISDataAssumeIndependence(ImportanceSamplingDataBase):
         return bf
 
     def get_reweighted_samples_1d(self, random_state=42) -> pd.DataFrame:
-        """Get the reweighted samples for the importance sampling"""
+        """Draw posterior samples reweighted toward the candidate prior.
+
+        Args:
+            random_state (int): Random seed for weighted resampling.
+
+        Returns:
+            pd.DataFrame: Reweighted posterior samples.
+        """
 
         weights = np.ones(len(self.posterior_samples))
 

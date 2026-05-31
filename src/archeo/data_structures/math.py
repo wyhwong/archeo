@@ -6,7 +6,11 @@ from pydantic import BaseModel
 
 
 class DomainBase(BaseModel, ABC):
-    """Base class for domains of parameters."""
+    """Abstract domain interface for scalar/array membership checks.
+
+    Implementations define `contains` and `not_contains` for validating whether
+    values lie inside or outside allowed numerical regions.
+    """
 
     @overload
     def contains(self, value: float) -> bool: ...
@@ -22,21 +26,46 @@ class DomainBase(BaseModel, ABC):
 
     @abstractmethod
     def contains(self, value: Union[float, np.ndarray]) -> Union[bool, np.ndarray]:
-        """Check if a value is within the domain."""
+        """Return whether value(s) lie within the domain.
+
+        Args:
+            value (Union[float, np.ndarray]): Scalar or array to test.
+
+        Returns:
+            Union[bool, np.ndarray]: Inclusion mask or scalar flag.
+        """
 
     @abstractmethod
     def not_contains(self, value: Union[float, np.ndarray]) -> Union[bool, np.ndarray]:
-        """Check if a value is not within the domain."""
+        """Return whether value(s) lie outside the domain.
+
+        Args:
+            value (Union[float, np.ndarray]): Scalar or array to test.
+
+        Returns:
+            Union[bool, np.ndarray]: Exclusion mask or scalar flag.
+        """
 
 
 class Domain(BaseModel, frozen=True):
-    """Domain of a parameter."""
+    """Closed 1D interval domain `[low, high]`.
+
+    Supports vectorized membership tests and conversion to tuple form for
+    downstream validation and display.
+    """
 
     low: float = float("-inf")
     high: float = float("inf")
 
     def contains(self, value: Union[float, np.ndarray]) -> Union[bool, np.ndarray]:
-        """Check if a value is within the domain."""
+        """Check membership in a closed interval `[low, high]`.
+
+        Args:
+            value (Union[float, np.ndarray]): Scalar or array to test.
+
+        Returns:
+            Union[bool, np.ndarray]: Inclusion result.
+        """
 
         if isinstance(value, np.ndarray):
             return (value <= self.high) & (value >= self.low)
@@ -44,7 +73,14 @@ class Domain(BaseModel, frozen=True):
         return self.low <= value <= self.high
 
     def not_contains(self, value: Union[float, np.ndarray]) -> Union[bool, np.ndarray]:
-        """Check if a value is not within the domain."""
+        """Check non-membership in a closed interval `[low, high]`.
+
+        Args:
+            value (Union[float, np.ndarray]): Scalar or array to test.
+
+        Returns:
+            Union[bool, np.ndarray]: Exclusion result.
+        """
 
         if isinstance(value, np.ndarray):
             return (value > self.high) | (value < self.low)
@@ -52,18 +88,33 @@ class Domain(BaseModel, frozen=True):
         return not self.contains(value)
 
     def to_tuple(self) -> tuple[float, float]:
-        """Convert the domain to a tuple."""
+        """Return interval bounds as a tuple.
+
+        Returns:
+            tuple[float, float]: `(low, high)`.
+        """
 
         return self.low, self.high
 
 
 class PiecewiseDomain(BaseModel, frozen=True):
-    """Piecewise domain of a parameter."""
+    """Union of multiple 1D domains.
+
+    A value belongs to this domain if it belongs to at least one constituent
+    subdomain.
+    """
 
     domains: list[Domain] = []
 
     def contains(self, value: Union[float, np.ndarray]) -> Union[bool, np.ndarray]:
-        """Check if a value is within the piecewise domain."""
+        """Check membership in a union of intervals.
+
+        Args:
+            value (Union[float, np.ndarray]): Scalar or array to test.
+
+        Returns:
+            Union[bool, np.ndarray]: Inclusion result across all subdomains.
+        """
 
         if isinstance(value, np.ndarray):
             return np.any([domain.contains(value) for domain in self.domains], axis=0)
@@ -71,7 +122,14 @@ class PiecewiseDomain(BaseModel, frozen=True):
         return any(domain.contains(value) for domain in self.domains)
 
     def not_contains(self, value: Union[float, np.ndarray]) -> Union[bool, np.ndarray]:
-        """Check if a value is not within the piecewise domain."""
+        """Check non-membership in a union of intervals.
+
+        Args:
+            value (Union[float, np.ndarray]): Scalar or array to test.
+
+        Returns:
+            Union[bool, np.ndarray]: Exclusion result across all subdomains.
+        """
 
         if isinstance(value, np.ndarray):
             return np.all([domain.not_contains(value) for domain in self.domains], axis=0)

@@ -9,86 +9,125 @@ Weights: TypeAlias = PositiveFloat
 
 
 class DistributionBase(ABC):
-    """Distribution of a parameter."""
+    """Abstract probability-distribution interface.
+
+    Concrete implementations expose support bounds (`min`, `max`) and a `draw`
+    method for scalar or vectorized sampling.
+    """
 
     @property
     @abstractmethod
     def min(self) -> float:
-        """Minimum value of the distribution."""
+        """Return lower bound of distribution support.
+
+        Returns:
+            float: Minimum supported value.
+        """
 
     @property
     @abstractmethod
     def max(self) -> float:
-        """Maximum value of the distribution."""
+        """Return upper bound of distribution support.
+
+        Returns:
+            float: Maximum supported value.
+        """
 
     @abstractmethod
     def draw(self, size: Optional[int] = None) -> Union[float, np.ndarray[float]]:
-        """Draw a random value from the distribution."""
+        """Draw sample(s) from the distribution.
+
+        Args:
+            size (Optional[int]): Number of draws. `None` requests a scalar draw.
+
+        Returns:
+            Union[float, np.ndarray[float]]: Drawn sample(s).
+        """
 
 
 class Uniform(BaseModel, DistributionBase, frozen=True):
-    """Uniform distribution.
-
-    Attributes:
-        low (float): Lower bound of the distribution
-        high (float): Upper bound of the distribution
-    """
+    """Uniform distribution over a finite interval `[low, high]`."""
 
     low: float = float("-inf")
     high: float = float("inf")
 
     @property
     def min(self) -> float:
-        """Minimum value of the distribution."""
+        """Return lower bound of uniform support.
+
+        Returns:
+            float: Lower bound.
+        """
 
         return self.low
 
     @property
     def max(self) -> float:
-        """Maximum value of the distribution."""
+        """Return upper bound of uniform support.
+
+        Returns:
+            float: Upper bound.
+        """
 
         return self.high
 
     def draw(self, size: Optional[int] = None) -> Union[float, np.ndarray[float]]:
-        """Draw a random value from the domain (uniform)."""
+        """Draw sample(s) from a uniform distribution.
+
+        Args:
+            size (Optional[int]): Number of draws.
+
+        Returns:
+            Union[float, np.ndarray[float]]: Drawn sample(s).
+        """
 
         return np.random.uniform(low=self.low, high=self.high, size=size)
 
 
 class Normal(BaseModel, DistributionBase, frozen=True):
-    """Normal distribution.
-
-    Attributes:
-        mean (float): Mean of the distribution
-        std (float): Standard deviation of the distribution
-    """
+    """Gaussian distribution parameterized by mean and standard deviation."""
 
     mean: float = 0.0
     std: float = 1.0
 
     @property
     def min(self) -> float:
-        """Minimum value of the distribution."""
+        """Return lower support bound for a normal distribution.
+
+        Returns:
+            float: Negative infinity.
+        """
 
         return float("-inf")
 
     @property
     def max(self) -> float:
-        """Maximum value of the distribution."""
+        """Return upper support bound for a normal distribution.
+
+        Returns:
+            float: Positive infinity.
+        """
 
         return float("inf")
 
     def draw(self, size: Optional[int] = None) -> Union[float, np.ndarray]:
-        """Draw a random value from the domain (normal)."""
+        """Draw sample(s) from a normal distribution.
+
+        Args:
+            size (Optional[int]): Number of draws.
+
+        Returns:
+            Union[float, np.ndarray]: Drawn sample(s).
+        """
 
         return np.random.normal(loc=self.mean, scale=self.std, size=size)
 
 
 class PiecewiseUniform(BaseModel, DistributionBase, frozen=True):
-    """Piecewise uniform distribution.
+    """Weighted mixture of uniform segments.
 
-    Attributes:
-        uniforms (dict[Uniform, Weights]): A dictionary of uniform distributions and their corresponding weights.
+    Represents a piecewise-uniform density defined by interval-weight pairs whose
+    weights sum to 1.
     """
 
     uniforms: dict[Uniform, Weights] = {}
@@ -96,7 +135,17 @@ class PiecewiseUniform(BaseModel, DistributionBase, frozen=True):
     @field_validator("uniforms", mode="before")
     @classmethod
     def validate_total_weights(cls, v):
-        """Validate that the total weights sum to 1."""
+        """Validate piecewise weights sum to 1.
+
+        Args:
+            v: Mapping from Uniform segment to weight.
+
+        Returns:
+            Any: Validated mapping.
+
+        Raises:
+            ValueError: If total weight differs from 1.
+        """
 
         total_weights = sum(v.values())
         if total_weights != 1.0:
@@ -105,18 +154,33 @@ class PiecewiseUniform(BaseModel, DistributionBase, frozen=True):
 
     @property
     def min(self) -> float:
-        """Minimum value of the distribution."""
+        """Return minimum lower bound among piecewise segments.
+
+        Returns:
+            float: Global lower bound.
+        """
 
         return min(uniform.low for uniform in self.uniforms)
 
     @property
     def max(self) -> float:
-        """Maximum value of the distribution."""
+        """Return maximum upper bound among piecewise segments.
+
+        Returns:
+            float: Global upper bound.
+        """
 
         return max(uniform.high for uniform in self.uniforms)
 
     def _draw_multiple(self, size: int) -> np.ndarray:
-        """Draw multiple random values from the domain (piecewise uniform)."""
+        """Draw multiple samples according to piecewise segment weights.
+
+        Args:
+            size (int): Number of draws.
+
+        Returns:
+            np.ndarray: Shuffled concatenated samples.
+        """
 
         sizes = {uniform: int(size * weights) for uniform, weights in self.uniforms.items()}
         sample_chunks = [uniform.draw(size=sizes[uniform]) for uniform in self.uniforms]
@@ -129,7 +193,14 @@ class PiecewiseUniform(BaseModel, DistributionBase, frozen=True):
         return samples
 
     def draw(self, size: Optional[int] = None) -> Union[float, np.ndarray]:
-        """Draw a random value from the domain (piecewise uniform)."""
+        """Draw sample(s) from a piecewise-uniform distribution.
+
+        Args:
+            size (Optional[int]): Number of draws. If omitted or <=1, draws one sample.
+
+        Returns:
+            Union[float, np.ndarray]: Drawn sample(s).
+        """
 
         if size and (size > 1):
             return self._draw_multiple(size)

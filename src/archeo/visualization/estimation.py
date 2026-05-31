@@ -18,13 +18,13 @@ LOGGER = get_logger(__name__)
 
 
 def filter_unmapped_samples(df: pd.DataFrame) -> pd.DataFrame:
-    """Filter out the samples that are not mapped to the posterior.
+    """Remove rows that are not mapped to posterior quantities.
 
     Args:
-        df (pd.DataFrame): The prior dataframe.
+        df (pd.DataFrame): Input dataframe.
 
     Returns:
-        df (pd.DataFrame): The filtered prior dataframe.
+        pd.DataFrame: Filtered dataframe with non-null kick values.
     """
 
     return df.dropna(subset=["k_f"])
@@ -38,19 +38,18 @@ def mass_estimates(
     close: bool = True,
     fmt: str = "png",
 ):
-    """Plot the posterior mass estimates.
+    """Plot PDFs for component and remnant mass estimates.
 
     Args:
-        df (pd.DataFrame): The posterior dataframe.
-        label (str): Label of the posterior.
-        filename (str): Output filename.
+        df (pd.DataFrame): Posterior dataframe.
+        label (str): Label for remnant distribution.
+        filename (str): Output filename stem.
         output_dir (Optional[str]): Output directory.
-        close (bool): Whether to close the figure.
-        fmt (str): The format of the visualizations. Defaults to "png".
+        close (bool): Whether to close figure after saving.
+        fmt (str): Figure format.
 
     Returns:
-        fig (plt.Figure): Figure.
-        axes (plt.Axes): Axes.
+        tuple[plt.Figure, plt.Axes]: Figure and axis.
     """
 
     df = filter_unmapped_samples(df)
@@ -67,7 +66,7 @@ def mass_estimates(
     col_to_name = {
         "m_f": label + ": ",
         "m_1": "Heavier Parent: ",
-        "m_2": "Ligher Parent: ",
+        "m_2": "Lighter Parent: ",
     }
     for col, name in col_to_name.items():
         base.plot_pdf(ax, df[col], next(colors), name, unit=r"[$M_{\odot}$]")
@@ -80,11 +79,14 @@ def mass_estimates(
 
 
 def _add_pisn_gap(ax, color: str) -> None:
-    """Add PISN gap to the plot.
+    """Annotate pair-instability supernova mass gap boundaries on an axis.
 
     Args:
-        ax (plt.Axes): Axes.
-        color (str): Color.
+        ax: Matplotlib axis.
+        color (str): Line color.
+
+    Returns:
+        None
     """
 
     ax.axvline(PISN_LB, color=color, linewidth=0.9, linestyle="--", label="PISN Gap")
@@ -100,20 +102,19 @@ def corner_estimates(  # pylint: disable=dangerous-default-value
     close: bool = True,
     fmt: str = "png",
 ):
-    """Plot the posterior corner plot.
+    """Generate corner plots for one or more posterior dataframes.
 
     Args:
-        dfs (dict[str, pd.DataFrame]): Key: name of the posterior, value: posterior dataframe.
-        levels (list[float]): Contour levels.
-        nbins (int): Number of bins.
-        filename (str): Output filename.
+        dfs (dict[str, pd.DataFrame]): Mapping from label to dataframe.
+        levels (list[float]): Contour credibility levels.
+        nbins (int): Histogram bin count.
+        filename (str): Output filename stem.
         output_dir (Optional[str]): Output directory.
-        close (bool): Whether to close the figure.
-        fmt (str): The format of the visualizations. Defaults to "png".
+        close (bool): Whether to close figure after saving.
+        fmt (str): Figure format.
 
     Returns:
-        fig (plt.Figure): Figure.
-        axes (plt.Axes): Axes.
+        tuple[plt.Figure, plt.Axes]: Last generated figure and axes.
     """
 
     corner_type_to_var_names = {
@@ -201,19 +202,17 @@ def second_generation_probability_curve(
     close: bool = True,
     fmt: str = "png",
 ):
-    """Plot the second generation probability curve.
+    """Plot second-generation probability as a function of escape velocity.
 
     Args:
-        dfs (list[pd.DataFrame]): Key: name of the posterior, value: posterior dataframe.
-        label (list[str]): Label of each posterior.
-        filename (str): Output filename.
+        dfs (dict[str, pd.DataFrame]): Mapping from label to dataframe.
+        filename (str): Output filename stem.
         output_dir (Optional[str]): Output directory.
-        close (bool): Whether to close the figure.
-        fmt (str): The format of the visualizations. Defaults to "png".
+        close (bool): Whether to close figure after saving.
+        fmt (str): Figure format.
 
     Returns:
-        fig (plt.Figure): Figure.
-        axes (plt.Axes): Axes.
+        tuple[plt.Figure, plt.Axes]: Figure and axis.
     """
 
     # Set up x-axis
@@ -259,18 +258,17 @@ def effective_spin_estimates(
     close: bool = True,
     fmt: str = "png",
 ):
-    """Plot the effective spin PDF.
+    """Plot effective-spin PDFs for labeled posterior sets.
 
     Args:
-        dfs (dict[str, pd.DataFrame]): Key: name of the posterior, value: posterior dataframe.
-        filename (str): Output filename.
+        dfs (dict[str, pd.DataFrame]): Mapping from label to dataframe.
+        filename (str): Output filename stem.
         output_dir (Optional[str]): Output directory.
-        close (bool): Whether to close the figure.
-        fmt (str): The format of the visualizations. Defaults to "png".
+        close (bool): Whether to close figure after saving.
+        fmt (str): Figure format.
 
     Returns:
-        fig (plt.Figure): Figure.
-        axes (plt.Axes): Axes.
+        tuple[plt.Figure, plt.Axes]: Figure and axis.
     """
 
     padding = Padding(bpad=0.14)
@@ -298,18 +296,17 @@ def precession_spin_estimates(
     close: bool = True,
     fmt: str = "png",
 ):
-    """Plot the precession spin PDF.
+    """Plot precession-spin PDFs for labeled posterior sets.
 
     Args:
-        dfs (dict[str, pd.DataFrame]): Key: name of the posterior, value: posterior dataframe.
-        filename (str): Output filename.
+        dfs (dict[str, pd.DataFrame]): Mapping from label to dataframe.
+        filename (str): Output filename stem.
         output_dir (Optional[str]): Output directory.
-        close (bool): Whether to close the figure.
-        fmt (str): The format of the visualizations. Defaults to "png".
+        close (bool): Whether to close figure after saving.
+        fmt (str): Figure format.
 
     Returns:
-        fig (plt.Figure): Figure.
-        axes (plt.Axes): Axes.
+        tuple[plt.Figure, plt.Axes]: Figure and axis.
     """
 
     padding = Padding(bpad=0.14)
@@ -336,18 +333,16 @@ def table_estimates(
     output_dir: Optional[str] = None,
     fmt: str = "md",
 ) -> pd.DataFrame:
-    """Plot the posterior mass estimates.
+    """Build and optionally export posterior summary table.
 
     Args:
-        dfs (dict[str, pd.DataFrame]): Key: name of the posterior, value: posterior dataframe.
-        filename (str): Output filename.
-        output_dir (Optional[str]): Output directory.
-        close (bool): Whether to close the figure.
-        fmt (str): The format of the visualizations. Defaults to "md".
+        dfs (dict[str, pd.DataFrame]): Mapping from label to dataframe.
+        filename (str): Output filename stem.
+        output_dir (Optional[str]): Output directory for export.
+        fmt (str): Export format, currently `md` or `csv`.
 
     Returns:
-        fig (plt.Figure): Figure.
-        axes (plt.Axes): Axes.
+        pd.DataFrame: Summary table dataframe.
     """
 
     col_to_names = {

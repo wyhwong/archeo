@@ -23,20 +23,19 @@ def initialize_plot(
     fontsize: int = 12,
     **kwargs,
 ):
-    """Initialize a plot from matplotlib.
+    """Create a matplotlib figure/axes pair with project-style defaults.
 
     Args:
-        nrows (int): The number of rows of the plot.
-        ncols (int): The number of columns of the plot.
-        figsize (tuple): The size of the plot.
-        labels (Labels): The labels of the plot.
-        padding (Padding): The padding of the plot.
-        fontsize (int): The fontsize of the plot.
-        **kwargs: Additional arguments for the plot.
+        nrows (int): Number of subplot rows.
+        ncols (int): Number of subplot columns.
+        figsize (tuple): Figure size.
+        labels (Labels): Global title/xlabel/ylabel container.
+        padding (Padding): Layout padding parameters.
+        fontsize (int): Base font size.
+        **kwargs: Additional arguments forwarded to `plt.subplots`.
 
     Returns:
-        fig (matplotlib.figure.Figure): The figure of the plot.
-        axes (numpy.ndarray): The axes of the plot.
+        tuple: `(fig, axes)` from matplotlib.
     """
 
     fig, axes = plt.subplots(nrows, ncols, figsize=figsize, **kwargs)
@@ -69,13 +68,16 @@ def savefig_and_close(
     close: bool = True,
     fmt: str = "png",
 ) -> None:
-    """Save the figure and close it.
+    """Save current matplotlib figure and optionally close it.
 
     Args:
-        filename (str): The filename of the figure.
-        output_dir (Optional[str]): The output directory of the figure.
-        close (bool): Whether to close the figure.
-        fmt (str): The format of the figure.
+        filename (str): Output filename stem.
+        output_dir (Optional[str]): Destination directory.
+        close (bool): Whether to close current figure.
+        fmt (str): Figure format.
+
+    Returns:
+        None
     """
 
     if output_dir:
@@ -89,10 +91,13 @@ def savefig_and_close(
 
 
 def clear_default_labels(ax) -> None:
-    """Clear the default labels of the axes.
+    """Clear axis title and axis labels set by default helpers.
 
     Args:
-        ax (matplotlib.axes.Axes): The axes of the plot.
+        ax: Matplotlib axis.
+
+    Returns:
+        None
     """
 
     ax.set_xlabel("")
@@ -101,13 +106,16 @@ def clear_default_labels(ax) -> None:
 
 
 def add_escape_velocity(ax, v_max: float, y_max: float, log_xscale: bool = False) -> None:
-    """Add escape velocity to the plot.
+    """Annotate host escape-velocity reference lines on an axis.
 
     Args:
-        ax (plt.Axes): Axes.
-        v_max (float): Maximum escape velocity.
-        y_max (float): Maximum y-axis value.
-        log_xscale (bool): Whether the x-axis is in log scale.
+        ax: Matplotlib axis.
+        v_max (float): Maximum x-range value currently displayed.
+        y_max (float): Maximum y-range value used for text placement.
+        log_xscale (bool): Whether x-axis uses logarithmic scaling.
+
+    Returns:
+        None
     """
 
     colors = iter(mcolors.TABLEAU_COLORS.keys())
@@ -142,14 +150,18 @@ def plot_pdf(
     unit: Optional[str] = None,
     ls: str = "-",
 ):
-    """Plot the PDF of a parameter.
+    """Plot empirical PDF with median and credible-interval legend summary.
 
     Args:
-        ax (plt.Axes): Axes.
-        series (pd.Series): Series (pdf).
-        color (str): Color.
-        name (str): Name.
-        unit (Optional[str]): Unit.
+        ax: Matplotlib axis.
+        series (pd.Series): Input samples.
+        color (str): Line color.
+        name (Optional[str]): Label prefix.
+        unit (Optional[str]): Optional unit suffix in legend text.
+        ls (str): Line style.
+
+    Returns:
+        None
     """
 
     _series = series.dropna()

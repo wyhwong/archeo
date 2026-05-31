@@ -9,11 +9,13 @@ LOGGER = get_logger(__name__)
 
 
 def check_and_create_dir(dirpath: str) -> None:
-    """Check if the directory exists, if not create it.
-    NOTE: We recursively create the directory if it does not exist.
+    """Create a directory path if it does not already exist.
 
     Args:
-        dirpath (str): The directory path
+        dirpath (str): Target directory path.
+
+    Returns:
+        None
     """
 
     if not os.path.exists(dirpath):
@@ -23,13 +25,18 @@ def check_and_create_dir(dirpath: str) -> None:
 
 
 def load_dataframe(filepath: str) -> pd.DataFrame:
-    """Load a dataframe from a given filepath. The function supports both parquet and csv formats.
+    """Load a dataframe from a supported file format.
+
+    Supported extensions include parquet, CSV, JSON, Feather/IPC, and Excel.
 
     Args:
-        filepath (str): The path to the data file.
+        filepath (str): Path to input file.
 
     Returns:
-        pd.DataFrame: The loaded dataframe.
+        pd.DataFrame: Loaded dataframe.
+
+    Raises:
+        ValueError: If the file extension is unsupported.
     """
 
     if filepath.lower().endswith(".parquet"):

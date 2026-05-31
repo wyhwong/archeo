@@ -19,18 +19,17 @@ def animate_remnant_property_change_over_kick(
     kick_width=50.0,
     output_dir: Optional[str] = None,
 ):
-    """Create an animation of the remnant mass/spin distribution change over different kick values
+    """Animate evolution of a remnant-property distribution versus kick threshold.
 
     Args:
-        df (pd.DataFrame): DataFrame containing the prior data.
-        parameter (str): The remnant property to animate, such as "m_f".
-        kick_lb (float): Lower bound of the kick velocity to consider for the animation.
-        kick_width (float): Width of the kick velocity range to consider for the animation.
-        output_dir (Optional[str]): Directory to save the animation. If None, the animation will
-            not be saved to a file.
+        df (pd.DataFrame): Input dataframe.
+        col_name (str): Column to animate.
+        kick_lb (float): Initial kick threshold.
+        kick_width (float): Step size between thresholds.
+        output_dir (Optional[str]): Optional output directory for GIF export.
 
     Returns:
-        ani (FuncAnimation): The animation object.
+        Optional[FuncAnimation]: Animation object, or `None` if configuration is invalid.
     """
 
     _labels = {
@@ -62,7 +61,16 @@ def animate_remnant_property_change_over_kick(
 
     fig, ax = plt.subplots(figsize=(8, 6))
 
-    def update(frame):
+    def update(frame: int) -> plt.Axes:
+        """Render one animation frame for a specific kick-threshold index.
+
+        Args:
+            frame (int): Frame index.
+
+        Returns:
+            matplotlib.axes.Axes: Updated axis.
+        """
+
         ax.clear()
         values = df.loc[df["k_f"] <= k_bounds[frame], col_name]
 

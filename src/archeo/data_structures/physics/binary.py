@@ -16,20 +16,33 @@ LOGGER = get_logger(__name__)
 
 
 class Binary(BaseModel, frozen=True):
-    """Binary data class."""
+    """Container for a compact-binary system with component masses and spins.
+
+    Provides derived properties commonly used in GW inference, including mass
+    ratio, effective aligned spin, and precession spin proxy.
+    """
 
     primary_black_hole: BlackHole
     secondary_black_hole: BlackHole
 
     @property
     def mass_ratio(self) -> PositiveFloat:
-        """Calculate the mass ratio (q) for the binary."""
+        """Return binary mass ratio as primary mass divided by secondary mass.
+
+        Returns:
+            PositiveFloat: Mass ratio value.
+        """
 
         return self.primary_black_hole.mass / self.secondary_black_hole.mass
 
     @property
     def precession_spin(self) -> NonNegativeFloat:
-        """Calculate the precession spin parameter (chi_p) for the binary."""
+        """Compute effective precession spin proxy for the binary.
+
+        Returns:
+            NonNegativeFloat: Precession spin statistic derived from horizontal spins
+            and mass ratio.
+        """
 
         q = self.primary_black_hole.mass / self.secondary_black_hole.mass
         a1h = self.primary_black_hole.horizontal_spin
@@ -38,7 +51,11 @@ class Binary(BaseModel, frozen=True):
 
     @property
     def effective_spin(self) -> NonNegativeFloat:
-        """Calculate the effective spin parameter (chi_eff) for the binary."""
+        """Compute mass-weighted effective aligned spin for the binary.
+
+        Returns:
+            NonNegativeFloat: Effective spin value.
+        """
 
         m1 = self.primary_black_hole.mass
         m2 = self.secondary_black_hole.mass
@@ -51,17 +68,35 @@ Binaries: TypeAlias = list[Binary]
 
 
 class BinaryGeneratorBase(BaseModel, frozen=True):
-    """Base class for binary generators."""
+    """Abstract interface for binary-population samplers.
+
+    Subclasses implement `draw` to generate physically valid binary systems
+    according to a specific population model.
+    """
 
     is_aligned_spin: bool = False
 
     @abstractmethod
     def draw(self, size: int = 1) -> Binaries:
-        """Generate a list of binaries based on the specified sources and mass ratio domain."""
+        """Generate binary samples.
+
+        Args:
+            size (int): Number of binaries to generate.
+
+        Returns:
+            Binaries: List of generated binary objects.
+        """
 
     @staticmethod
     def _apply_aligned_spin_to_binaries(binaries: Binaries) -> Binaries:
-        """Apply aligned spin configuration to the generated binaries."""
+        """Project spins onto the z-axis with random sign for aligned-spin mode.
+
+        Args:
+            binaries (Binaries): Input binaries with generic spin vectors.
+
+        Returns:
+            Binaries: Binaries whose spin vectors are aligned or anti-aligned with z-axis.
+        """
 
         size = len(binaries)
         direction_bh1 = np.random.choice([-1, 1], size=size)
@@ -88,7 +123,12 @@ class BinaryGeneratorBase(BaseModel, frozen=True):
 
 
 class BinaryGenerator(BinaryGeneratorBase):
-    """Binary generator data class."""
+    """Binary sampler built from component black-hole populations.
+
+    Draws primary/secondary components from configured sources, enforces mass
+    ordering and optional mass-ratio constraints, and optionally applies aligned-spin
+    projection.
+    """
 
     primary_black_hole_source: BlackHoleSource
     secondary_black_hole_source: BlackHoleSource
@@ -96,7 +136,14 @@ class BinaryGenerator(BinaryGeneratorBase):
     enforce_source_binding: bool = False
 
     def draw(self, size: int = 1) -> Binaries:
-        """Generate a list of binaries based on the specified sources and mass ratio domain."""
+        """Generate binaries from configured sources under mass-ratio constraints.
+
+        Args:
+            size (int): Number of binaries to generate.
+
+        Returns:
+            Binaries: Generated binary list satisfying ordering and ratio criteria.
+        """
 
         binaries = []
         n_step = 0
@@ -131,8 +178,10 @@ class BinaryGenerator(BinaryGeneratorBase):
 
 
 class MassRatioBasedBinaryGenerator(BinaryGeneratorBase):
-    """Another option for binary generator that sample binaries based on
-    the mass ratio distribution and primary mass distribution.
+    """Binary sampler using primary-mass and mass-ratio distributions.
+
+    Generates binaries by sampling primary masses and then deriving secondary
+    masses through a configured mass-ratio model within domain bounds.
     """
 
     mass_ratio_distribution: Distribution = Uniform(low=1.0, high=6.0)
@@ -143,7 +192,14 @@ class MassRatioBasedBinaryGenerator(BinaryGeneratorBase):
     theta_distribution: Distribution = Uniform(low=0, high=np.pi)
 
     def draw(self, size: int = 1) -> Binaries:
-        """Generate a list of binaries based on the specified distributions and mass domain."""
+        """Generate binaries by sampling primary masses and mass-ratio distribution.
+
+        Args:
+            size (int): Number of binaries to generate.
+
+        Returns:
+            Binaries: Generated binary list.
+        """
 
         primary_masses, secondary_masses = self.sample_binary_masses(size)
         primary_bhs = BlackHoleGenerator.build_black_holes(
@@ -168,6 +224,14 @@ class MassRatioBasedBinaryGenerator(BinaryGeneratorBase):
         return binaries
 
     def sample_binary_masses(self, size: int) -> tuple[list[float], list[float]]:
+        """Sample primary and secondary masses consistent with mass-domain limits.
+
+        Args:
+            size (int): Number of binaries.
+
+        Returns:
+            tuple[list[float], list[float]]: Primary mass list and secondary mass list.
+        """
 
         mass_ratios = self.mass_ratio_distribution.draw(size=size)
         primary_masses = self.primary_mass_distribution.draw(size=size)

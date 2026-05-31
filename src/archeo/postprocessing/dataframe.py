@@ -5,14 +5,15 @@ from archeo.data_structures.physics.simulation import BlackHoleMergers
 
 
 def convert_simulated_binaries_to_dataframe(black_hole_mergers: BlackHoleMergers) -> pd.DataFrame:
-    """Convert the simulated binaries and remnants to a pandas DataFrame.
+    """Convert merger outputs into a flat dataframe schema.
 
     Args:
-        black_hole_mergers (BlackHoleMergers):
-            List of tuples containing the binaries and their resulting black holes.
+        black_hole_mergers (BlackHoleMergers): Sequence of
+            ``(Binary, remnant_black_hole)`` tuples.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the properties of the binaries and their remnants.
+        pd.DataFrame: Dataframe containing parent properties, remnant properties,
+        and derived binary quantities.
     """
 
     records = [
@@ -44,22 +45,17 @@ def convert_simulated_binaries_to_dataframe(black_hole_mergers: BlackHoleMergers
 def convert_bayes_factor_curve_to_dataframe(
     bayes_factor_curve_data: BayesFactorCurveData, metadata: BayesFactorCurveMetadata
 ) -> pd.DataFrame:
-    """Convert the Bayes factor curve data to a pandas DataFrame.
+    """Convert Bayes-factor curve objects to a tabular dataframe.
 
     Args:
-        bayes_factor_curve_data (BayesFactorCurveData):
-            A dictionary mapping escape velocities to their corresponding Bayes factors.
-        metadata (BayesFactorCurveMetadata):
-            Metadata for the Bayes factor curve.
+        bayes_factor_curve_data (BayesFactorCurveData): Mapping from escape velocity
+            to sampled Bayes-factor object.
+        metadata (BayesFactorCurveMetadata): Curve-level metadata used for
+            normalization and bookkeeping.
 
     Returns:
-        pd.DataFrame: A DataFrame containing
-            - the escape velocities,
-            - Bayes factor confidence intervals,
-            - Reference candidate name,
-            - Reference Bayes factor,
-            - Bin size (spin),
-            - Bin size (mass).
+        pd.DataFrame: Dataframe containing per-velocity Bayes-factor summaries
+        and metadata fields.
     """
 
     records = [

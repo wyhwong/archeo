@@ -13,19 +13,19 @@ def get_logger(
     file_log_level: int = env.FILE_LOG_LEVEL,
     log_filepath: Optional[str] = env.LOG_FILEPATH,
 ) -> logging.Logger:
-    """Function to create a logger object with the specified name and log levels.
+    """Create or return a configured logger instance.
 
     Args:
-        logger_name (str): Name of the logger object.
-        streaming_log_level (int): Log level for console logging.
-        file_log_level (int): Log level for file logging.
-        log_filepath (Optional[str]): Path to the log file.
+        logger_name (str): Logger name.
+        streaming_log_level (int): Console log level.
+        file_log_level (int): File log level.
+        log_filepath (Optional[str]): Optional log file path.
 
     Returns:
-        logging.Logger: Logger object with the specified name and log levels.
+        logging.Logger: Configured logger.
 
     Raises:
-        FileNotFoundError: If the directory of the log file does not exist.
+        FileNotFoundError: If the directory for ``log_filepath`` does not exist.
 
     Example:
         >>> logger = get_logger("my_logger")
@@ -41,7 +41,7 @@ def get_logger(
     #       This somehow results in logger.hasHandlers() returning True,
     #       but len(logger.handlers) == 0.
     if len(logger.handlers) > 0:
-        logger.warning("Logger %s already initialized. Return previous vesrion.", logger_name)
+        logger.warning("Logger %s already initialized. Return previous version.", logger_name)
         return logger
 
     logger.setLevel(file_log_level)

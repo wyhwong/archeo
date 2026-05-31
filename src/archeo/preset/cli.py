@@ -17,7 +17,11 @@ from archeo.visualization import visualize_prior_distribution
 
 @click.group()
 def simulation_cli():
-    """Command line interface for archeo"""
+    """Create the root command group for simulation-related CLI commands.
+
+    Returns:
+        None
+    """
 
 
 @simulation_cli.command()
@@ -26,8 +30,21 @@ def simulation_cli():
 @click.option("-o", "--output-dir", default=".", help="Directory to save the generated data.")
 @click.option("-as", "--aligned-spin", is_flag=True, help="Toggle to simulate aligned spin binaries.")
 def simulate_second_generation_black_hole_population(size: int, n_workers: int, output_dir: str, aligned_spin: bool):
-    """Simulate a population of second generation black hole binaries.
-    The function simulates both aligned and precession spin configurations based on the user's choice.
+    """Simulate and persist a second-generation black-hole binary population.
+
+    This command generates binaries using either aligned-spin or precession-spin
+    configuration, saves generator configuration as JSON, and writes samples as
+    parquet when available (falls back to CSV otherwise).
+
+    Args:
+        size (int): Number of binaries to generate.
+        n_workers (int): Number of worker processes. Use `-1` to use all cores.
+        output_dir (str): Output directory for generated artifacts.
+        aligned_spin (bool): If ``True``, generate aligned-spin binaries; otherwise,
+            generate precession-spin binaries.
+
+    Returns:
+        None
 
     Command example:
     >> python -m archeo simulate-second-generation-black-hole-population --aligned-spin
@@ -66,8 +83,21 @@ def simulate_second_generation_black_hole_population(size: int, n_workers: int, 
 @click.option("-o", "--output-dir", default=".", help="Directory to save the generated data.")
 @click.option("-as", "--aligned-spin", is_flag=True, help="Toggle to simulate aligned spin binaries.")
 def simulate_agnostic_black_hole_population(size: int, n_workers: int, output_dir: str, aligned_spin: bool):
-    """Simulate a population of agnostic black hole binaries.
-    The function simulates both aligned and precession spin configurations based on the user's choice.
+    """Simulate and persist an agnostic black-hole binary population.
+
+    This command generates binaries with broad agnostic priors using either
+    aligned-spin or precession-spin configuration, saves generator configuration
+    as JSON, and writes samples as parquet when available (falls back to CSV).
+
+    Args:
+        size (int): Number of binaries to generate.
+        n_workers (int): Number of worker processes. Use `-1` to use all cores.
+        output_dir (str): Output directory for generated artifacts.
+        aligned_spin (bool): If ``True``, generate aligned-spin binaries; otherwise,
+            generate precession-spin binaries.
+
+    Returns:
+        None
 
     Command example:
     >> python -m archeo simulate-agnostic-black-hole-population --aligned-spin
@@ -102,7 +132,14 @@ def simulate_agnostic_black_hole_population(size: int, n_workers: int, output_di
 @click.option("-f", "--filepath", required=True, help="Path to the binary data.")
 @click.option("-o", "--output-dir", default=".", help="Directory to save visualizations.")
 def visualize_black_hole_population(filepath: str, output_dir: str):
-    """Generate some visualizations for a black hole population.
+    """Generate standard prior visualizations for a stored binary population.
+
+    Args:
+        filepath (str): Path to an input dataframe file.
+        output_dir (str): Directory where visualizations are written.
+
+    Returns:
+        None
 
     Command example:
     >> python -m archeo visualize-black-hole-population --filepath ./simulated_binaries.parquet

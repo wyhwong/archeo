@@ -12,17 +12,24 @@ LOGGER = get_logger(__name__)
 
 
 def get_available_cores() -> int:
-    """Get the number of available CPU cores.
+    """Return number of available CPU cores.
 
     Returns:
-        int: The number of available CPU cores.
+        int: CPU core count visible to the process.
     """
 
     return multiprocessing.cpu_count()
 
 
 def get_n_workers(n_workers: int) -> int:
-    """Get the number of workers to use for parallel processing."""
+    """Normalize requested worker count to a valid value.
+
+    Args:
+        n_workers (int): Requested workers. Use `-1` for all available cores.
+
+    Returns:
+        int: Effective worker count clipped to valid range.
+    """
 
     max_workers = get_available_cores()
 
@@ -45,15 +52,15 @@ def multithread_run(
     input_kwargs: list[dict[str, Any]],
     n_threads: Optional[int] = None,
 ) -> list[Any]:
-    """Run the function with the arguments.
+    """Execute a function over kwargs payloads using a thread pool.
 
     Args:
-        func (Callable): The function to be executed.
-        input_kwargs (list[dict[str, Any]]): The input arguments.
-        n_threads (Optional[int]): The number of threads to be used.
+        func (Callable): Callable to execute.
+        input_kwargs (list[dict[str, Any]]): List of keyword-argument dictionaries.
+        n_threads (Optional[int]): Maximum thread count.
 
     Returns:
-        results (list[Any]): The results of the function.
+        list[Any]: Results in submission order.
     """
 
     results = [None] * len(input_kwargs)
@@ -75,15 +82,15 @@ def multiprocess_run(
     input_kwargs: list[dict[str, Any]],
     n_processes: Optional[int] = None,
 ) -> list[Any]:
-    """Run the function with the arguments.
+    """Execute a function over kwargs payloads using a process pool.
 
     Args:
-        func (Callable): The function to be executed.
-        input_kwargs (list[dict[str, Any]]): The input arguments.
-        n_processes (Optional[int]): The number of processes to be used.
+        func (Callable): Callable to execute.
+        input_kwargs (list[dict[str, Any]]): List of keyword-argument dictionaries.
+        n_processes (Optional[int]): Maximum process count.
 
     Returns:
-        results (list[Any]): The results of the function.
+        list[Any]: Results in submission order.
     """
 
     results = [None] * len(input_kwargs)

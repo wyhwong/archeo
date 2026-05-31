@@ -33,18 +33,17 @@ def distribution_summary(
     close: bool = True,
     fmt: str = "png",
 ):
-    """Plot the distribution of the black hole parameters.
+    """Plot 1D summary distributions for key remnant and binary variables.
 
     Args:
-        df (pd.DataFrame): The prior/posterior dataframe.
-        filename (str): Filename of the figure.
+        df (pd.DataFrame): Input dataframe.
+        filename (str): Output filename stem.
         output_dir (Optional[str]): Output directory.
-        close (bool): Whether to close the figure.
-        fmt (str): The format of the visualizations. Defaults to "png".
+        close (bool): Whether to close figure after saving.
+        fmt (str): Figure format.
 
     Returns:
-        fig (plt.Figure): Figure.
-        axes (plt.Axes): Axes.
+        tuple[plt.Figure, plt.Axes]: Figure and axes grid.
     """
 
     labels = Labels(title="Distribution of black-hole parameters")
@@ -70,18 +69,17 @@ def kick_against_spin_cmap(
     close: bool = True,
     fmt: str = "png",
 ):
-    """Plot the remnant kick against remnant spin in cmap.
+    """Plot remnant kick versus remnant spin using density colormap.
 
     Args:
-        df (pd.DataFrame): The prior/posterior dataframe.
-        filename (str): Filename of the figure.
+        df (pd.DataFrame): Input dataframe.
+        filename (str): Output filename stem.
         output_dir (Optional[str]): Output directory.
-        close (bool): Whether to close the figure.
-        fmt (str): The format of the visualizations. Defaults to "png".
+        close (bool): Whether to close figure after saving.
+        fmt (str): Figure format.
 
     Returns:
-        fig (plt.Figure): Figure.
-        axes (plt.Axes): Axes.
+        tuple[plt.Figure, plt.Axes]: Figure and axis.
     """
 
     # mpl_scatter_density import is for ax.scatter_density
@@ -108,18 +106,17 @@ def kick_distribution_on_spin(
     close: bool = True,
     fmt: str = "png",
 ):
-    """Plot the distribution of remnant kick on different spin range.
+    """Plot kick distributions conditioned on remnant-spin intervals.
 
     Args:
-        df (pd.DataFrame): The prior/posterior dataframe.
-        filename (str): Filename of the figure.
+        df (pd.DataFrame): Input dataframe.
+        filename (str): Output filename stem.
         output_dir (Optional[str]): Output directory.
-        close (bool): Whether to close the figure.
-        fmt (str): The format of the visualizations. Defaults to "png".
+        close (bool): Whether to close figure after saving.
+        fmt (str): Figure format.
 
     Returns:
-        fig (plt.Figure): Figure.
-        axes (plt.Axes): Axes.
+        tuple[plt.Figure, plt.Axes]: Figure and axis.
     """
 
     labels = Labels(
