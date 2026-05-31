@@ -2,6 +2,9 @@
 NRSur3dq8Remnant = "NRSur3dq8Remnant"
 NRSur7dq4Remnant = "NRSur7dq4Remnant"
 surfinBH7dq2 = "surfinBH7dq2"
+5daa13f0 = "5daa13f0" # cell id in src/docs/notebooks/customize_simulation.ipynb
+Instituto = "Instituto" # zenodo.json
+Altas = "Altas" # zenodo.json
 
 # Optional: if you have many similar names
 [default]

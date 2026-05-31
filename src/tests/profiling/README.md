@@ -14,7 +14,7 @@ pyinstrument \
     tests/profiling/simulation.py
 ```
 
-## Profiling esimation
+## Profiling estimation
 
 ```bash
 pyinstrument \

@@ -37,7 +37,7 @@ def test_gw190521_ancestral_inference(gw190521_pe_samples: pd.DataFrame):
         n_workers=-1,
     )
 
-    # Minimum requirement: retieved samples has same number as the posterior samples
+    # Minimum requirement: retrieved samples has same number as the posterior samples
     assert len(df_bh1_ancestors) == len(gw190521_pe_samples)
     assert len(df_bh2_ancestors) == len(gw190521_pe_samples)
 
