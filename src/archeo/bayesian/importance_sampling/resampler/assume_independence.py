@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 import pandas as pd
 from scipy.stats import rv_histogram
@@ -49,7 +51,7 @@ class ISDataAssumeIndependence(ImportanceSamplingDataBase):
         nbins = self.get_nbins(samples.name)
         return get_histogram_1d(samples, nbins=nbins, bounds=self.bounds[samples.name])
 
-    def get_likelihood_samples_1d(self, random_state=42) -> np.ndarray:
+    def get_likelihood_samples_1d(self, random_state: Optional[int] = None) -> np.ndarray:
         """Resample posterior to approximate likelihood under independence assumption.
 
         Args:
@@ -153,7 +155,7 @@ class ISDataAssumeIndependence(ImportanceSamplingDataBase):
 
         return bf
 
-    def get_reweighted_samples_1d(self, random_state=42) -> pd.DataFrame:
+    def get_reweighted_samples_1d(self, random_state: Optional[int] = None) -> pd.DataFrame:
         """Draw posterior samples reweighted toward the candidate prior.
 
         Args:

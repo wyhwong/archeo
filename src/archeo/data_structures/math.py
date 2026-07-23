@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Union, overload
 
 import numpy as np
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class DomainBase(BaseModel, ABC):
@@ -104,7 +104,7 @@ class PiecewiseDomain(BaseModel, frozen=True):
     subdomain.
     """
 
-    domains: list[Domain] = []
+    domains: list[Domain] = Field(default_factory=list)
 
     def contains(self, value: Union[float, np.ndarray]) -> Union[bool, np.ndarray]:
         """Check membership in a union of intervals.

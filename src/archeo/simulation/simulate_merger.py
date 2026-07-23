@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 
 from archeo.constants.enum import Fits
@@ -48,7 +50,8 @@ def _simulate_black_hole_mergers(
     binary_generator: BinaryGenerator,
     fits: Fits,
     size: int,
-    random_state: int = 42,
+    n_threads: int = 1,
+    random_state: Optional[int] = None,
 ) -> BlackHoleMergers:
     """Simulate a batch of black-hole mergers in a single process.
 
@@ -56,19 +59,26 @@ def _simulate_black_hole_mergers(
         binary_generator (BinaryGenerator): Binary source generator.
         fits (Fits): Surrogate model enum entry.
         size (int): Number of mergers to simulate.
+        n_threads (int): Number of threads to use for simulation.
         random_state (int): Seed for reproducibility.
 
     Returns:
         BlackHoleMergers: List of ``(binary, remnant)`` tuples.
     """
 
-    np.random.seed(random_state)
-
-    binaries = binary_generator.draw(size=size)
+    binaries = binary_generator.draw(size=size, random_state=random_state)
     loaded_fits = fits.load()
 
     remnants = multithread_run(
-        _simulate_black_hole_merger, [{"binary": binary, "loaded_fits": loaded_fits} for binary in binaries]
+        func=_simulate_black_hole_merger,
+        input_kwargs=[
+            {
+                "binary": binary,
+                "loaded_fits": loaded_fits,
+            }
+            for binary in binaries
+        ],
+        n_threads=n_threads,
     )
     return list(zip(binaries, remnants))
 
@@ -78,7 +88,8 @@ def simulate_black_hole_mergers(
     fits: Fits,
     size: int,
     n_workers: int = 1,
-    random_state: int = 42,
+    n_threads_per_worker: int = 1,
+    random_state: Optional[int] = None,
 ) -> BlackHoleMergers:
     """Simulate black-hole mergers with optional multiprocessing.
 
@@ -87,34 +98,45 @@ def simulate_black_hole_mergers(
         fits (Fits): Surrogate model enum entry.
         size (int): Number of mergers to simulate.
         n_workers (int): Number of worker processes.
-        random_state (int): Base random seed.
+        n_threads_per_worker (int): Number of threads to use for each worker process.
+        random_state (Optional[int]): Base random seed.
 
     Returns:
         BlackHoleMergers: List of ``(binary, remnant)`` tuples.
     """
 
     if n_workers == 1:
-        return _simulate_black_hole_mergers(binary_generator, fits, size, random_state)
+        return _simulate_black_hole_mergers(
+            binary_generator=binary_generator,
+            fits=fits,
+            size=size,
+            random_state=random_state,
+            n_threads=n_threads_per_worker,
+        )
 
     # If n_workers > 1, we can parallelize the simulation by splitting the size into chunks
-    chunk_size = size // n_workers
+    n_workers = min(n_workers, size)
+    chunk_sizes = [size // n_workers] * n_workers
+    seed_sequence = np.random.SeedSequence(random_state)
+    random_states = seed_sequence.generate_state(n_workers)
+    for i in range(size % n_workers):
+        chunk_sizes[i] += 1
+
     results = multiprocess_run(
         func=_simulate_black_hole_mergers,
         input_kwargs=[
-            {"binary_generator": binary_generator, "fits": fits, "size": chunk_size, "random_state": random_state + i}
-            for i in range(n_workers)
+            {
+                "binary_generator": binary_generator,
+                "fits": fits,
+                "size": chunk_size,
+                "random_state": _random_state,
+                "n_threads": n_threads_per_worker,
+            }
+            for _random_state, chunk_size in zip(random_states, chunk_sizes)
         ],
         n_processes=n_workers,
     )
     # Combine the results from the different processes
     black_hole_mergers = sum(results, [])
-
-    if len(black_hole_mergers) < size:
-        # If there are any remaining mergers to simulate (due to rounding), simulate them in the main process
-        remaining_size = size - len(black_hole_mergers)
-        remaining_bh_mergers = _simulate_black_hole_mergers(
-            binary_generator, fits, remaining_size, random_state=random_state + n_workers
-        )
-        black_hole_mergers.extend(remaining_bh_mergers)
 
     return black_hole_mergers

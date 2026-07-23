@@ -95,7 +95,7 @@ def _add_pisn_gap(ax, color: str) -> None:
 
 def corner_estimates(  # pylint: disable=dangerous-default-value
     dfs: dict[str, pd.DataFrame],
-    levels: list[float] = [0.68, 0.9],
+    levels: Optional[list[float]] = None,
     nbins: int = 70,
     filename="corner_estimates",
     output_dir: Optional[str] = None,
@@ -106,7 +106,7 @@ def corner_estimates(  # pylint: disable=dangerous-default-value
 
     Args:
         dfs (dict[str, pd.DataFrame]): Mapping from label to dataframe.
-        levels (list[float]): Contour credibility levels.
+        levels (Optional[list[float]]): Contour credibility levels.
         nbins (int): Histogram bin count.
         filename (str): Output filename stem.
         output_dir (Optional[str]): Output directory.
@@ -116,6 +116,9 @@ def corner_estimates(  # pylint: disable=dangerous-default-value
     Returns:
         tuple[plt.Figure, plt.Axes]: Last generated figure and axes.
     """
+
+    if levels is None:
+        levels = [0.68, 0.95]
 
     corner_type_to_var_names = {
         "part": ["m_1", "m_2", "k_f"],

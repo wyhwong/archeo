@@ -36,7 +36,6 @@ def test_black_hole_population_from_simulation_results_and_draw_with_replacement
 
 
 def test_mass_ratio_based_binary_generator_enforces_secondary_domain_and_aligned_spins():
-    np.random.seed(7)
 
     gen = MassRatioBasedBinaryGenerator(
         mass_ratio_distribution=Uniform(low=1.0, high=6.0),
@@ -45,7 +44,7 @@ def test_mass_ratio_based_binary_generator_enforces_secondary_domain_and_aligned
         is_aligned_spin=True,
     )
 
-    binaries = gen.draw(size=200)
+    binaries = gen.draw(size=200, random_state=2024)
     assert len(binaries) == 200
 
     for b in binaries:

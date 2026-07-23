@@ -108,7 +108,7 @@ def test_binary_generator_enforce_source_binding_can_skip_invalid_pairs():
             self.scripted_draws = scripted_draws
             self.calls = 0
 
-        def draw(self, size=1):  # pylint: disable=unused-argument
+        def draw(self, size=1, random_state=None):  # pylint: disable=unused-argument
             out = self.scripted_draws[self.calls]
             self.calls += 1
             return out

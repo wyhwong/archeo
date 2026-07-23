@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
@@ -20,7 +22,7 @@ class ImportanceSamplingData(ISDataGeneric, ISDataAssumeIndependence, Interface)
     assume_parameter_independence: bool = False
 
     @pre_release
-    def get_likelihood_samples(self, random_state=42) -> np.ndarray:
+    def get_likelihood_samples(self, random_state: Optional[int] = None) -> np.ndarray:
         """Dispatch likelihood-resampling method by model assumption.
 
         Args:
@@ -59,7 +61,7 @@ class ImportanceSamplingData(ISDataGeneric, ISDataAssumeIndependence, Interface)
         return self.get_bayes_factor_dd(bootstrapping=bootstrapping)
 
     @pre_release
-    def sample_bayes_factor(self, n: int, is_parallel: bool = False, n_threads: int | None = None) -> BayesFactor:
+    def sample_bayes_factor(self, n: int, is_parallel: bool = False, n_threads: Optional[int] = None) -> BayesFactor:
         """Draw bootstrap samples of the Bayes factor.
 
         Args:
@@ -96,7 +98,7 @@ class ImportanceSamplingData(ISDataGeneric, ISDataAssumeIndependence, Interface)
         return BayesFactor(samples=[self.get_bayes_factor_dd(bootstrapping=True) for _ in tqdm(range(n))])
 
     @pre_release
-    def get_reweighted_samples(self, random_state=42) -> pd.DataFrame:
+    def get_reweighted_samples(self, random_state: Optional[int] = None) -> pd.DataFrame:
         """Dispatch posterior reweighting by model assumption.
 
         Args:

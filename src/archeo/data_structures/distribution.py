@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Optional, TypeAlias, Union
 
 import numpy as np
-from pydantic import BaseModel, PositiveFloat, field_validator
+from pydantic import BaseModel, Field, PositiveFloat, field_validator
 
 
 Weights: TypeAlias = PositiveFloat
@@ -71,17 +71,19 @@ class Uniform(BaseModel, DistributionBase, frozen=True):
 
         return self.high
 
-    def draw(self, size: Optional[int] = None) -> Union[float, np.ndarray[float]]:
+    def draw(self, size: Optional[int] = None, random_state: Optional[int] = None) -> Union[float, np.ndarray[float]]:
         """Draw sample(s) from a uniform distribution.
 
         Args:
             size (Optional[int]): Number of draws.
+            random_state (Optional[int]): Random seed for reproducibility.
 
         Returns:
             Union[float, np.ndarray[float]]: Drawn sample(s).
         """
 
-        return np.random.uniform(low=self.low, high=self.high, size=size)
+        rng = np.random.default_rng(random_state)
+        return rng.uniform(low=self.low, high=self.high, size=size)
 
 
 class Normal(BaseModel, DistributionBase, frozen=True):
@@ -110,17 +112,20 @@ class Normal(BaseModel, DistributionBase, frozen=True):
 
         return float("inf")
 
-    def draw(self, size: Optional[int] = None) -> Union[float, np.ndarray]:
+    def draw(self, size: Optional[int] = None, random_state: Optional[int] = None) -> Union[float, np.ndarray]:
         """Draw sample(s) from a normal distribution.
 
         Args:
             size (Optional[int]): Number of draws.
+            random_state (Optional[int]): Random seed for reproducibility.
 
         Returns:
             Union[float, np.ndarray]: Drawn sample(s).
         """
 
-        return np.random.normal(loc=self.mean, scale=self.std, size=size)
+        rng = np.random.default_rng(random_state)
+
+        return rng.normal(loc=self.mean, scale=self.std, size=size)
 
 
 class PiecewiseUniform(BaseModel, DistributionBase, frozen=True):
@@ -130,7 +135,7 @@ class PiecewiseUniform(BaseModel, DistributionBase, frozen=True):
     weights sum to 1.
     """
 
-    uniforms: dict[Uniform, Weights] = {}
+    uniforms: dict[Uniform, Weights] = Field(default_factory=dict)
 
     @field_validator("uniforms", mode="before")
     @classmethod
@@ -172,39 +177,48 @@ class PiecewiseUniform(BaseModel, DistributionBase, frozen=True):
 
         return max(uniform.high for uniform in self.uniforms)
 
-    def _draw_multiple(self, size: int) -> np.ndarray:
+    def _draw_multiple(self, size: int, random_state: Optional[int] = None) -> np.ndarray:
         """Draw multiple samples according to piecewise segment weights.
 
         Args:
             size (int): Number of draws.
+            random_state (Optional[int]): Random seed for reproducibility.
 
         Returns:
             np.ndarray: Shuffled concatenated samples.
         """
 
         sizes = {uniform: int(size * weights) for uniform, weights in self.uniforms.items()}
-        sample_chunks = [uniform.draw(size=sizes[uniform]) for uniform in self.uniforms]
+        seed_sequence = np.random.SeedSequence(random_state)
+        random_states = seed_sequence.generate_state(len(self.uniforms))
+        sample_chunks = [
+            uniform.draw(size=sizes[uniform], random_state=random_states[i]) for i, uniform in enumerate(self.uniforms)
+        ]
         remaining = size - sum(sizes.values())
         if remaining > 0:
-            sample_chunks.append([self.draw() for _ in range(remaining)])
+            random_states_remaining = seed_sequence.generate_state(remaining)
+            sample_chunks.append([self.draw(random_state=random_states_remaining[i]) for i in range(remaining)])
 
         samples = np.concatenate(sample_chunks)
         np.random.shuffle(samples)
         return samples
 
-    def draw(self, size: Optional[int] = None) -> Union[float, np.ndarray]:
+    def draw(self, size: Optional[int] = None, random_state: Optional[int] = None) -> Union[float, np.ndarray]:
         """Draw sample(s) from a piecewise-uniform distribution.
 
         Args:
             size (Optional[int]): Number of draws. If omitted or <=1, draws one sample.
+            random_state (Optional[int]): Random seed for reproducibility.
 
         Returns:
             Union[float, np.ndarray]: Drawn sample(s).
         """
 
+        rng = np.random.default_rng(random_state)
+
         if size and (size > 1):
-            return self._draw_multiple(size)
+            return self._draw_multiple(size, random_state=random_state)
 
         # Select a uniform distribution based on weights
-        selected_uniform = np.random.choice(list(self.uniforms.keys()), p=list(self.uniforms.values()))
-        return selected_uniform.draw()
+        selected_uniform = rng.choice(list(self.uniforms.keys()), p=list(self.uniforms.values()))
+        return selected_uniform.draw(random_state=random_state)

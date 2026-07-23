@@ -22,7 +22,8 @@ class DummyFitsEnum:
 
 
 class DummyBinaryGenerator:
-    def draw(self, size=1):
+
+    def draw(self, size=1, random_state=None):  # pylint: disable=unused-argument
         out = []
         for _ in range(size):
             p = BlackHole(mass=40.0, spin_magnitude=0.4, spin_vector=(0.0, 0.0, 0.4), speed=0.0)

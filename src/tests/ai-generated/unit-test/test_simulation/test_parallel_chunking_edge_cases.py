@@ -22,7 +22,7 @@ class DummyFitsEnum:
 
 
 class DummyBinaryGenerator:
-    def draw(self, size=1):
+    def draw(self, size=1, random_state=None):  # pylint: disable=unused-argument
         out = []
         for _ in range(size):
             p = BlackHole(mass=40.0, spin_magnitude=0.3, spin_vector=(0.0, 0.0, 0.3), speed=0.0)
@@ -49,5 +49,5 @@ def test_simulate_black_hole_mergers_workers_exceed_size_hits_remainder(monkeypa
         random_state=123,
     )
 
-    assert calls["chunk_sizes"] == [0, 0, 0, 0, 0]
+    assert calls["chunk_sizes"] == [1, 1]
     assert len(out) == 2

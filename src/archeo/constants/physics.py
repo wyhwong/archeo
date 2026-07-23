@@ -9,6 +9,7 @@ SPEED_OF_LIGHT = 299792.458  # km/s
 BH_MASS_LB: float = float(os.environ.get("BH_MASS_LB", 5.0))  # Solar masses
 PISN_LB: float = float(os.environ.get("PISN_LB", 65.0))  # Solar masses
 PISN_UB: float = float(os.environ.get("PISN_UB", 130.0))  # Solar masses
+BH_SPIN_UB: float = float(os.environ.get("BH_SPIN_UB", 0.99))  # Dimensionless spin
 
 
 class _TypicalHostEscapeVelocityMeta(BaseModel):

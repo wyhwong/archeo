@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 import pandas as pd
 
@@ -11,6 +13,7 @@ def _retrieve_sample(
     spin_measure: float,
     binsize_mass: float = DEFAULT_BINSIZE_MASS,
     binsize_spin: float = DEFAULT_BINSIZE_SPIN,
+    random_state: Optional[int] = None,
 ) -> pd.DataFrame:
     """Retrieve one ancestral sample compatible with measured remnant values.
 
@@ -20,6 +23,7 @@ def _retrieve_sample(
         spin_measure (float): Measured remnant spin.
         binsize_mass (float): Mass bin width used for local matching.
         binsize_spin (float): Spin bin width used for local matching.
+        random_state (Optional[int]): Random seed for reproducibility.
 
     Returns:
         pd.DataFrame: Single-row sample with added columns ``logL``,
@@ -37,7 +41,7 @@ def _retrieve_sample(
     if possible_samples.empty:
         possible_samples = pd.DataFrame(index=[0], columns=possible_samples.columns)
 
-    sample = possible_samples.sample(1)
+    sample = possible_samples.sample(1, random_state=random_state)
     sample["logL"] = np.log(likelihood)
     sample["spin_measure"] = spin_measure
     sample["mass_measure"] = mass_measure
@@ -51,8 +55,9 @@ def infer_ancestral_posterior_distribution(
     spin_posterior_samples: list[float],
     binsize_mass: float = DEFAULT_BINSIZE_MASS,
     binsize_spin: float = DEFAULT_BINSIZE_SPIN,
-    random_state: int = 42,
+    random_state: Optional[int] = None,
     n_workers: int = 1,
+    n_threads_per_worker: int = 1,
 ) -> pd.DataFrame:
     """Infer ancestral posterior samples by lookup-and-resample from a prior bank.
 
@@ -62,8 +67,9 @@ def infer_ancestral_posterior_distribution(
         spin_posterior_samples (list[float]): Measured remnant spin samples.
         binsize_mass (float): Mass matching bin width.
         binsize_spin (float): Spin matching bin width.
-        random_state (int): Base random seed.
+        random_state (Optional[int]): Base random seed.
         n_workers (int): Number of worker processes. Use `-1` for all cores.
+        n_threads_per_worker (int): Number of threads to use for each worker process.
 
     Returns:
         pd.DataFrame: Concatenated ancestral posterior samples aligned with input
@@ -77,10 +83,10 @@ def infer_ancestral_posterior_distribution(
         raise ValueError("The number of mass and spin posterior samples must be the same.")
 
     n_workers = get_n_workers(n_workers)
+    seed_sequence = np.random.SeedSequence(random_state)
 
     if n_workers == 1:
-        np.random.seed(random_state)
-
+        random_states = seed_sequence.generate_state(len(mass_posterior_samples))
         return pd.concat(
             multithread_run(
                 func=_retrieve_sample,
@@ -91,9 +97,13 @@ def infer_ancestral_posterior_distribution(
                         "spin_measure": spin_measure,
                         "binsize_mass": binsize_mass,
                         "binsize_spin": binsize_spin,
+                        "random_state": _random_state,
                     }
-                    for mass_measure, spin_measure in zip(mass_posterior_samples, spin_posterior_samples)
+                    for _random_state, mass_measure, spin_measure in zip(
+                        random_states, mass_posterior_samples, spin_posterior_samples
+                    )
                 ],
+                n_threads=n_threads_per_worker,
             ),
             ignore_index=True,
         )
@@ -105,6 +115,7 @@ def infer_ancestral_posterior_distribution(
     mass_measure_chunks = [mass_posterior_samples[i : i + chunk_size] for i in range(0, n_samples, chunk_size)]
 
     # Process each chunk in parallel
+    random_states = seed_sequence.generate_state(len(mass_measure_chunks))
     results = multiprocess_run(
         func=infer_ancestral_posterior_distribution,
         input_kwargs=[
@@ -114,9 +125,13 @@ def infer_ancestral_posterior_distribution(
                 "spin_posterior_samples": spin_measure_chunk,
                 "binsize_mass": binsize_mass,
                 "binsize_spin": binsize_spin,
-                "random_state": random_state + i,
+                "random_state": _random_state,
+                "n_workers": 1,
+                "n_threads_per_worker": n_threads_per_worker,
             }
-            for i, (spin_measure_chunk, mass_measure_chunk) in enumerate(zip(spin_measure_chunks, mass_measure_chunks))
+            for _random_state, spin_measure_chunk, mass_measure_chunk in zip(
+                random_states, spin_measure_chunks, mass_measure_chunks
+            )
         ],
         n_processes=n_workers,
     )

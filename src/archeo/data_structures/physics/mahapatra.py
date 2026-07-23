@@ -3,6 +3,7 @@ from typing import Optional, Union
 import numpy as np
 from pydantic import BaseModel, PositiveFloat
 
+from archeo.constants.physics import BH_MASS_LB, PISN_LB
 from archeo.data_structures.distribution import DistributionBase
 from archeo.data_structures.math import Domain
 
@@ -22,7 +23,7 @@ class MahapatraMassFunction(BaseModel, DistributionBase, frozen=True):
         resolution (float): Grid spacing used for numerical evaluation.
     """
 
-    mass: Domain
+    mass: Domain = Domain(low=BH_MASS_LB, high=PISN_LB)
     alpha: PositiveFloat = 2.3
     dm: PositiveFloat = 4.83
     resolution: PositiveFloat = 0.001
@@ -61,7 +62,13 @@ class MahapatraMassFunction(BaseModel, DistributionBase, frozen=True):
         """
 
         mp = masses - self.mass.low
-        return np.exp(self.dm / mp + self.dm / (mp - self.dm))
+        out = np.full_like(masses, np.inf, dtype=float)
+
+        mask = (mp > 0) & (mp < self.dm)
+        with np.errstate(divide="ignore", over="ignore", invalid="ignore"):
+            out[mask] = np.exp(self.dm / mp[mask] + self.dm / (mp[mask] - self.dm))
+
+        return out
 
     def _smoothing_func(self, masses: np.ndarray) -> np.ndarray:
         """Compute the smoothed power-law profile over input masses.
@@ -99,14 +106,16 @@ class MahapatraMassFunction(BaseModel, DistributionBase, frozen=True):
 
         return self.mass.high
 
-    def draw(self, size: Optional[int] = None) -> Union[float, np.ndarray[float]]:
+    def draw(self, size: Optional[int] = None, random_state: Optional[int] = None) -> Union[float, np.ndarray[float]]:
         """Draw random samples from the Mahapatra mass distribution.
 
         Args:
             size (Optional[int]): Number of samples to draw. If `None`, returns one sample.
+            random_state (Optional[int]): Random seed for reproducibility.
 
         Returns:
             Union[float, np.ndarray[float]]: Scalar sample or sample array.
         """
 
-        return np.random.choice(self.masses, size=size, p=self.probis)
+        rng = np.random.default_rng(random_state)
+        return rng.choice(self.masses, size=size, p=self.probis)

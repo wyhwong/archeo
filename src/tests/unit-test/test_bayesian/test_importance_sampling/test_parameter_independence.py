@@ -5,7 +5,6 @@ import pytest
 from archeo.bayesian.importance_sampling import ImportanceSamplingData as ISData
 
 
-np.random.seed(42)
 N_SAMPLES = 100000  # Number of samples, the more the better
 
 
@@ -13,10 +12,12 @@ N_SAMPLES = 100000  # Number of samples, the more the better
 def default_prior() -> pd.Series:
     """Default mass prior."""
 
+    rng = np.random.default_rng(42)
+
     return pd.DataFrame(
         {
-            "m_1": np.random.uniform(low=5, high=65, size=N_SAMPLES),
-            "a_1": np.random.uniform(low=0, high=1, size=N_SAMPLES),
+            "m_1": rng.uniform(low=5, high=65, size=N_SAMPLES),
+            "a_1": rng.uniform(low=0, high=1, size=N_SAMPLES),
         }
     )
 
@@ -25,10 +26,12 @@ def default_prior() -> pd.Series:
 def default_posterior() -> pd.Series:
     """Default mass posterior."""
 
+    rng = np.random.default_rng(2026)
+
     df = pd.DataFrame(
         {
-            "m_1": np.random.normal(loc=35, scale=5, size=N_SAMPLES),
-            "a_1": np.random.uniform(low=0, high=1, size=N_SAMPLES),
+            "m_1": rng.normal(loc=35, scale=5, size=N_SAMPLES),
+            "a_1": rng.uniform(low=0, high=1, size=N_SAMPLES),
         }
     )
     return df.clip(lower={"m_1": 5, "a_1": 0}, upper={"m_1": 65, "a_1": 1})
@@ -37,7 +40,8 @@ def default_posterior() -> pd.Series:
 def test_bayes_factor_with_no_prior_change_1d(prior: pd.Series, posterior: pd.Series):
     """Test the computation of the Bayes factor."""
 
-    candidate_prior = pd.DataFrame({"m_1": np.random.uniform(low=5, high=65, size=N_SAMPLES)})
+    rng = np.random.default_rng(2024)
+    candidate_prior = pd.DataFrame({"m_1": rng.uniform(low=5, high=65, size=N_SAMPLES)})
     data = ISData(
         new_prior_samples=candidate_prior,
         posterior_samples=posterior,
@@ -54,7 +58,8 @@ def test_bayes_factor_with_no_prior_change_1d(prior: pd.Series, posterior: pd.Se
 def test_bayes_factor_replace_delta_prior_1d(prior: pd.Series, posterior: pd.Series):
     """Test the computation of the Bayes factor."""
 
-    candidate_prior = pd.DataFrame({"m_1": np.random.normal(loc=35, scale=0.01, size=N_SAMPLES)})
+    rng = np.random.default_rng(2024)
+    candidate_prior = pd.DataFrame({"m_1": rng.normal(loc=35, scale=0.01, size=N_SAMPLES)})
     data = ISData(
         new_prior_samples=candidate_prior,
         posterior_samples=posterior,
@@ -70,7 +75,8 @@ def test_bayes_factor_replace_delta_prior_1d(prior: pd.Series, posterior: pd.Ser
 def test_bayes_factor_replace_flat_normal_prior_1d(prior: pd.Series, posterior: pd.Series):
     """Test the computation of the Bayes factor."""
 
-    samples = np.random.normal(loc=35, scale=50, size=N_SAMPLES)
+    rng = np.random.default_rng(2024)
+    samples = rng.normal(loc=35, scale=50, size=N_SAMPLES)
     samples = samples[(5 <= samples) & (samples <= 65)]
     candidate_prior = pd.DataFrame({"m_1": samples})
     data = ISData(

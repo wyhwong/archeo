@@ -1,10 +1,10 @@
-from typing import TypeAlias, Union
+from typing import Optional, TypeAlias, Union
 
 import numpy as np
 import pandas as pd
 from pydantic import BaseModel, NonNegativeFloat, PositiveFloat, field_validator
 
-from archeo.constants.physics import BH_MASS_LB, PISN_LB
+from archeo.constants.physics import BH_MASS_LB, BH_SPIN_UB, PISN_LB
 from archeo.data_structures.distribution import Uniform
 from archeo.data_structures.type_alias import Distribution
 
@@ -17,7 +17,7 @@ class BlackHole(BaseModel, frozen=True):
     """
 
     mass: PositiveFloat
-    spin_magnitude: PositiveFloat
+    spin_magnitude: NonNegativeFloat
     spin_vector: tuple[float, float, float]
     speed: NonNegativeFloat
 
@@ -53,7 +53,7 @@ class BlackHoleGenerator(BaseModel, frozen=True):
     """
 
     mass_distribution: Distribution = Uniform(low=BH_MASS_LB, high=PISN_LB)
-    spin_magnitude_distribution: Distribution = Uniform(low=0, high=1)
+    spin_magnitude_distribution: Distribution = Uniform(low=0, high=BH_SPIN_UB)
     phi_distribution: Distribution = Uniform(low=0, high=2 * np.pi)
     theta_distribution: Distribution = Uniform(low=0, high=np.pi)
 
@@ -117,22 +117,31 @@ class BlackHoleGenerator(BaseModel, frozen=True):
 
         return v
 
-    def draw(self, size: int = 1) -> BlackHoles:
+    def draw(self, size: int = 1, random_state: Optional[int] = None) -> BlackHoles:
         """Draw black-hole samples from configured parameter distributions.
 
         Args:
             size (int): Number of black holes to generate.
+            random_state (Optional[int]): Random seed for reproducibility.
 
         Returns:
             BlackHoles: Generated black-hole list.
         """
 
-        masses = self.mass_distribution.draw(size=size)
-        spin_magnitudes = self.spin_magnitude_distribution.draw(size=size)
-        phis = self.phi_distribution.draw(size=size)
-        thetas = self.theta_distribution.draw(size=size)
+        seed_sequence = np.random.SeedSequence(random_state)
+        random_states = seed_sequence.generate_state(4)
 
-        return self.build_black_holes(masses, spin_magnitudes, phis, thetas)
+        masses = self.mass_distribution.draw(size=size, random_state=random_states[0])
+        spin_magnitudes = self.spin_magnitude_distribution.draw(size=size, random_state=random_states[1])
+        phis = self.phi_distribution.draw(size=size, random_state=random_states[2])
+        thetas = self.theta_distribution.draw(size=size, random_state=random_states[3])
+
+        return self.build_black_holes(
+            masses=masses,
+            spin_magnitudes=spin_magnitudes,
+            phis=phis,
+            thetas=thetas,
+        )
 
     @staticmethod
     def build_black_holes(
@@ -175,17 +184,19 @@ class BlackHolePopulation(BaseModel, frozen=True):
 
     black_holes: BlackHoles
 
-    def draw(self, size: int = 1) -> BlackHoles:
+    def draw(self, size: int = 1, random_state: Optional[int] = None) -> BlackHoles:
         """Sample black holes with replacement from a stored population.
 
         Args:
             size (int): Number of black holes to draw.
+            random_state (Optional[int]): Random seed for reproducibility.
 
         Returns:
             BlackHoles: Drawn black-hole list.
         """
 
-        return np.random.choice(self.black_holes, size=size, replace=True).tolist()
+        rng = np.random.default_rng(random_state)
+        return rng.choice(self.black_holes, size=size, replace=True).tolist()
 
     @classmethod
     def from_simulation_results(
@@ -193,6 +204,7 @@ class BlackHolePopulation(BaseModel, frozen=True):
         df: pd.DataFrame,
         phi_distribution: Distribution = Uniform(low=0, high=2 * np.pi),
         theta_distribution: Distribution = Uniform(low=0, high=np.pi),
+        random_state: Optional[int] = None,
     ) -> "BlackHolePopulation":
         """Build a black-hole population from remnant columns in a simulation dataframe.
 
@@ -200,13 +212,17 @@ class BlackHolePopulation(BaseModel, frozen=True):
             df (pd.DataFrame): Simulation dataframe containing remnant mass, spin, and kick.
             phi_distribution (Distribution): Distribution for azimuthal angles.
             theta_distribution (Distribution): Distribution for polar angles.
+            random_state (Optional[int]): Random seed for reproducibility.
 
         Returns:
             BlackHolePopulation: Population object constructed from remnant entries.
         """
 
-        phis = phi_distribution.draw(size=len(df))
-        thetas = theta_distribution.draw(size=len(df))
+        seed_sequence = np.random.SeedSequence(random_state)
+        random_states = seed_sequence.generate_state(2)
+
+        phis = phi_distribution.draw(size=len(df), random_state=random_states[0])
+        thetas = theta_distribution.draw(size=len(df), random_state=random_states[1])
 
         return cls(
             black_holes=[

@@ -30,10 +30,12 @@ class ImportanceSamplingDataBase(BaseModel, frozen=True):
             list[str]: Shared column names.
         """
 
-        return list(
-            set(self.posterior_samples.columns)
-            .intersection(set(self.prior_samples.columns))
-            .intersection(set(self.new_prior_samples.columns))
+        return sorted(
+            list(
+                set(self.posterior_samples.columns)
+                .intersection(set(self.prior_samples.columns))
+                .intersection(set(self.new_prior_samples.columns))
+            )
         )
 
     @property
@@ -94,7 +96,7 @@ class ImportanceSamplingDataBase(BaseModel, frozen=True):
 
         binsize = self.get_binsize(col_name)
         bounds = self.bounds[col_name]
-        return int((bounds.high - bounds.low) / binsize)
+        return max(1, int(np.ceil((bounds.high - bounds.low) / binsize)))
 
     def get_edges(self, col_name: str) -> np.ndarray:
         """Compute histogram bin edges for a column.
@@ -134,4 +136,10 @@ class ImportanceSamplingDataBase(BaseModel, frozen=True):
             np.ndarray: ``a / b`` where ``b`` exceeds tolerance, else 0.
         """
 
-        return np.where(b > self.ztol, np.exp(np.log(a) - np.log(b)), 0.0)
+        a_arr = np.asarray(a)
+        return np.divide(
+            a_arr,
+            b,
+            out=np.zeros_like(b, dtype=float),
+            where=b > self.ztol,
+        )

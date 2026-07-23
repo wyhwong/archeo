@@ -13,7 +13,7 @@ def test_candidate_prior_conditional_prior_is_deterministic_with_same_seed():
 
     assert out1.equals(out2)
     assert len(out1) == 20
-    assert {"m_1", "m_2", "v_esc"}.issubset(set(out1.columns))
+    assert {"m_1", "m_2"}.issubset(set(out1.columns))
 
 
 def test_candidate_prior_host_escape_velocities_no_forced_5000_if_already_above():

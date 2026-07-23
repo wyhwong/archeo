@@ -32,8 +32,8 @@ def test_second_generation_pipeline_selects_expected_fits_and_spin(monkeypatch):
         lambda mergers: pd.DataFrame({"ok": [len(mergers)]}),
     )
 
-    df_a, gen_a = simulate_second_generation_aligned_spin_binaries(size=7, n_workers=-1, random_state=11)
-    assert called["n_workers_in"] == -1
+    df_a, gen_a = simulate_second_generation_aligned_spin_binaries(size=7, n_workers=2, random_state=11)
+    assert called["n_workers_in"] == 2
     assert called["n_workers"] == 3
     assert called["fits"] == Fits.NRSUR3DQ8REMNANT
     assert called["aligned"] is True

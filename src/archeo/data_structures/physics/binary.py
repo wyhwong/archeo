@@ -1,10 +1,10 @@
 from abc import abstractmethod
-from typing import TypeAlias
+from typing import Optional, TypeAlias
 
 import numpy as np
 from pydantic import BaseModel, NonNegativeFloat, PositiveFloat
 
-from archeo.constants.physics import BH_MASS_LB, PISN_LB
+from archeo.constants.physics import BH_MASS_LB, BH_SPIN_UB, PISN_LB
 from archeo.data_structures.distribution import Uniform
 from archeo.data_structures.math import Domain
 from archeo.data_structures.physics.black_hole import BlackHole, BlackHoleGenerator, BlackHoleSource
@@ -50,7 +50,7 @@ class Binary(BaseModel, frozen=True):
         return np.maximum(a1h, (4 / q + 3) / (3 / q + 4) / q * a2h)
 
     @property
-    def effective_spin(self) -> NonNegativeFloat:
+    def effective_spin(self) -> float:
         """Compute mass-weighted effective aligned spin for the binary.
 
         Returns:
@@ -88,19 +88,21 @@ class BinaryGeneratorBase(BaseModel, frozen=True):
         """
 
     @staticmethod
-    def _apply_aligned_spin_to_binaries(binaries: Binaries) -> Binaries:
+    def _apply_aligned_spin_to_binaries(binaries: Binaries, random_state: Optional[int] = None) -> Binaries:
         """Project spins onto the z-axis with random sign for aligned-spin mode.
 
         Args:
             binaries (Binaries): Input binaries with generic spin vectors.
+            random_state (Optional[int]): Random seed for reproducibility.
 
         Returns:
             Binaries: Binaries whose spin vectors are aligned or anti-aligned with z-axis.
         """
 
         size = len(binaries)
-        direction_bh1 = np.random.choice([-1, 1], size=size)
-        direction_bh2 = np.random.choice([-1, 1], size=size)
+        rng = np.random.default_rng(random_state)
+        direction_bh1 = rng.choice([-1, 1], size=size, replace=True)
+        direction_bh2 = rng.choice([-1, 1], size=size, replace=True)
         binaries = [
             Binary(
                 primary_black_hole=BlackHole(
@@ -135,11 +137,12 @@ class BinaryGenerator(BinaryGeneratorBase):
     mass_ratio_domain: Domain = Domain(low=1.0, high=6.0)
     enforce_source_binding: bool = False
 
-    def draw(self, size: int = 1) -> Binaries:
+    def draw(self, size: int = 1, random_state: Optional[int] = None) -> Binaries:
         """Generate binaries from configured sources under mass-ratio constraints.
 
         Args:
             size (int): Number of binaries to generate.
+            random_state (Optional[int]): Random seed for reproducibility.
 
         Returns:
             Binaries: Generated binary list satisfying ordering and ratio criteria.
@@ -147,15 +150,21 @@ class BinaryGenerator(BinaryGeneratorBase):
 
         binaries = []
         n_step = 0
+        seed_sequence = np.random.SeedSequence(random_state)
 
         while len(binaries) < size:
             n_step += 1
-
             remaining_size = size - len(binaries)
-            primary_black_hole = self.primary_black_hole_source.draw(size=remaining_size)
-            secondary_black_hole = self.secondary_black_hole_source.draw(size=remaining_size)
+            random_states = seed_sequence.generate_state(2)
 
-            for p_bh, s_bh in zip(primary_black_hole, secondary_black_hole):
+            primary_black_holes = self.primary_black_hole_source.draw(
+                size=remaining_size, random_state=random_states[0]
+            )
+            secondary_black_holes = self.secondary_black_hole_source.draw(
+                size=remaining_size, random_state=random_states[1]
+            )
+
+            for p_bh, s_bh in zip(primary_black_holes, secondary_black_holes):
                 if (not self.enforce_source_binding) and (p_bh.mass < s_bh.mass):
                     p_bh, s_bh = s_bh, p_bh
 
@@ -172,7 +181,7 @@ class BinaryGenerator(BinaryGeneratorBase):
         LOGGER.info("Finished generating %d binaries after %d steps.", size, n_step)
 
         if self.is_aligned_spin:
-            binaries = self._apply_aligned_spin_to_binaries(binaries)
+            binaries = self._apply_aligned_spin_to_binaries(binaries, random_state=seed_sequence.generate_state(1)[0])
 
         return binaries
 
@@ -187,62 +196,74 @@ class MassRatioBasedBinaryGenerator(BinaryGeneratorBase):
     mass_ratio_distribution: Distribution = Uniform(low=1.0, high=6.0)
     primary_mass_distribution: Distribution = Uniform(low=BH_MASS_LB, high=PISN_LB)
     secondary_mass_domain: Domain = Domain(low=BH_MASS_LB, high=PISN_LB)
-    spin_magnitude_distribution: Distribution = Uniform(low=0.0, high=1.0)
+    spin_magnitude_distribution: Distribution = Uniform(low=0.0, high=BH_SPIN_UB)
     phi_distribution: Distribution = Uniform(low=0, high=2 * np.pi)
     theta_distribution: Distribution = Uniform(low=0, high=np.pi)
 
-    def draw(self, size: int = 1) -> Binaries:
+    def draw(self, size: int = 1, random_state: Optional[int] = None) -> Binaries:
         """Generate binaries by sampling primary masses and mass-ratio distribution.
 
         Args:
             size (int): Number of binaries to generate.
+            random_state (Optional[int]): Random seed for reproducibility.
 
         Returns:
             Binaries: Generated binary list.
         """
 
-        primary_masses, secondary_masses = self.sample_binary_masses(size)
+        seed_sequence = np.random.SeedSequence(random_state)
+        random_states = seed_sequence.generate_state(8)
+
+        primary_masses, secondary_masses = self.sample_binary_masses(size, random_state=random_states[0])
         primary_bhs = BlackHoleGenerator.build_black_holes(
             masses=primary_masses,
-            spin_magnitudes=self.spin_magnitude_distribution.draw(size),
-            phis=self.phi_distribution.draw(size),
-            thetas=self.theta_distribution.draw(size),
+            spin_magnitudes=self.spin_magnitude_distribution.draw(size, random_state=random_states[1]),
+            phis=self.phi_distribution.draw(size, random_state=random_states[2]),
+            thetas=self.theta_distribution.draw(size, random_state=random_states[3]),
         )
         secondary_bhs = BlackHoleGenerator.build_black_holes(
             masses=secondary_masses,
-            spin_magnitudes=self.spin_magnitude_distribution.draw(size),
-            phis=self.phi_distribution.draw(size),
-            thetas=self.theta_distribution.draw(size),
+            spin_magnitudes=self.spin_magnitude_distribution.draw(size, random_state=random_states[4]),
+            phis=self.phi_distribution.draw(size, random_state=random_states[5]),
+            thetas=self.theta_distribution.draw(size, random_state=random_states[6]),
         )
         binaries = [
             Binary(primary_black_hole=bh1, secondary_black_hole=bh2) for bh1, bh2 in zip(primary_bhs, secondary_bhs)
         ]
 
         if self.is_aligned_spin:
-            binaries = self._apply_aligned_spin_to_binaries(binaries)
+            binaries = self._apply_aligned_spin_to_binaries(
+                binaries, random_state=random_states[7] if random_state is not None else None
+            )
 
         return binaries
 
-    def sample_binary_masses(self, size: int) -> tuple[list[float], list[float]]:
+    def sample_binary_masses(self, size: int, random_state: Optional[int] = None) -> tuple[list[float], list[float]]:
         """Sample primary and secondary masses consistent with mass-domain limits.
 
         Args:
             size (int): Number of binaries.
+            random_state (Optional[int]): Random seed for reproducibility.
 
         Returns:
             tuple[list[float], list[float]]: Primary mass list and secondary mass list.
         """
 
-        mass_ratios = self.mass_ratio_distribution.draw(size=size)
-        primary_masses = self.primary_mass_distribution.draw(size=size)
+        seed_sequence = np.random.SeedSequence(random_state)
+        random_states = seed_sequence.generate_state(2)
+
+        mass_ratios = np.asarray(self.mass_ratio_distribution.draw(size=size, random_state=random_states[0]))
+        primary_masses = np.asarray(self.primary_mass_distribution.draw(size=size, random_state=random_states[1]))
         secondary_masses = primary_masses / mass_ratios
         n_step = 1
 
         while (mask := self.secondary_mass_domain.not_contains(secondary_masses)).any():
             LOGGER.info("Step %d: Generated %d binaries so far.", n_step, len(primary_masses) - mask.sum())
-            primary_masses[mask] = self.primary_mass_distribution.draw(size=mask.sum())
-            secondary_masses[mask] = primary_masses[mask] / mass_ratios[mask]
             n_step += 1
+            primary_masses[mask] = self.primary_mass_distribution.draw(
+                size=mask.sum(), random_state=seed_sequence.generate_state(1)[0]
+            )
+            secondary_masses[mask] = primary_masses[mask] / mass_ratios[mask]
 
         LOGGER.info("Finished generating %d binaries after %d steps.", size, n_step)
         return primary_masses, secondary_masses

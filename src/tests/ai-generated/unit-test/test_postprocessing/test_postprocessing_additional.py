@@ -52,15 +52,17 @@ def test_bias_functions():
 
 
 def test_kl_divergence_dimension_mismatch():
-    X = np.random.normal(size=(100, 2))
-    Y = np.random.normal(size=(100, 3))
+    rng = np.random.default_rng(42)
+    X = rng.normal(size=(100, 2))
+    Y = rng.normal(size=(100, 3))
     with pytest.raises(ValueError, match="same dimension"):
         compute_kl_divergence_from_samples(X, Y)
 
 
 def test_kl_divergence_non_negative():
-    X = np.random.normal(size=(200, 2))
-    Y = np.random.normal(loc=0.5, size=(220, 2))
+    rng = np.random.default_rng(42)
+    X = rng.normal(size=(200, 2))
+    Y = rng.normal(loc=0.5, size=(220, 2))
     kl = compute_kl_divergence_from_samples(X, Y)
     assert np.isfinite(kl)
 

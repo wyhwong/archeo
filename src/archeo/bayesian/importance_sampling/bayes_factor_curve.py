@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, model_validator
@@ -49,13 +51,15 @@ class CandidatePrior(BaseModel):
 
         return values
 
-    def get_conditional_prior(self, v_esc: float, n_min: int = 500000, random_state: int = 42) -> pd.DataFrame:
+    def get_conditional_prior(
+        self, v_esc: float, n_min: int = 500000, random_state: Optional[int] = None
+    ) -> pd.DataFrame:
         """Build conditional candidate prior at an escape-velocity threshold.
 
         Args:
             v_esc (float): Maximum host escape velocity retained.
             n_min (int): Minimum number of sampled rows per side before concatenation.
-            random_state (int): Seed for reproducible resampling.
+            random_state (Optional[int]): Seed for reproducible resampling.
 
         Returns:
             pd.DataFrame: Concatenated conditional prior dataframe for the threshold.
@@ -68,10 +72,16 @@ class CandidatePrior(BaseModel):
             return pd.DataFrame(columns=self.df_bh1.columns.union(self.df_bh2.columns))
 
         n_samples = max(len(df_bh1_prior), len(df_bh2_prior), n_min)
+        seed_sequence = np.random.SeedSequence(random_state)
+        random_states = seed_sequence.generate_state(2)
         conditional_prior = pd.concat(
             [
-                df_bh1_prior.sample(n=n_samples, replace=True, random_state=random_state).reset_index(drop=True),
-                df_bh2_prior.sample(n=n_samples, replace=True, random_state=random_state).reset_index(drop=True),
+                df_bh1_prior.sample(n=n_samples, replace=True, random_state=random_states[0])
+                .drop(columns=["v_esc"])
+                .reset_index(drop=True),
+                df_bh2_prior.sample(n=n_samples, replace=True, random_state=random_states[1])
+                .drop(columns=["v_esc"])
+                .reset_index(drop=True),
             ],
             axis=1,
         )
@@ -118,6 +128,7 @@ class BayesFactorCurve(BaseModel, frozen=True):
         posterior: pd.DataFrame,
         candidate_prior: CandidatePrior,
         v_esc: float,
+        random_state: Optional[int] = None,
     ) -> BayesFactor:
         """Sample Bayes-factor bootstrap distribution at one velocity value.
 
@@ -126,6 +137,7 @@ class BayesFactorCurve(BaseModel, frozen=True):
             posterior (pd.DataFrame): Posterior samples.
             candidate_prior (CandidatePrior): Candidate prior provider.
             v_esc (float): Escape velocity threshold.
+            random_state (Optional[int]): Random seed for reproducibility.
 
         Returns:
             BayesFactor: Bootstrap Bayes-factor samples.
@@ -134,7 +146,7 @@ class BayesFactorCurve(BaseModel, frozen=True):
         return ISData(
             prior_samples=prior,
             posterior_samples=posterior,
-            new_prior_samples=candidate_prior.get_conditional_prior(v_esc),
+            new_prior_samples=candidate_prior.get_conditional_prior(v_esc, random_state=random_state),
             binsize_spin=self.metadata.binsize_spin,
             binsize_mass=self.metadata.binsize_mass,
             assume_parameter_independence=self.metadata.assume_parameter_independence,
@@ -146,6 +158,7 @@ class BayesFactorCurve(BaseModel, frozen=True):
         prior: pd.DataFrame,
         posterior: pd.DataFrame,
         candidate_prior: CandidatePrior,
+        random_state: Optional[int] = None,
         n_workers: int = 1,
     ) -> BayesFactorCurveData:
         """Compute Bayes factors over a grid of host escape velocities.
@@ -154,6 +167,7 @@ class BayesFactorCurve(BaseModel, frozen=True):
             prior (pd.DataFrame): Baseline prior samples.
             posterior (pd.DataFrame): Posterior samples.
             candidate_prior (CandidatePrior): Candidate prior provider.
+            random_state (Optional[int]): Random seed for reproducibility.
             n_workers (int): Number of worker processes.
 
         Returns:
@@ -161,15 +175,27 @@ class BayesFactorCurve(BaseModel, frozen=True):
         """
 
         v_escs = candidate_prior.get_host_escape_velocities(n_pts=self.n_pts, log_scale=self.log_scale)
+        seed_sequence = np.random.SeedSequence(random_state)
 
         if n_workers == 1:
-            return {v_esc: self._sample_bayes_factor(prior, posterior, candidate_prior, v_esc) for v_esc in v_escs}
+            random_states = seed_sequence.generate_state(len(v_escs))
+            return {
+                v_esc: self._sample_bayes_factor(prior, posterior, candidate_prior, v_esc, _random_state)
+                for _random_state, v_esc in zip(random_states, v_escs)
+            }
 
+        random_states = seed_sequence.generate_state(len(v_escs))
         bayes_factor_data = multiprocess_run(
             func=self._sample_bayes_factor,
             input_kwargs=[
-                {"prior": prior, "posterior": posterior, "candidate_prior": candidate_prior, "v_esc": v_esc}
-                for v_esc in v_escs
+                {
+                    "prior": prior,
+                    "posterior": posterior,
+                    "candidate_prior": candidate_prior,
+                    "v_esc": v_esc,
+                    "random_state": random_states[i],
+                }
+                for i, v_esc in enumerate(v_escs)
             ],
             n_processes=n_workers,
         )

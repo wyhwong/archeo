@@ -1,3 +1,5 @@
+from typing import Optional
+
 from archeo.constants.enum import Fits
 from archeo.data_structures.distribution import Uniform
 from archeo.data_structures.physics.binary import BinaryGenerator
@@ -9,7 +11,7 @@ from archeo.utils.parallel import get_n_workers
 
 
 def simulate_agnostic_precession_spin_binaries(
-    size: int = 1000, n_workers: int = 1, random_state: int = 42
+    size: int = 1000, n_workers: int = 1, random_state: Optional[int] = None
 ) -> PipelineOutput:
     """Simulate agnostic binaries with precession spins.
 
@@ -33,14 +35,18 @@ def simulate_agnostic_precession_spin_binaries(
         is_aligned_spin=False,
     )
     black_hole_mergers = simulate_black_hole_mergers(
-        binary_generator, Fits.NRSUR7DQ4REMNANT, size, n_workers, random_state
+        binary_generator=binary_generator,
+        fits=Fits.NRSUR7DQ4REMNANT,
+        size=size,
+        n_workers=n_workers,
+        random_state=random_state,
     )
     df_binaries = convert_simulated_binaries_to_dataframe(black_hole_mergers)
     return df_binaries, binary_generator
 
 
 def simulate_agnostic_aligned_spin_binaries(
-    size: int = 1000, n_workers: int = 1, random_state: int = 42
+    size: int = 1000, n_workers: int = 1, random_state: Optional[int] = None
 ) -> PipelineOutput:
     """Simulate agnostic binaries with aligned spins.
 
@@ -64,7 +70,11 @@ def simulate_agnostic_aligned_spin_binaries(
         is_aligned_spin=True,
     )
     black_hole_mergers = simulate_black_hole_mergers(
-        binary_generator, Fits.NRSUR3DQ8REMNANT, size, n_workers, random_state
+        binary_generator=binary_generator,
+        fits=Fits.NRSUR3DQ8REMNANT,
+        size=size,
+        n_workers=n_workers,
+        random_state=random_state,
     )
     df_binaries = convert_simulated_binaries_to_dataframe(black_hole_mergers)
     return df_binaries, binary_generator

@@ -25,9 +25,9 @@ def test_agnostic_precession_pipeline_uses_precession_fit(monkeypatch):
         lambda mergers: pd.DataFrame({"n": [len(mergers)]}),
     )
 
-    df, generator = simulate_agnostic_precession_spin_binaries(size=7, n_workers=-1, random_state=123)
+    df, generator = simulate_agnostic_precession_spin_binaries(size=7, n_workers=2, random_state=123)
 
-    assert called["n_workers_in"] == -1
+    assert called["n_workers_in"] == 2
     assert called["n_workers"] == 2
     assert called["fits"] == Fits.NRSUR7DQ4REMNANT
     assert called["aligned"] is False

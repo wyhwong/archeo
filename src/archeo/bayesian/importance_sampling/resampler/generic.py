@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 import pandas as pd
 
@@ -53,7 +55,7 @@ class ISDataGeneric(ImportanceSamplingDataBase):
         samples_array = df_samples.to_numpy()
         return get_histogram_dd(samples_array, nbins=nbins, bounds=bounds)
 
-    def get_likelihood_samples_dd(self, random_state=42) -> np.ndarray:
+    def get_likelihood_samples_dd(self, random_state: Optional[int] = None) -> np.ndarray:
         """Resample posterior to approximate likelihood in joint space.
 
         Args:
@@ -161,7 +163,7 @@ class ISDataGeneric(ImportanceSamplingDataBase):
 
         return bf
 
-    def get_reweighted_samples_dd(self, random_state=42) -> pd.DataFrame:
+    def get_reweighted_samples_dd(self, random_state: Optional[int] = None) -> pd.DataFrame:
         """Draw posterior samples reweighted in joint parameter space.
 
         Args:
