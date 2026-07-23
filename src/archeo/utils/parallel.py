@@ -63,6 +63,9 @@ def multithread_run(
         list[Any]: Results in submission order.
     """
 
+    if n_threads == 1:
+        return [func(**kwargs) for kwargs in tqdm(input_kwargs, total=len(input_kwargs))]
+
     results = [None] * len(input_kwargs)
 
     with warnings.catch_warnings():
@@ -92,6 +95,9 @@ def multiprocess_run(
     Returns:
         list[Any]: Results in submission order.
     """
+
+    if n_processes == 1:
+        return [func(**kwargs) for kwargs in tqdm(input_kwargs, total=len(input_kwargs))]
 
     results = [None] * len(input_kwargs)
 
