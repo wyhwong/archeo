@@ -1,10 +1,14 @@
 import pyinstrument
+import pytest
 
 from archeo.constants.enum import Fits
 from archeo.preset.simulation.second_generation import (
     simulate_second_generation_aligned_spin_binaries,
     simulate_second_generation_precession_spin_binaries,
 )
+
+
+pytestmark = pytest.mark.skip(reason="Profiling scripts are not part of automated test suite.")
 
 
 @pyinstrument.profile()

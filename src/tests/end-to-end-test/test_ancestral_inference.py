@@ -23,18 +23,18 @@ def get_gw190521_pe_samples() -> pd.DataFrame:
 
 def test_gw190521_ancestral_inference(gw190521_pe_samples: pd.DataFrame):
 
-    df_binaries, _ = simulate_agnostic_aligned_spin_binaries(size=SAMPLE_SIZE, n_workers=2)
+    df_binaries, _ = simulate_agnostic_aligned_spin_binaries(size=SAMPLE_SIZE, n_workers=1)
     df_bh1_ancestors = infer_ancestral_posterior_distribution(
         df_binaries=df_binaries,
         mass_posterior_samples=gw190521_pe_samples["mass_1_source"].values.tolist(),
         spin_posterior_samples=gw190521_pe_samples["a_1"].values.tolist(),
-        n_workers=2,
+        n_workers=1,
     )
     df_bh2_ancestors = infer_ancestral_posterior_distribution(
         df_binaries=df_binaries,
         mass_posterior_samples=gw190521_pe_samples["mass_2_source"].values.tolist(),
         spin_posterior_samples=gw190521_pe_samples["a_2"].values.tolist(),
-        n_workers=2,
+        n_workers=1,
     )
 
     # Minimum requirement: retrieved samples has same number as the posterior samples

@@ -47,13 +47,24 @@ def test_infer_ancestral_length_mismatch():
         )
 
 
-def test_infer_ancestral_parallel_and_single_worker_lengths():
+def test_infer_ancestral_parallel_and_single_worker_lengths(monkeypatch):
+    def fake_multiprocess_run(func, input_kwargs, n_processes):
+        # Execute synchronously to exercise chunking/parallel branch without
+        # creating real subprocesses in CI.
+        return [func(**kwargs) for kwargs in input_kwargs]
+
+    monkeypatch.setattr(
+        "archeo.bayesian.ancestral_posterior.multiprocess_run",
+        fake_multiprocess_run,
+    )
+
     df = _prior_df(1000)
     masses = [30.0, 31.0, 29.0, 35.0]
     spins = [0.2, 0.3, 0.4, 0.5]
 
     out1 = infer_ancestral_posterior_distribution(df, masses, spins, n_workers=1)
     out2 = infer_ancestral_posterior_distribution(df, masses, spins, n_workers=2)
+
     assert len(out1) == 4
     assert len(out2) == 4
 

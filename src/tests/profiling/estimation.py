@@ -2,9 +2,13 @@ import os
 
 import pandas as pd
 import pyinstrument
+import pytest
 
 from archeo import infer_ancestral_posterior_distribution
 from archeo.preset.simulation import simulate_second_generation_aligned_spin_binaries
+
+
+pytestmark = pytest.mark.skip(reason="Profiling scripts are not part of automated test suite.")
 
 
 @pyinstrument.profile()
