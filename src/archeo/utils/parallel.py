@@ -100,13 +100,14 @@ def multiprocess_run(
         return [func(**kwargs) for kwargs in tqdm(input_kwargs, total=len(input_kwargs))]
 
     results = [None] * len(input_kwargs)
+    ctx = multiprocessing.get_context("spawn")
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=UserWarning)
         warnings.filterwarnings("ignore", category=RuntimeWarning)
         warnings.filterwarnings("ignore", category=FutureWarning)
 
-        with ProcessPoolExecutor(max_workers=n_processes) as exc:
+        with ProcessPoolExecutor(max_workers=n_processes, mp_context=ctx) as exc:
             futures = [exc.submit(func, **kwargs) for kwargs in input_kwargs]
             results = [future.result() for future in tqdm(futures, total=len(futures))]
 
