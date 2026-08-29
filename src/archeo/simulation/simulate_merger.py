@@ -7,7 +7,7 @@ from archeo.constants.physics import SPEED_OF_LIGHT
 from archeo.data_structures.physics.binary import Binary, BinaryGenerator
 from archeo.data_structures.physics.black_hole import BlackHole
 from archeo.data_structures.physics.simulation import BlackHoleMergers
-from archeo.utils.parallel import multiprocess_run, multithread_run
+from archeo.utils import parallel
 
 
 def _simulate_black_hole_merger(binary: Binary, loaded_fits) -> BlackHole:
@@ -69,7 +69,7 @@ def _simulate_black_hole_mergers(
     binaries = binary_generator.draw(size=size, random_state=random_state)
     loaded_fits = fits.load()
 
-    remnants = multithread_run(
+    remnants = parallel.multithread_run(
         func=_simulate_black_hole_merger,
         input_kwargs=[
             {
@@ -122,7 +122,7 @@ def simulate_black_hole_mergers(
     for i in range(size % n_workers):
         chunk_sizes[i] += 1
 
-    results = multiprocess_run(
+    results = parallel.multiprocess_run(
         func=_simulate_black_hole_mergers,
         input_kwargs=[
             {

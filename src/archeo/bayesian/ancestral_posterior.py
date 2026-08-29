@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from archeo.constants.bayesian import DEFAULT_BINSIZE_MASS, DEFAULT_BINSIZE_SPIN
-from archeo.utils.parallel import get_n_workers, multiprocess_run, multithread_run
+from archeo.utils import parallel
 
 
 def _retrieve_sample(
@@ -82,13 +82,13 @@ def infer_ancestral_posterior_distribution(
     if len(mass_posterior_samples) != len(spin_posterior_samples):
         raise ValueError("The number of mass and spin posterior samples must be the same.")
 
-    n_workers = get_n_workers(n_workers)
+    n_workers = parallel.get_n_workers(n_workers)
     seed_sequence = np.random.SeedSequence(random_state)
 
     if n_workers == 1:
         random_states = seed_sequence.generate_state(len(mass_posterior_samples))
         return pd.concat(
-            multithread_run(
+            parallel.multithread_run(
                 func=_retrieve_sample,
                 input_kwargs=[
                     {
@@ -116,7 +116,7 @@ def infer_ancestral_posterior_distribution(
 
     # Process each chunk in parallel
     random_states = seed_sequence.generate_state(len(mass_measure_chunks))
-    results = multiprocess_run(
+    results = parallel.multiprocess_run(
         func=infer_ancestral_posterior_distribution,
         input_kwargs=[
             {

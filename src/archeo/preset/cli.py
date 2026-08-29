@@ -10,8 +10,8 @@ from archeo.preset.simulation.second_generation import (
     simulate_second_generation_aligned_spin_binaries,
     simulate_second_generation_precession_spin_binaries,
 )
+from archeo.utils import parallel
 from archeo.utils.fs import load_dataframe
-from archeo.utils.parallel import get_n_workers
 from archeo.visualization import visualize_prior_distribution
 
 
@@ -50,7 +50,7 @@ def simulate_second_generation_black_hole_population(size: int, n_workers: int, 
     >> python -m archeo simulate-second-generation-black-hole-population --aligned-spin
     """
 
-    n_workers = get_n_workers(n_workers)
+    n_workers = parallel.get_n_workers(n_workers)
     spin_desc = "aligned" if aligned_spin else "precession"
     click.echo(
         f"Generating {size} second generation black hole binaries with "
@@ -103,7 +103,7 @@ def simulate_agnostic_black_hole_population(size: int, n_workers: int, output_di
     >> python -m archeo simulate-agnostic-black-hole-population --aligned-spin
     """
 
-    n_workers = get_n_workers(n_workers)
+    n_workers = parallel.get_n_workers(n_workers)
     spin_desc = "aligned" if aligned_spin else "precession"
     click.echo(
         f"Generating {size} agnostic black hole binaries with "

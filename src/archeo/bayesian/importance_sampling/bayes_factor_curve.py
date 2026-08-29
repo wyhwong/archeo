@@ -6,8 +6,8 @@ from pydantic import BaseModel, ConfigDict, model_validator
 
 from archeo.bayesian.importance_sampling.resampler.interface import ImportanceSamplingData as ISData
 from archeo.data_structures.bayesian.bayes_factor import BayesFactor, BayesFactorCurveData, BayesFactorCurveMetadata
+from archeo.utils import parallel
 from archeo.utils.decorator import pre_release
-from archeo.utils.parallel import multiprocess_run
 
 
 class CandidatePrior(BaseModel):
@@ -185,7 +185,7 @@ class BayesFactorCurve(BaseModel, frozen=True):
             }
 
         random_states = seed_sequence.generate_state(len(v_escs))
-        bayes_factor_data = multiprocess_run(
+        bayes_factor_data = parallel.multiprocess_run(
             func=self._sample_bayes_factor,
             input_kwargs=[
                 {

@@ -2,7 +2,7 @@ import pandas as pd
 
 from archeo.bayesian.importance_sampling import BayesFactorCurve, CandidatePrior
 from archeo.postprocessing.dataframe import convert_bayes_factor_curve_to_dataframe
-from archeo.utils.parallel import get_n_workers
+from archeo.utils import parallel
 
 
 def compute_bayes_factor_curve_over_escape_velocity(
@@ -28,7 +28,7 @@ def compute_bayes_factor_curve_over_escape_velocity(
         median values, and curve metadata for each escape velocity.
     """
 
-    n_workers = get_n_workers(n_workers)
+    n_workers = parallel.get_n_workers(n_workers)
 
     candidate_prior = CandidatePrior(df_bh1=df_bh1_binaries, df_bh2=df_bh2_binaries)
     bayes_factor_curve = BayesFactorCurve()

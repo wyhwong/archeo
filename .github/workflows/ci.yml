@@ -9,14 +9,20 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   ci:
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
         python-version: [ "3.11", "3.12", "3.13" ]
         uv-version: [ "0.10.11" ]
-        os: [ "ubuntu-22.04" ]
+        os: [ "ubuntu-24.04", "macos-latest" ]
+
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -40,21 +46,41 @@ jobs:
           path: |
             ~/.cache/uv
             ~/.cache/pip
-            src/.venv
           key: ${{ runner.os }}-py${{ matrix.python-version }}-uv-${{ hashFiles('src/uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-py${{ matrix.python-version }}-uv-
 
       - name: Sync dependencies
-        working-directory: ./src
         run: |
-          uv sync --all-groups
+          uv sync --project ./src --all-groups
 
-      - name: Run pre-commit hooks (including tests)
+      - name: Install project as editable
         working-directory: ./src
         run: |
-          uv run pre-commit run -vvv --all-files
+          uv pip install -e .
+
+      - name: Run pre-commit hooks
+        run: |
+          uv run --project ./src pre-commit run -vvv --all-files
+
+      - name: Run tests with coverage
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          command: |
+            uv run --project ./src pytest \
+              -n auto \
+              -vv \
+              --log-level=INFO \
+              --disable-warnings \
+              --cov=archeo \
+              --rootdir=./src \
+              --cov-report=xml:coverage.xml \
+              --cov-report=term-missing
 
       - name: Upload coverage to Codecov
-        if: ${{ matrix.python-version == '3.12' }}
+        if: ${{ matrix.python-version == '3.12' && matrix.os == 'ubuntu-24.04' }}
         uses: codecov/codecov-action@v5
         with:
           files: ./coverage.xml

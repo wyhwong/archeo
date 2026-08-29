@@ -8,9 +8,9 @@ from archeo.bayesian.importance_sampling.resampler.assume_independence import IS
 from archeo.bayesian.importance_sampling.resampler.generic import ISDataGeneric
 from archeo.data_structures.bayesian.bayes_factor import BayesFactor
 from archeo.data_structures.type_alias import Interface
+from archeo.utils import parallel
 from archeo.utils.decorator import pre_release
 from archeo.utils.logger import get_logger
-from archeo.utils.parallel import multithread_run
 
 
 LOGGER = get_logger(__name__)
@@ -79,7 +79,7 @@ class ImportanceSamplingData(ISDataGeneric, ISDataAssumeIndependence, Interface)
         if self.assume_parameter_independence:
             if is_parallel:
                 return BayesFactor(
-                    samples=multithread_run(
+                    samples=parallel.multithread_run(
                         func=self.get_bayes_factor_1d,
                         input_kwargs=[{"bootstrapping": True} for _ in range(n)],
                         n_threads=n_threads,
@@ -89,7 +89,7 @@ class ImportanceSamplingData(ISDataGeneric, ISDataAssumeIndependence, Interface)
 
         if is_parallel:
             return BayesFactor(
-                samples=multithread_run(
+                samples=parallel.multithread_run(
                     func=self.get_bayes_factor_dd,
                     input_kwargs=[{"bootstrapping": True} for _ in range(n)],
                     n_threads=n_threads,

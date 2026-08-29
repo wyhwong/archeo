@@ -21,6 +21,7 @@ def get_gw190521_pe_samples() -> pd.DataFrame:
     return pd.read_json(filepath)
 
 
+@pytest.mark.slow
 def test_gw190521_ancestral_inference(gw190521_pe_samples: pd.DataFrame):
 
     df_binaries, _ = simulate_agnostic_aligned_spin_binaries(size=SAMPLE_SIZE, n_workers=1)

@@ -7,7 +7,7 @@ from archeo.data_structures.physics.black_hole import BlackHoleGenerator
 from archeo.data_structures.physics.simulation import PipelineOutput
 from archeo.postprocessing.dataframe import convert_simulated_binaries_to_dataframe
 from archeo.simulation.simulate_merger import simulate_black_hole_mergers
-from archeo.utils.parallel import get_n_workers
+from archeo.utils import parallel
 
 
 def simulate_agnostic_precession_spin_binaries(
@@ -26,7 +26,7 @@ def simulate_agnostic_precession_spin_binaries(
             - BinaryGenerator: Generator used for simulation.
     """
 
-    n_workers = get_n_workers(n_workers)
+    n_workers = parallel.get_n_workers(n_workers)
 
     bh_generator = BlackHoleGenerator(mass_distribution=Uniform(low=5, high=200))
     binary_generator = BinaryGenerator(
@@ -61,7 +61,7 @@ def simulate_agnostic_aligned_spin_binaries(
             - BinaryGenerator: Generator used for simulation.
     """
 
-    n_workers = get_n_workers(n_workers)
+    n_workers = parallel.get_n_workers(n_workers)
 
     bh_generator = BlackHoleGenerator(mass_distribution=Uniform(low=5, high=200))
     binary_generator = BinaryGenerator(
