@@ -1,0 +1,173 @@
+classDiagram
+  class BayesFactorCurve {
+    assume_parameter_independence : bool
+    log_scale : bool
+    metadata : BayesFactorCurveMetadata
+    n_bootstrapping : int
+    n_pts : int
+    get_bayes_factor_over_escape_velocity(prior: pd.DataFrame, posterior: pd.DataFrame, candidate_prior: CandidatePrior, n_workers: int) BayesFactorCurveData
+  }
+  class Binary {
+    effective_spin : NonNegativeFloat
+    mass_ratio : PositiveFloat
+    precession_spin : NonNegativeFloat
+    primary_black_hole
+    secondary_black_hole
+  }
+  class BinaryGenerator {
+    enforce_source_binding : bool
+    is_aligned_spin : bool
+    mass_ratio_domain
+    primary_black_hole_source : Union
+    secondary_black_hole_source : Union
+    draw(size: int) Binaries
+  }
+  class BlackHole {
+    horizontal_spin : float
+    mass : Annotated
+    speed : Annotated
+    spin_magnitude : Annotated
+    spin_vector : tuple[float, float, float]
+    vertical_spin : float
+  }
+  class BlackHoleGenerator {
+    mass_distribution : Union
+    phi_distribution : Union
+    spin_magnitude_distribution : Union
+    theta_distribution : Union
+    draw(size: int) BlackHoles
+    validate_phi_distribution(v)
+    validate_spin_magnitude_distribution(v)
+    validate_theta_distribution(v)
+  }
+  class BlackHolePopulation {
+    black_holes : list
+    draw(size: int) BlackHoles
+    from_simulation_results(df: pd.DataFrame, phi_distribution: Distribution, theta_distribution: Distribution) 'BlackHolePopulation'
+  }
+  class CandidatePrior {
+    df_bh1 : DataFrame
+    df_bh2 : DataFrame
+    model_config : ConfigDict
+    get_conditional_prior(v_esc: float, n_min: int, random_state: int) pd.DataFrame
+    get_host_escape_velocities(n_pts: int, log_scale: bool) list[float]
+    validate_dataframes(values)
+  }
+  class DistributionBase {
+    max : float
+    min : float
+    draw(size: Optional[int])* Union[float, np.ndarray[float]]
+  }
+  class Domain {
+    high : float
+    low : float
+    contains(value: float) bool
+    to_tuple() tuple[float, float]
+  }
+  class DomainBase {
+    contains(value: float)* bool
+  }
+  class TypicalHostEscapeVelocity {
+    name
+    compute_p2g(df: pd.DataFrame) float
+    label() str
+    short() str
+    latex() str
+    latex_to_values() dict[str, float]
+    short_to_values() dict[str, float]
+  }
+  class Fits {
+    name
+    clean_up_surfinbh_data()
+    load()
+  }
+  class ISDataAssumeIndependence {
+    get_bayes_factor_1d(bootstrapping: bool) float
+    get_likelihood_samples_1d(random_state) np.ndarray
+    get_reweighted_samples_1d(random_state) pd.DataFrame
+  }
+  class ISDataGeneric {
+    get_bayes_factor_dd(bootstrapping: bool) float
+    get_likelihood_samples_dd(random_state) np.ndarray
+    get_reweighted_samples_dd(random_state) pd.DataFrame
+  }
+  class ImportanceSamplingData {
+    assume_parameter_independence : bool
+    get_bayes_factor(bootstrapping: bool) float
+    get_likelihood_samples(random_state) np.ndarray
+    get_reweighted_samples(random_state) pd.DataFrame
+    sample_bayes_factor(n: int, is_parallel: bool, n_threads: int | None) BayesFactor
+  }
+  class ImportanceSamplingDataBase {
+    binsize_mass : float
+    binsize_spin : float
+    bounds : dict[str, Domain]
+    common_columns : list[str]
+    model_config : ConfigDict
+    new_prior_samples : DataFrame
+    posterior_samples : DataFrame
+    prior_samples : DataFrame
+    ztol : float
+    get_binsize(col_name: str) float
+    get_binwidth(col_name: str) float
+    get_edges(col_name: str) np.ndarray
+    get_nbins(col_name: str) int
+  }
+  class Labels {
+    title : str
+    xlabel : str
+    ylabel : str
+  }
+  class MahapatraMassFunction {
+    alpha : Annotated
+    dm : Annotated
+    mass
+    masses : np.ndarray
+    max : float
+    min : float
+    probis : np.ndarray
+    resolution : Annotated
+    draw(size: Optional[int]) Union[float, np.ndarray[float]]
+  }
+  class Normal {
+    max : float
+    mean : float
+    min : float
+    std : float
+    draw(size: Optional[int]) Union[float, np.ndarray]
+  }
+  class Padding {
+    bpad : float
+    lpad : float
+    tpad : float
+  }
+  class PiecewiseDomain {
+    domains : list[Domain]
+    contains(value: float) bool
+  }
+  class PiecewiseUniform {
+    max : float
+    min : float
+    uniforms : dict[Uniform, Weights]
+    draw(size: Optional[int]) Union[float, np.ndarray]
+    validate_total_weights(v)
+  }
+  class Uniform {
+    high : float
+    low : float
+    max : float
+    min : float
+    draw(size: Optional[int]) Union[float, np.ndarray[float]]
+  }
+  ISDataAssumeIndependence --|> ImportanceSamplingDataBase
+  ISDataGeneric --|> ImportanceSamplingDataBase
+  ImportanceSamplingData --|> ISDataAssumeIndependence
+  ImportanceSamplingData --|> ISDataGeneric
+  Normal --|> DistributionBase
+  PiecewiseUniform --|> DistributionBase
+  Uniform --|> DistributionBase
+  MahapatraMassFunction --|> DistributionBase
+  BinaryGenerator --> Domain : mass_ratio_domain
+  MahapatraMassFunction --> Domain : mass
+  Binary --> BlackHole : primary_black_hole
+  Binary --> BlackHole : secondary_black_hole
