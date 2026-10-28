@@ -1,0 +1,203 @@
+classDiagram
+  class archeo {
+  }
+  class __main__ {
+  }
+  class bayesian {
+  }
+  class ancestral_posterior {
+  }
+  class importance_sampling {
+  }
+  class bayes_factor_curve {
+  }
+  class resampler {
+  }
+  class assume_independence {
+  }
+  class base {
+  }
+  class generic {
+  }
+  class interface {
+  }
+  class constants {
+  }
+  class enum {
+  }
+  class physics {
+  }
+  class data_structures {
+  }
+  class annotation {
+  }
+  class distribution {
+  }
+  class math {
+  }
+  class physics {
+  }
+  class binary {
+  }
+  class black_hole {
+  }
+  class mahapatra {
+  }
+  class simulation {
+  }
+  class visualization {
+  }
+  class postprocessing {
+  }
+  class dataframe {
+  }
+  class preset {
+  }
+  class cli {
+  }
+  class forward {
+  }
+  class compute_bayes_factor_curve {
+  }
+  class simulation {
+  }
+  class agnostic {
+  }
+  class n_generation {
+  }
+  class second_generation {
+  }
+  class simulation {
+  }
+  class simulate_merger {
+  }
+  class utils {
+  }
+  class decorator {
+  }
+  class env {
+  }
+  class fs {
+  }
+  class logger {
+  }
+  class parallel {
+  }
+  class version {
+  }
+  class visualization {
+  }
+  class animation {
+  }
+  class base {
+  }
+  class distribution {
+  }
+  class estimation {
+  }
+  archeo --> ancestral_posterior
+  archeo --> simulation
+  archeo --> version
+  archeo --> visualization
+  __main__ --> cli
+  bayesian --> ancestral_posterior
+  ancestral_posterior --> parallel
+  importance_sampling --> bayes_factor_curve
+  importance_sampling --> interface
+  bayes_factor_curve --> interface
+  bayes_factor_curve --> decorator
+  bayes_factor_curve --> parallel
+  assume_independence --> base
+  assume_independence --> math
+  assume_independence --> logger
+  base --> math
+  base --> logger
+  generic --> base
+  generic --> math
+  generic --> logger
+  interface --> assume_independence
+  interface --> generic
+  interface --> annotation
+  interface --> decorator
+  interface --> logger
+  interface --> parallel
+  enum --> logger
+  physics --> enum
+  annotation --> distribution
+  annotation --> mahapatra
+  binary --> math
+  binary --> black_hole
+  binary --> logger
+  black_hole --> annotation
+  black_hole --> distribution
+  mahapatra --> distribution
+  mahapatra --> math
+  simulation --> binary
+  simulation --> black_hole
+  dataframe --> simulation
+  preset --> compute_bayes_factor_curve
+  preset --> simulation
+  cli --> agnostic
+  cli --> second_generation
+  cli --> fs
+  cli --> parallel
+  cli --> visualization
+  compute_bayes_factor_curve --> importance_sampling
+  compute_bayes_factor_curve --> dataframe
+  compute_bayes_factor_curve --> parallel
+  simulation --> simulation
+  simulation --> agnostic
+  simulation --> n_generation
+  simulation --> second_generation
+  simulation --> logger
+  agnostic --> enum
+  agnostic --> distribution
+  agnostic --> binary
+  agnostic --> black_hole
+  agnostic --> simulation
+  agnostic --> dataframe
+  agnostic --> simulate_merger
+  agnostic --> parallel
+  n_generation --> enum
+  n_generation --> binary
+  n_generation --> black_hole
+  n_generation --> simulation
+  n_generation --> dataframe
+  n_generation --> simulate_merger
+  n_generation --> parallel
+  second_generation --> enum
+  second_generation --> binary
+  second_generation --> black_hole
+  second_generation --> simulation
+  second_generation --> dataframe
+  second_generation --> simulate_merger
+  second_generation --> parallel
+  simulate_merger --> enum
+  simulate_merger --> physics
+  simulate_merger --> binary
+  simulate_merger --> black_hole
+  simulate_merger --> simulation
+  simulate_merger --> parallel
+  decorator --> env
+  decorator --> logger
+  fs --> logger
+  logger --> utils
+  logger --> env
+  parallel --> logger
+  visualization --> fs
+  visualization --> animation
+  visualization --> distribution
+  visualization --> estimation
+  animation --> logger
+  base --> physics
+  base --> visualization
+  base --> fs
+  base --> logger
+  distribution --> visualization
+  distribution --> visualization
+  distribution --> base
+  estimation --> physics
+  estimation --> visualization
+  estimation --> logger
+  estimation --> visualization
+  estimation --> base
