@@ -8,7 +8,7 @@ astroid==4.3.4
     # via pylint
 astropy==8.0.2
     # via lalsuite
-astropy-iers-data==0.2026.10.19.0.52.1
+astropy-iers-data==0.2026.11.9.0.35.9
     # via astropy
 asttokens==3.0.2
     # via stack-data
@@ -16,7 +16,7 @@ cffi==2.1.1 ; implementation_name == 'pypy'
     # via pyzmq
 cfgv==3.5.0
     # via pre-commit
-click==8.5.0
+click==8.5.1
     # via archeo
 cloudpickle==3.1.2
     # via joblib
@@ -34,7 +34,7 @@ contourpy==1.4.0 ; python_full_version >= '3.12'
     # via matplotlib
 corner==2.3.0
     # via archeo
-coverage==7.17.0
+coverage==7.17.3
     # via pytest-cov
 cycler==0.12.1
     # via matplotlib
@@ -50,11 +50,11 @@ executing==2.3.0
     # via stack-data
 fast-histogram==0.14
     # via mpl-scatter-density
-filelock==4.2.4
+filelock==4.2.10
     # via
     #   python-discovery
     #   virtualenv
-fonttools==4.67.0
+fonttools==4.68.0
     # via matplotlib
 gwsurrogate==0.8.7
     # via
@@ -66,9 +66,9 @@ h5py==3.16.0
     # via surfinbh
 identify==2.6.20
     # via pre-commit
-igwn-ligolw==2.1.1
+igwn-ligolw==2.2.0
     # via lalsuite
-igwn-segments==2.1.1
+igwn-segments==2.1.2
     # via
     #   igwn-ligolw
     #   lalsuite
@@ -76,7 +76,7 @@ igwn-segments==2.1.1
 iniconfig==2.3.1
     # via pytest
 ipykernel==7.4.0
-ipython==9.17.1
+ipython==9.18.1
     # via ipykernel
 ipython-pygments-lexers==1.1.1
     # via ipython
@@ -94,7 +94,7 @@ jupyter-core==5.9.1
     #   jupyter-client
 kiwisolver==1.5.1
     # via matplotlib
-lalsuite==7.26.16
+lalsuite==8.0.2
     # via surfinbh
 lscsoft-glue==4.1.1
     # via lalsuite
@@ -113,13 +113,13 @@ mccabe==0.7.0
     # via pylint
 mpl-scatter-density==0.8
     # via archeo
-mypy-extensions==1.1.0
+mypy-extensions==1.2.0
     # via isort
 narwhals==2.28.0
     # via scikit-learn
 nest-asyncio2==1.7.4
     # via ipykernel
-nodeenv==1.11.0
+nodeenv==1.12.0
     # via pre-commit
 numpy==2.4.6 ; python_full_version < '3.12'
     # via
@@ -172,7 +172,7 @@ pexpect==4.9.0 ; sys_platform != 'emscripten' and sys_platform != 'win32'
     # via ipython
 pillow==13.0.0
     # via matplotlib
-platformdirs==4.13.6
+platformdirs==4.14.5
     # via
     #   jupyter-core
     #   pylint
@@ -184,18 +184,18 @@ pluggy==1.7.0
 pre-commit==4.7.0
 prompt-toolkit==3.0.53
     # via ipython
-psutil==7.2.2 ; sys_platform != 'cygwin' and sys_platform != 'emscripten'
+psutil==7.2.2 ; sys_platform != 'android' and sys_platform != 'cygwin' and sys_platform != 'emscripten'
     # via ipython
 ptyprocess==0.7.0 ; sys_platform != 'emscripten' and sys_platform != 'win32'
     # via pexpect
 pure-eval==0.2.4
     # via stack-data
-pyarrow==26.0.0
+pyarrow==26.0.1
 pycparser==3.12 ; implementation_name == 'pypy'
     # via cffi
-pydantic==2.14.1
+pydantic==2.14.3
     # via archeo
-pydantic-core==2.50.1
+pydantic-core==2.50.4
     # via pydantic
 pyerfa==2.0.1.5
     # via astropy
@@ -208,7 +208,7 @@ pyinstrument==5.1.3
 pylint==4.1.3
 pyparsing==3.3.3
     # via matplotlib
-pytest==9.1.1
+pytest==9.2.0
     # via
     #   pytest-cov
     #   pytest-timeout
@@ -216,23 +216,23 @@ pytest==9.1.1
 pytest-cov==7.1.0
 pytest-timeout==2.4.0
 pytest-xdist==3.8.0
-python-dateutil==3.0.0
+python-dateutil==4.0.0
     # via
     #   igwn-ligolw
     #   jupyter-client
     #   lalsuite
     #   matplotlib
     #   pandas
-python-discovery==1.6.5
+python-discovery==1.9.5
     # via virtualenv
-pytz==2026.5
+pytz==2026.6
     # via pandas
 pyyaml==6.0.3
     # via
     #   astropy
     #   igwn-ligolw
     #   pre-commit
-pyzmq==27.2.0
+pyzmq==27.3.0
     # via
     #   ipykernel
     #   jupyter-client
@@ -252,8 +252,6 @@ scipy==1.18.1 ; python_full_version >= '3.12'
     #   surfinbh
 seaborn==0.13.2
     # via archeo
-six==1.17.0
-    # via python-dateutil
 stack-data==0.6.3
     # via ipython
 surfinbh==1.2.7
@@ -262,11 +260,11 @@ tabulate==0.10.0
     # via archeo
 tenacity==9.2.1
     # via archeo
-threadpoolctl==3.7.0
+threadpoolctl==3.8.0
     # via scikit-learn
 tomlkit==0.15.2
     # via pylint
-tornado==6.6
+tornado==6.6.1
     # via
     #   ipykernel
     #   jupyter-client
@@ -288,13 +286,13 @@ typing-extensions==4.16.0
     #   pydantic
     #   pydantic-core
     #   typing-inspection
-typing-inspection==0.4.4
+typing-inspection==0.4.5
     # via pydantic
-tzdata==2026.5
+tzdata==2026.6
     # via
     #   pandas
     #   python-dateutil
-virtualenv==21.15.0
+virtualenv==21.15.6
     # via pre-commit
 wcwidth==0.9.4
     # via prompt-toolkit
