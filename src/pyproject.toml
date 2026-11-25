@@ -5,7 +5,6 @@ license = "MIT"
 license-files = ["LICENSE"]
 description = "Bayesian framework for inferring natal kick, ancestral masses and spins of black holes."
 classifiers = [
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Intended Audience :: Science/Research",
@@ -18,7 +17,7 @@ classifiers = [
 keywords = ["black-holes", "gravitational-waves", "black-hole-archeology"]
 version = "2.1.4"
 readme = "README.md"
-requires-python = ">=3.11,<3.14"
+requires-python = ">=3.12,<3.14"
 dependencies = [
     "click>=8.3.1",
     "corner>=2.2.3",

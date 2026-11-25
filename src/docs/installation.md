@@ -18,7 +18,7 @@ archeo's functionalities are built heavily on the following dependencies:
 * [`pydantic`](https://pypi.org/project/pydantic/): Data validation and settings management using Python type annotations.
 * [`surfinbh`](https://pypi.org/project/surfinbh/): Surrogate final Black Hole properties for mergers of binary black holes.
 
-If you've got Python 3.11+ and `pip` installed, you should be good to go.
+If you've got Python 3.12+ and `pip` installed, you should be good to go.
 We strongly recommend uv for its runtime performance.
 
 ## Install from repository
