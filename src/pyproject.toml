@@ -7,6 +7,7 @@ description = "Bayesian framework for inferring natal kick, ancestral masses and
 classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Astronomy",
     "Topic :: Scientific/Engineering :: Physics",
@@ -15,7 +16,7 @@ classifiers = [
     "Operating System :: OS Independent"
 ]
 keywords = ["black-holes", "gravitational-waves", "black-hole-archeology"]
-version = "2.1.5"
+version = "2.1.6"
 readme = "README.md"
 requires-python = ">=3.12,<3.15"
 dependencies = [
