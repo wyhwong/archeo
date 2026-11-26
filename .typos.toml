@@ -5,6 +5,8 @@ surfinBH7dq2 = "surfinBH7dq2"
 5daa13f0 = "5daa13f0" # cell id in src/docs/notebooks/customize_simulation.ipynb
 Instituto = "Instituto" # zenodo.json
 Altas = "Altas" # zenodo.json
+Precessing = "Precessing" # gallery/app.py
+precessing = "precessing" # gallery/app.py
 
 # Optional: if you have many similar names
 [default]

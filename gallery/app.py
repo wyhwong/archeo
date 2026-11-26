@@ -4,9 +4,18 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from archeo.constants import Columns as C
-from archeo.constants import Suffixes as S
-from archeo.frontend import viz
+
+def add_pdf(fig: go.Figure, series: pd.Series, name: str) -> None:
+    """Plot the distribution of a column in a dataframe."""
+
+    fig.add_trace(
+        go.Histogram(
+            x=series,
+            histnorm="probability density",
+            opacity=0.75,
+            name=name,
+        )
+    )
 
 
 st.set_page_config(page_title="Exploring Distribution of Remnant Properties", layout="wide")
@@ -60,9 +69,9 @@ st.markdown(
 if "figs" not in st.session_state:
     st.session_state["figs"] = {}
     for col, label in {
-        S.FINAL(C.KICK): "Birth Recoil k<sub>f</sub> [km s<sup>-1</sup>]",
-        S.FINAL(C.SPIN_MAG): "Spin χ<sub>f</sub> [-]",
-        S.FINAL(C.MASS): "Mass m<sub>f</sub> [M<sub>Sun</sub>]",
+        "k_f": "Birth Recoil k<sub>f</sub> [km s<sup>-1</sup>]",
+        "a_f": "Spin χ<sub>f</sub> [-]",
+        "m_f": "Mass m<sub>f</sub> [M<sub>Sun</sub>]",
     }.items():
         st.session_state.figs[col] = go.Figure()
         st.session_state.figs[col].update_layout(
@@ -75,9 +84,7 @@ if "figs" not in st.session_state:
 
 
 info: dict[str, str] = {
-    S.FINAL(
-        C.KICK
-    ): """
+    "k_f": """
     The Birth Recoil $k_f$ is the velocity of the remnant BH after the merger.
     This property is crucial as it determines whether the remnant remains gravitationally
     bound to its environment or is ejected, affecting its potential for future mergers
@@ -86,9 +93,7 @@ info: dict[str, str] = {
     with significantly higher recoil velocities are likely to be ejected from such environments
     instead of forming hierarchical mergers.
     """,
-    S.FINAL(
-        C.SPIN_MAG
-    ): r"""
+    "a_f": r"""
     The dimensionless spin of the remnant BH after the merger, denoted as $\chi_f$,
     reflects its rotational properties. Supposed in the visualization, we should see remnant
     BHs exhibit a preference for high spins (a peak around $0.7$ for precessing case).
@@ -96,9 +101,7 @@ info: dict[str, str] = {
     to have masses $\lesssim 50$ $M_{\odot}$ and exhibit relatively low spins aligned to the orbital
     (Pierra, Mastrogiovanni & Perrières, 2024).
     """,
-    S.FINAL(
-        C.MASS
-    ): r"""
+    "m_f": r"""
     The remnant mass $m_f$ of the final BH is determined by the masses of the merging black
     holes and the energy radiated away. While we mentioned most BHs formed from stellar
     collapse are expected to have masses below $50$ $M_{\odot}$, BBH mergers can produce significantly
@@ -117,16 +120,16 @@ if st.sidebar.button("Run"):
 
     with st.spinner("Loading... Please wait..."):
         _df = df.loc[
-            (df[S.PRIMARY(C.MASS)] <= m1_range[1])
-            & (df[S.PRIMARY(C.MASS)] >= m1_range[0])
-            & (df[S.SECONDARY(C.MASS)] <= m2_range[1])
-            & (df[S.SECONDARY(C.MASS)] >= m2_range[0])
-            & (df[S.PRIMARY(C.SPIN_MAG)] <= a1_range[1])
-            & (df[S.PRIMARY(C.SPIN_MAG)] >= a1_range[0])
-            & (df[S.SECONDARY(C.SPIN_MAG)] <= a2_range[1])
-            & (df[S.SECONDARY(C.SPIN_MAG)] >= a2_range[0])
-            & (df[C.MASS_RATIO] <= q_range[1])
-            & (df[C.MASS_RATIO] >= q_range[0])
+            (df["m_1"] <= m1_range[1])
+            & (df["m_1"] >= m1_range[0])
+            & (df["m_2"] <= m2_range[1])
+            & (df["m_2"] >= m2_range[0])
+            & (df["a_1"] <= a1_range[1])
+            & (df["a_1"] >= a1_range[0])
+            & (df["a_2"] <= a2_range[1])
+            & (df["a_2"] >= a2_range[0])
+            & (df["q"] <= q_range[1])
+            & (df["q"] >= q_range[0])
         ]
 
         if _df.shape[0] > 10000:
@@ -135,8 +138,8 @@ if st.sidebar.button("Run"):
             st.error("No samples available. Please set a new config.")
 
         st.write("## Visualization of Remnant Properties")
-        for col in [S.FINAL(C.KICK), S.FINAL(C.SPIN_MAG), S.FINAL(C.MASS)]:
-            viz.add_pdf(st.session_state.figs[col], _df[col], prior_name)
+        for col in ["k_f", "a_f", "m_f"]:
+            add_pdf(st.session_state.figs[col], _df[col], prior_name)
             st.plotly_chart(st.session_state.figs[col])
             if col in info:
                 st.markdown(info[col])
