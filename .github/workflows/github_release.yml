@@ -35,12 +35,12 @@ jobs:
 
       - name: Create Release on GitHub
         id: create_release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.extract_version.outputs.version }}
-          release_name: ${{ steps.extract_version.outputs.version }}
+          name: ${{ steps.extract_version.outputs.version }}
           draft: false
           prerelease: false
           body: |
