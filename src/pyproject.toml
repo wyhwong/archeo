@@ -17,7 +17,7 @@ classifiers = [
 keywords = ["black-holes", "gravitational-waves", "black-hole-archeology"]
 version = "2.1.5"
 readme = "README.md"
-requires-python = ">=3.12,<3.14"
+requires-python = ">=3.12,<3.15"
 dependencies = [
     "click>=8.3.1",
     "corner>=2.2.3",
